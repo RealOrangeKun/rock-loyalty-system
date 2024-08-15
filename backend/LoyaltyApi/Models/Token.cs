@@ -12,5 +12,7 @@ namespace LoyaltyApi.Models
         public required int CustomerId { get; set; }
 
         public required int RestaurantId { get; set; }
+
+        public Token() { }
     }
 }
