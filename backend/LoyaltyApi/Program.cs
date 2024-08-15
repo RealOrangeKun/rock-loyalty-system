@@ -1,6 +1,34 @@
 using System.Reflection;
+using System.Text;
+using DotNetEnv;
+using LoyaltyApi.Config;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+
+Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
+
+
+builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("JwtOptions"));
+
+
+builder.Services.AddControllers();
+
+builder.Services.AddAuthentication()
+.AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
+{
+    var jwtOptions = builder.Configuration.GetSection("JwtOptions").Get<JwtOptions>();
+    options.SaveToken = true;
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = false,
+        ValidateAudience = false,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions?.SigningKey ?? throw new InvalidOperationException("JWT signing key not found"))),
+    };
+});
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
