@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.002.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LoyaltyApi", "LoyaltyApi\LoyaltyApi.csproj", "{F0FC1451-6967-458F-802C-87DA78D661DF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LoyaltyApi.Test", "LoyaltyApi.Test\LoyaltyApi.Test.csproj", "{4E47A62B-DA33-4481-AB79-B69A606F7F70}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F0FC1451-6967-458F-802C-87DA78D661DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F0FC1451-6967-458F-802C-87DA78D661DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F0FC1451-6967-458F-802C-87DA78D661DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F0FC1451-6967-458F-802C-87DA78D661DF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4E47A62B-DA33-4481-AB79-B69A606F7F70}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4E47A62B-DA33-4481-AB79-B69A606F7F70}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4E47A62B-DA33-4481-AB79-B69A606F7F70}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4E47A62B-DA33-4481-AB79-B69A606F7F70}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B4A66EE1-B8A9-4335-9A8C-ED7C1C30A531}
+	EndGlobalSection
+EndGlobal
