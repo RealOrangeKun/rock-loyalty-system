@@ -1,10 +1,12 @@
-﻿namespace LoyaltyApi.Models;
+﻿using System.ComponentModel.DataAnnotations;
 
-public class Restaurant
+namespace LoyaltyApi.Models;
+
+public class RestaurantSettings
 {
     [Key]
     public required int RestaurantId { get; set; }
-    
+
     // Rates for Credit Points and Loyalty Points
     public double CreditPointsBuyingRate { get; set; }
     public double CreditPointsSellingRate { get; set; }
@@ -14,7 +16,7 @@ public class Restaurant
     // Lifetime values in Days for Credit Points and Loyalty Points
     public int CreditPointsLifeTime { get; set; }
     public int LoyaltyPointsLifeTime { get; set; }
-        
+
     // Lifetime value in Milliseconds for Vouchers
     public int VoucherLifeTime { get; set; }
 }
