@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 
 namespace LoyaltyApi.Models
@@ -7,9 +8,8 @@ namespace LoyaltyApi.Models
     {
         [Key]
         public required int Id { get; set; }
-
+        [ForeignKey("Restaurant")]
         public required int RestaurantId { get; set; }
-
         public required int CustomerId { get; set; }
 
         public required string Code { get; set; }
