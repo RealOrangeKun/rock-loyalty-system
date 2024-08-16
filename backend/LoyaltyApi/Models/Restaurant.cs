@@ -2,7 +2,7 @@
 
 namespace LoyaltyApi.Models;
 
-public class RestaurantSettings
+public class Restaurant
 {
     [Key]
     public required int RestaurantId { get; set; }
