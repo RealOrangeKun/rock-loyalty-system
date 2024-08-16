@@ -4,5 +4,7 @@ namespace LoyaltyApi.Config
     {
         public required string SigningKey { get; set; }
         public required int ExpirationInMinutes { get; set; }
+
+        public required JwtCookieOptions JwtCookieOptions { get; set; }
     }
 }
