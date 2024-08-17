@@ -28,7 +28,7 @@ builder.Services.AddTransient<ITokenService, TokenService>();
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = FacebookDefaults.AuthenticationScheme;
     options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
 })
 .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
@@ -44,17 +44,13 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions?.SigningKey ?? throw new InvalidOperationException("JWT signing key not found"))),
     };
 })
-.AddCookie()
+.AddCookie(CookieAuthenticationDefaults.AuthenticationScheme)
 .AddFacebook(FacebookDefaults.AuthenticationScheme, options =>
 {
     var facebookOptions = builder.Configuration.GetSection("FacebookOptions").Get<LoyaltyApi.Config.FacebookOptions>();
     options.AppId = facebookOptions?.AppId ?? throw new InvalidOperationException("Facebook app id not found");
     options.AppSecret = facebookOptions?.AppSecret ?? throw new InvalidOperationException("Facebook app secret not found");
-    options.Scope.Add("email");
-    options.Scope.Add("public_profile");
-    options.Fields.Add("name");
-    options.Fields.Add("email");
-    options.CallbackPath = new PathString("/signin-facebook");
+    options.CallbackPath = new PathString("/api/auth/signin-facebook");
 }).AddGoogle(GoogleDefaults.AuthenticationScheme, options =>
 {
     var googleOptions = builder.Configuration.GetSection("GoogleOptions").Get<LoyaltyApi.Config.GoogleOptions>();
@@ -77,6 +73,16 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 var app = builder.Build();
+
+app.UseStatusCodePages(async context =>
+{
+    if (context.HttpContext.Response.StatusCode == StatusCodes.Status404NotFound)
+    {
+        // You can render a custom view for 404 errors
+        context.HttpContext.Response.ContentType = "text/html";
+        await context.HttpContext.Response.WriteAsync("<h1>404 - Page Not Found</h1>");
+    }
+});
 
 if (app.Environment.IsDevelopment())
 {
