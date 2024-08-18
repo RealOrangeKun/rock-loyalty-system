@@ -18,7 +18,7 @@ namespace LoyaltyApi.Controllers
         [Route("login")]
         public async Task<ActionResult> Login([FromBody] AuthBody loginBody)
         {
-            // TODO: use actual userService and delete dummy user dictionary
+            // TODO: use actual userService
             // var user = await userService.ValidateUserAsync(loginBody);
             string accessToken = tokenService.GenerateAccessToken(1, loginBody.RestaurantId);
             string refreshToken = await tokenService.GenerateRefreshTokenAsync(1, loginBody.RestaurantId);
