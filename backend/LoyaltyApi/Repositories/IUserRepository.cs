@@ -1,9 +1,11 @@
 
+using LoyaltyApi.Models;
+
 namespace LoyaltyApi.Repositories
 {
     public interface IUserRepository
     {
-        Task CreateUserAsync(int user);
+        Task<object> CreateUserAsync(User user);
 
         Task GetUserAsync(int userId, int restaurantId);
 
