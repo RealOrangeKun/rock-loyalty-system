@@ -12,7 +12,7 @@ namespace LoyaltyApi.Controllers
 {
     [ApiController]
     [Route("api/auth")]
-    public class AuthController(ITokenService tokenService, IOptions<JwtOptions> jwtOptions, ILogger<AuthController> logger) : ControllerBase
+    public class AuthController(ITokenService tokenService, IOptions<JwtOptions> jwtOptions, IOptions<API> api) : ControllerBase
     {
         [HttpPost]
         [Route("login")]
@@ -36,8 +36,6 @@ namespace LoyaltyApi.Controllers
         public ActionResult SignInWithFacebook([FromQuery] string restaurantID)
         {
             var redirectUri = Url.Action("FacebookCallback", new { restaurantID });
-
-            logger.LogInformation("Redirect URI: {uri}", redirectUri);
 
             var properties = new AuthenticationProperties
             {
