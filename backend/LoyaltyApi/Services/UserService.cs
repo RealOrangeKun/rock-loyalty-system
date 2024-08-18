@@ -2,17 +2,19 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using LoyaltyApi.Models;
+using LoyaltyApi.Repositories;
 
 namespace LoyaltyApi.Services
 {
-    public class UserService : IUserService
+    public class UserService(IUserRepository userRepository) : IUserService
     {
-        public Task CreateUserAsync(int user)
+        public async Task<object> CreateUserAsync(User user)
         {
-            throw new NotImplementedException();
+            return await userRepository.CreateUserAsync(user);
         }
 
-        public Task GetAndValidateUserAsync(string username, string password)
+        public Task GetAndValidateUserAsync(string phoneNumber, string password)
         {
             throw new NotImplementedException();
         }
