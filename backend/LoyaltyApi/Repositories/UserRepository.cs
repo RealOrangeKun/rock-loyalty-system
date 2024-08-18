@@ -1,17 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 using LoyaltyApi.Config;
 using LoyaltyApi.Models;
+using LoyaltyApi.Utilities;
 using Microsoft.Extensions.Options;
-using Sprache;
 
 namespace LoyaltyApi.Repositories
 {
-    public class UserRepository(IOptions<API> apiOptions) : IUserRepository
+    public class UserRepository(IOptions<API> apiOptions, ApiUtility apiUtility, ILogger<UserRepository> logger) : IUserRepository
     {
         public async Task<object> CreateUserAsync(User user)
         {
@@ -22,6 +18,7 @@ namespace LoyaltyApi.Repositories
                 CNO = "0", // 0 if New Customer else Check The Cno if Exist Update Else Insert
                 CNAME = user.Name,
                 FORDES = user.Name, // foreign desc
+                // PASS = user.Password, // password
                 TEL1 = user.PhoneNumber,
                 TEL2 = "",
                 EMAIL = user.Email,
@@ -30,7 +27,9 @@ namespace LoyaltyApi.Repositories
             // Serialize the body object to JSON
             string jsonBody = JsonSerializer.Serialize(body);
 
-            var apiKey = await LoginToApi();
+            var envName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+            var isDevelopment = string.Equals(envName, "Development", StringComparison.OrdinalIgnoreCase);
+            var apiKey = await apiUtility.GetApiKey(isDevelopment ? "600" : user.RestaurantId.ToString() ?? throw new ArgumentException("RestaurantId cannot be null"));
 
             client.DefaultRequestHeaders.Add("XApiKey", apiKey);
 
@@ -50,25 +49,6 @@ namespace LoyaltyApi.Repositories
         public Task GetUserAsync(int userId, int restaurantId)
         {
             throw new NotImplementedException();
-        }
-
-        private async Task<string> LoginToApi()
-        {
-            using HttpClient client = new();
-            var body = new
-            {
-                Acc = "600", // change acc for different restaurants
-                UsrId = apiOptions.Value.UserId,
-                Pass = apiOptions.Value.Password,
-                Lng = "ENG",
-                SrcApp = "WEBAPP",
-                SrcVer = 1.00
-
-            };
-            string jsonBody = JsonSerializer.Serialize(body);
-            StringContent content = new(jsonBody, Encoding.UTF8, "application/json");
-            var result = await client.PostAsync("https://login.microsystems-eg.com/api/chkusr", content);
-            return await result.Content.ReadAsStringAsync();
         }
     }
 }
