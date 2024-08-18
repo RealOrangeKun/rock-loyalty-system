@@ -22,6 +22,10 @@ namespace LoyaltyApi.Controllers
                 await userService.CreateUserAsync(user);
                 return Ok("User created");
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
             catch (HttpRequestException ex)
             {
                 return BadRequest(ex.Message);
