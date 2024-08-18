@@ -4,6 +4,7 @@ using DotNetEnv;
 using LoyaltyApi.Config;
 using LoyaltyApi.Repositories;
 using LoyaltyApi.Services;
+using LoyaltyApi.Utilities;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Facebook;
 using Microsoft.AspNetCore.Authentication.Google;
@@ -25,8 +26,9 @@ builder.Services.AddControllers();
 
 builder.Services.AddTransient<ITokenRepository, TokenRepository>();
 builder.Services.AddTransient<ITokenService, TokenService>();
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddTransient<IUserRepository, UserRepository>();
+builder.Services.AddTransient<IUserService, UserService>();
+builder.Services.AddTransient<ApiUtility>();
 
 builder.Services.AddAuthentication(options =>
 {
