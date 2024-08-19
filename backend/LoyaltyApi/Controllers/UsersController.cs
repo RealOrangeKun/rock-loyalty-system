@@ -34,8 +34,6 @@ namespace LoyaltyApi.Controllers
             {
                 return StatusCode(500);
             }
-
-
         }
     }
 }
