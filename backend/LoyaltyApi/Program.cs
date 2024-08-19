@@ -55,7 +55,7 @@ builder.Services.AddAuthentication(options =>
     var facebookOptions = builder.Configuration.GetSection("FacebookOptions").Get<LoyaltyApi.Config.FacebookOptions>();
     options.AppId = facebookOptions?.AppId ?? throw new InvalidOperationException("Facebook app id not found");
     options.AppSecret = facebookOptions?.AppSecret ?? throw new InvalidOperationException("Facebook app secret not found");
-    options.CallbackPath = new PathString("/api/oauth2/signin-facebook");
+    options.CallbackPath = new PathString("/signin-facebook/callback");
 }).AddGoogle(GoogleDefaults.AuthenticationScheme, options =>
 {
     var googleOptions = builder.Configuration.GetSection("GoogleOptions").Get<LoyaltyApi.Config.GoogleOptions>();
