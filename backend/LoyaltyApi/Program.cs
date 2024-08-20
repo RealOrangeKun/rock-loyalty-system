@@ -30,6 +30,7 @@ builder.Services.AddTransient<ITokenService, TokenService>();
 builder.Services.AddTransient<IUserRepository, UserRepository>();
 builder.Services.AddTransient<IUserService, UserService>();
 builder.Services.AddTransient<ApiUtility>();
+builder.Services.AddSingleton<OAuth2Service>();
 
 builder.Services.AddAuthentication(options =>
 {
