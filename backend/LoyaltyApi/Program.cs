@@ -2,6 +2,7 @@ using System.Reflection;
 using System.Text;
 using DotNetEnv;
 using LoyaltyApi.Config;
+using LoyaltyApi.Data;
 using LoyaltyApi.Repositories;
 using LoyaltyApi.Services;
 using LoyaltyApi.Utilities;
@@ -10,11 +11,14 @@ using Microsoft.AspNetCore.Authentication.Facebook;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.Twitter;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddDbContext<RockDbContext>(options=>options.UseSqlite("Data Source=Dika.db"));
 
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("JwtOptions"));
 builder.Services.Configure<LoyaltyApi.Config.FacebookOptions>(builder.Configuration.GetSection("FacebookOptions"));
@@ -29,6 +33,8 @@ builder.Services.AddTransient<ITokenRepository, TokenRepository>();
 builder.Services.AddTransient<ITokenService, TokenService>();
 builder.Services.AddTransient<IUserRepository, UserRepository>();
 builder.Services.AddTransient<IUserService, UserService>();
+builder.Services.AddTransient<IVoucherRepository, VoucherRepository>();
+builder.Services.AddTransient<IVoucherService, VoucherService>();
 builder.Services.AddScoped<OAuth2Service>();
 builder.Services.AddTransient<ApiUtility>();
 

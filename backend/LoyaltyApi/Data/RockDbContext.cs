@@ -3,7 +3,7 @@ using LoyaltyApi.Models;
 
 namespace LoyaltyApi.Data
 {
-    public class RockDbContext : DbContext
+    public class RockDbContext(DbContextOptions<RockDbContext> dbContextOptions) : DbContext(dbContextOptions)
     {
         public DbSet<Token> Tokens { get; set; }
         public DbSet<Points> Points { get; set; }
@@ -16,7 +16,7 @@ namespace LoyaltyApi.Data
             modelBuilder.Entity<Voucher>().HasKey(x=> new {x.Id,x.RestaurantId,x.CustomerId,x.Code});
             modelBuilder.Entity<Restaurant>().HasKey(x => x.RestaurantId);
             
-
+            base.OnModelCreating(modelBuilder);
         }
     }
 }

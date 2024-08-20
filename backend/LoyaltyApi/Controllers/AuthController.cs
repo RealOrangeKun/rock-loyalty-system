@@ -1,10 +1,6 @@
-using System.Security.Claims;
 using LoyaltyApi.Config;
 using LoyaltyApi.Models;
 using LoyaltyApi.Services;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Facebook;
-using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
@@ -12,7 +8,7 @@ namespace LoyaltyApi.Controllers
 {
     [ApiController]
     [Route("api/auth")]
-    public class AuthController(ITokenService tokenService, IOptions<JwtOptions> jwtOptions, IOptions<API> api, IUserService userService) : ControllerBase
+    public class AuthController(ITokenService tokenService, IOptions<JwtOptions> jwtOptions, IUserService userService) : ControllerBase
     {
         [HttpPost]
         [Route("login")]

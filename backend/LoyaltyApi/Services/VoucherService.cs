@@ -1,22 +1,24 @@
 using LoyaltyApi.Models;
+using LoyaltyApi.Repositories;
 
 namespace LoyaltyApi.Services
 {
-    public class VoucherService : IVoucherService
+    public class VoucherService (IVoucherRepository voucherRepository): IVoucherService
     {
-        public Task<Voucher> CreateVoucherAsync(Voucher voucher)
+        public async Task<Voucher> CreateVoucherAsync(Voucher voucher)
         {
-            throw new NotImplementedException();
+            return await voucherRepository.CreateVoucherAsync(voucher);
+
         }
 
-        public Task<IEnumerable<Voucher>> GetUserVouchersAsync(int customerId, int restaurantId)
+        public async Task<IEnumerable<Voucher>> GetUserVouchersAsync(int customerId, int restaurantId)
         {
-            throw new NotImplementedException();
+           return await voucherRepository.GetUserVouchersAsync(customerId, restaurantId);
         }
 
-        public Task<Voucher> GetVoucherAsync(int voucherId, int restaurantId)
+        public async Task<Voucher> GetVoucherAsync(int voucherId, int restaurantId)
         {
-            throw new NotImplementedException();
+            return await voucherRepository.GetVoucherAsync(voucherId, restaurantId);
         }
     }
 }

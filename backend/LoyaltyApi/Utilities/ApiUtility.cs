@@ -1,6 +1,7 @@
 using System.Text;
 using System.Text.Json;
 using LoyaltyApi.Config;
+using LoyaltyApi.Models;
 using Microsoft.Extensions.Options;
 
 namespace LoyaltyApi.Utilities
@@ -22,7 +23,7 @@ namespace LoyaltyApi.Utilities
             };
             string jsonBody = JsonSerializer.Serialize(body);
             StringContent content = new(jsonBody, Encoding.UTF8, "application/json");
-            var result = await client.PostAsync("https://login.microsystems-eg.com/api/chkusr", content);
+            var result = await client.PostAsync("http://192.168.1.11:5000/api/chkusr", content);
             return await result.Content.ReadAsStringAsync();
         }
     }
