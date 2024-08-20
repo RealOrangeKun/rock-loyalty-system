@@ -9,16 +9,17 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Facebook;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.Twitter;
 using Microsoft.IdentityModel.Tokens;
 
 Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
-
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("JwtOptions"));
 builder.Services.Configure<LoyaltyApi.Config.FacebookOptions>(builder.Configuration.GetSection("FacebookOptions"));
 builder.Services.Configure<LoyaltyApi.Config.GoogleOptions>(builder.Configuration.GetSection("GoogleOptions"));
+builder.Services.Configure<LoyaltyApi.Config.TwitterOptions>(builder.Configuration.GetSection("TwitterOptions"));
 builder.Services.Configure<API>(builder.Configuration.GetSection("API"));
 
 
@@ -55,7 +56,7 @@ builder.Services.AddAuthentication(options =>
     var facebookOptions = builder.Configuration.GetSection("FacebookOptions").Get<LoyaltyApi.Config.FacebookOptions>();
     options.AppId = facebookOptions?.AppId ?? throw new InvalidOperationException("Facebook app id not found");
     options.AppSecret = facebookOptions?.AppSecret ?? throw new InvalidOperationException("Facebook app secret not found");
-    options.CallbackPath = new PathString("/signin-facebook/callback");
+    options.CallbackPath = new PathString("/signin-facebook");
 }).AddGoogle(GoogleDefaults.AuthenticationScheme, options =>
 {
     var googleOptions = builder.Configuration.GetSection("GoogleOptions").Get<LoyaltyApi.Config.GoogleOptions>();
@@ -64,6 +65,13 @@ builder.Services.AddAuthentication(options =>
     options.Scope.Add("email");
     options.Scope.Add("profile");
     options.CallbackPath = new PathString("/signin-google");
+}).AddTwitter(TwitterDefaults.AuthenticationScheme, options =>
+{
+    var twitterOptions = builder.Configuration.GetSection("TwitterOptions").Get<LoyaltyApi.Config.TwitterOptions>();
+    options.ConsumerKey = twitterOptions?.ConsumerKey ?? throw new InvalidOperationException("Twitter Consumer Key not found");
+    options.ConsumerSecret = twitterOptions?.ConsumerSecret ?? throw new InvalidOperationException("Twitter Consumer Secret not found");
+    options.RetrieveUserDetails = true;
+    options.CallbackPath = new PathString("/signin-twitter");
 });
 
 builder.Services.AddEndpointsApiExplorer();
