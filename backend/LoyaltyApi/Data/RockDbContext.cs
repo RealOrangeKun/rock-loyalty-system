@@ -12,6 +12,11 @@ namespace LoyaltyApi.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Points>().HasKey(x => new { x.CustomerId, x.RestaurantId, x.TransactionId });
+            modelBuilder.Entity<Token>().HasKey(x => new { x.CustomerId, x.RestaurantId, x.TokenValue });
+            modelBuilder.Entity<Voucher>().HasKey(x=> new {x.Id,x.RestaurantId,x.CustomerId,x.Code});
+            modelBuilder.Entity<Restaurant>().HasKey(x => x.RestaurantId);
+            
+
         }
     }
 }

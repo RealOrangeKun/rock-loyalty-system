@@ -6,6 +6,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using LoyaltyApi.Config;
+using LoyaltyApi.Data;
 using LoyaltyApi.Models;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -13,7 +14,7 @@ using Sprache;
 
 namespace LoyaltyApi.Repositories
 {
-    public class TokenRepository(IOptions<JwtOptions> jwtOptions) : ITokenRepository
+    public class TokenRepository(RockDbContext dbContext, IOptions<JwtOptions> jwtOptions) : ITokenRepository
     {
         public string GenerateAccessToken(int userId, int restaurantId)
         {
@@ -43,8 +44,7 @@ namespace LoyaltyApi.Repositories
         public bool ValidateRefreshToken(string token)
         {
             return ValidateToken(token)
-            // && context.Tokens.Any(t => t.TokenValue == token && t.TokenType == TokenType.RefreshToken)
-            ;
+            && dbContext.Tokens.Any(t => t.TokenValue == token && t.TokenType == TokenType.RefreshToken);
         }
 
         public bool ValidateToken(string token)
@@ -77,8 +77,8 @@ namespace LoyaltyApi.Repositories
                 RestaurantId = restaurantId,
                 TokenType = TokenType.RefreshToken
             };
-            // context.Tokens.Add(refreshToken);
-            // context.SaveChanges();
+            await dbContext.Tokens.AddAsync(refreshToken);
+            await dbContext.SaveChangesAsync();
             return refreshToken.TokenValue;
         }
     }

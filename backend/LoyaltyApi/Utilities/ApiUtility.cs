@@ -12,7 +12,7 @@ namespace LoyaltyApi.Utilities
             using HttpClient client = new();
             var body = new
             {
-                Acc = restaurantId ?? "600", // change acc for different restaurants
+                Acc = restaurantId ?? throw new ArgumentException("Resturant ID is missing"), // change acc for different restaurants
                 UsrId = apiOptions.Value.UserId,
                 Pass = apiOptions.Value.Password,
                 Lng = "ENG",
