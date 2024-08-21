@@ -1,24 +1,33 @@
 using LoyaltyApi.Models;
+using LoyaltyApi.RequestModels;
 using LoyaltyApi.Services;
+using LoyaltyApi.Utilities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LoyaltyApi.Controllers
 {
     [ApiController]
     [Route("api/voucher")]
-    public class VoucherController : ControllerBase
+    public class VoucherController(IVoucherService voucherService, VoucherUtility voucherUtility) : ControllerBase
     {
-        private readonly IVoucherService voucherService;
-        public VoucherController(IVoucherService voucherService)
-        {
-            this.voucherService = voucherService;
-        }
+        private readonly IVoucherService voucherService = voucherService;
+
         [HttpPost]
         [Route("")]
-        public async Task<ActionResult> CreateVoucher([FromBody] Voucher voucher)
+        public async Task<ActionResult> CreateVoucher([FromBody] CreateVoucherRequest voucherRequest)
         {
-            var createdVoucher = await voucherService.CreateVoucherAsync(voucher);
-            return Ok(createdVoucher.Code);
+            if (voucherRequest == null) return BadRequest("Voucher request is null");
+            // TODO: validate total points
+            // double ratio = restaurantService.GetRatio(voucherRequest.RestaurantId);
+            // int voucherValue = voucherUtility.CalculateVoucherValue(voucherRequest.Points, ratio);
+            Voucher voucher = new()
+            {
+                RestaurantId = voucherRequest.RestaurantId,
+                CustomerId = voucherRequest.CustomerId,
+                // Value = voucherValue
+            };
+            await voucherService.CreateVoucherAsync(voucher);
+            return Ok(voucher.Code);
 
         }
     }
