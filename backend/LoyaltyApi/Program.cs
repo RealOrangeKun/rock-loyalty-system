@@ -18,14 +18,14 @@ Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDbContext<RockDbContext>(options=>options.UseSqlite("Data Source=Dika.db"));
+builder.Services.AddDbContext<RockDbContext>(options => options.UseSqlite("Data Source=Dika.db"));
 
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("JwtOptions"));
 builder.Services.Configure<LoyaltyApi.Config.FacebookOptions>(builder.Configuration.GetSection("FacebookOptions"));
 builder.Services.Configure<LoyaltyApi.Config.GoogleOptions>(builder.Configuration.GetSection("GoogleOptions"));
 builder.Services.Configure<LoyaltyApi.Config.TwitterOptions>(builder.Configuration.GetSection("TwitterOptions"));
+builder.Services.Configure<LoyaltyApi.Config.AppleOptions>(builder.Configuration.GetSection("AppleOptions"));
 builder.Services.Configure<API>(builder.Configuration.GetSection("API"));
-
 
 builder.Services.AddControllers();
 
@@ -38,11 +38,12 @@ builder.Services.AddTransient<IVoucherService, VoucherService>();
 builder.Services.AddScoped<OAuth2Service>();
 builder.Services.AddTransient<ApiUtility>();
 
+// Configure authentication
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = FacebookDefaults.AuthenticationScheme;
-    options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme; 
 })
 .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
 {
@@ -57,14 +58,26 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions?.SigningKey ?? throw new InvalidOperationException("JWT signing key not found"))),
     };
 })
-.AddCookie(CookieAuthenticationDefaults.AuthenticationScheme)
+.AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
+{
+    options.Cookie.HttpOnly = true; 
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always; 
+    options.Cookie.SameSite = SameSiteMode.Lax; 
+    options.Cookie.Name = ".AspNetCore.Cookies";
+    options.Events.OnRedirectToLogin = context =>
+    {
+        context.Response.StatusCode = 401;
+        return Task.CompletedTask;
+    };
+})
 .AddFacebook(FacebookDefaults.AuthenticationScheme, options =>
 {
     var facebookOptions = builder.Configuration.GetSection("FacebookOptions").Get<LoyaltyApi.Config.FacebookOptions>();
     options.AppId = facebookOptions?.AppId ?? throw new InvalidOperationException("Facebook app id not found");
     options.AppSecret = facebookOptions?.AppSecret ?? throw new InvalidOperationException("Facebook app secret not found");
     options.CallbackPath = new PathString("/signin-facebook");
-}).AddGoogle(GoogleDefaults.AuthenticationScheme, options =>
+})
+.AddGoogle(GoogleDefaults.AuthenticationScheme, options =>
 {
     var googleOptions = builder.Configuration.GetSection("GoogleOptions").Get<LoyaltyApi.Config.GoogleOptions>();
     options.ClientId = googleOptions?.ClientId ?? throw new InvalidOperationException("Google Client id not found");
@@ -72,13 +85,24 @@ builder.Services.AddAuthentication(options =>
     options.Scope.Add("email");
     options.Scope.Add("profile");
     options.CallbackPath = new PathString("/signin-google");
-}).AddTwitter(TwitterDefaults.AuthenticationScheme, options =>
+})
+.AddTwitter(TwitterDefaults.AuthenticationScheme, options =>
 {
     var twitterOptions = builder.Configuration.GetSection("TwitterOptions").Get<LoyaltyApi.Config.TwitterOptions>();
     options.ConsumerKey = twitterOptions?.ConsumerKey ?? throw new InvalidOperationException("Twitter Consumer Key not found");
     options.ConsumerSecret = twitterOptions?.ConsumerSecret ?? throw new InvalidOperationException("Twitter Consumer Secret not found");
     options.RetrieveUserDetails = true;
-    options.CallbackPath = new PathString("/signin-twitter");
+    options.SaveTokens = true;
+    options.StateCookie = new CookieBuilder
+    {
+        Name = "__TwitterState",
+        SameSite = SameSiteMode.Lax,
+        SecurePolicy = CookieSecurePolicy.Always,
+        IsEssential = true,
+        Path = new PathString("/api/oauth2/signin-twitter")
+    };
+    options.CallbackPath = new PathString("/api/oauth2/signin-twitter/callback");
+    
 });
 
 builder.Services.AddEndpointsApiExplorer();
