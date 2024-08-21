@@ -24,7 +24,7 @@ builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("JwtOpti
 builder.Services.Configure<LoyaltyApi.Config.FacebookOptions>(builder.Configuration.GetSection("FacebookOptions"));
 builder.Services.Configure<LoyaltyApi.Config.GoogleOptions>(builder.Configuration.GetSection("GoogleOptions"));
 builder.Services.Configure<LoyaltyApi.Config.TwitterOptions>(builder.Configuration.GetSection("TwitterOptions"));
-builder.Services.Configure<LoyaltyApi.Config.AppleOptions>(builder.Configuration.GetSection("AppleOptions"));
+// builder.Services.Configure<LoyaltyApi.Config.AppleOptions>(builder.Configuration.GetSection("AppleOptions"));
 builder.Services.Configure<API>(builder.Configuration.GetSection("API"));
 
 builder.Services.AddControllers();
@@ -43,7 +43,7 @@ builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme; 
+    options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
 })
 .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
 {
@@ -60,9 +60,9 @@ builder.Services.AddAuthentication(options =>
 })
 .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
 {
-    options.Cookie.HttpOnly = true; 
-    options.Cookie.SecurePolicy = CookieSecurePolicy.Always; 
-    options.Cookie.SameSite = SameSiteMode.Lax; 
+    options.Cookie.HttpOnly = true;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    options.Cookie.SameSite = SameSiteMode.Lax;
     options.Cookie.Name = ".AspNetCore.Cookies";
     options.Events.OnRedirectToLogin = context =>
     {
@@ -102,7 +102,7 @@ builder.Services.AddAuthentication(options =>
         Path = new PathString("/api/oauth2/signin-twitter")
     };
     options.CallbackPath = new PathString("/api/oauth2/signin-twitter/callback");
-    
+
 });
 
 builder.Services.AddEndpointsApiExplorer();
