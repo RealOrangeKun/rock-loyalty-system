@@ -13,8 +13,8 @@ namespace LoyaltyApi.Models
         public required int CustomerId { get; set; }
 
         public string? Code { get; set; }
-        public required int Value { get; set; }
-        public DateTime ExpirationDate { get; set; }
+        public int? Value { get; set; }
+        public DateTime DateOfCreation { get; set; }
         public bool IsUsed { get; set; }
     }
 }
