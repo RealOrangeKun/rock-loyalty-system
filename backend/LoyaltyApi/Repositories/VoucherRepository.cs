@@ -1,6 +1,4 @@
 using System.Data;
-using System.Data.Common;
-using System.Text;
 using System.Text.Json;
 using LoyaltyApi.Config;
 using LoyaltyApi.Data;
@@ -15,37 +13,11 @@ namespace LoyaltyApi.Repositories
     {
         public async Task<Voucher> CreateVoucherAsync(Voucher voucher)
         {
-            using HttpClient client = new();
-            var body = new
-            {
-                DTL = new[]
-                {
-                    new
-                        {
-                            VOCHNO = 1,// This is constant do not change it
-                            VOCHVAL = voucher.Value
-                        }
-                },
-                CNO = voucher.CustomerId.ToString(),
-                CCODE = "C"
-            };
-            string jsonBody = JsonSerializer.Serialize(voucher);
-            StringContent content = new(jsonBody, Encoding.UTF8, "application/json");
+            var apiKey = await apiUtility.GetApiKey(voucher.RestaurantId.ToString());
 
+            var result = await apiUtility.GenerateVoucher(voucher, apiKey);
 
-            var envName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-            var isDevelopment = string.Equals(envName, "Development", StringComparison.OrdinalIgnoreCase);
-
-            var apiKey = await apiUtility.GetApiKey(isDevelopment ? "600" : voucher.RestaurantId.ToString() ?? throw new ArgumentException("RestaurantId cannot be null"));
-
-            client.DefaultRequestHeaders.Add("XApiKey", apiKey);
-
-            var result = await client.PostAsync($"{apiOptions.Value.BaseUrl}/api/HISCMD/ADDVOC", content);
-            string jsonResponse = await result.Content.ReadAsStringAsync();
-            logger.LogCritical(jsonResponse);
-
-            var codes = JsonSerializer.Deserialize<string[]>(jsonResponse);
-
+            var codes = JsonSerializer.Deserialize<string[]>(result);
 
             voucher.Code = codes?.First() ?? throw new DataException("Voucher not created");
 
