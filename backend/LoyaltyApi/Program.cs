@@ -81,7 +81,7 @@ builder.Services.AddAuthentication(options =>
     options.ConsumerKey = twitterOptions?.ConsumerKey ?? throw new InvalidOperationException("Twitter Consumer Key not found");
     options.ConsumerSecret = twitterOptions?.ConsumerSecret ?? throw new InvalidOperationException("Twitter Consumer Secret not found");
     options.RetrieveUserDetails = true;
-    options.CallbackPath = new PathString("/signin-twitter/callback");
+    options.CallbackPath = new PathString("/signin-twitter");
 });
 
 builder.Services.AddEndpointsApiExplorer();
