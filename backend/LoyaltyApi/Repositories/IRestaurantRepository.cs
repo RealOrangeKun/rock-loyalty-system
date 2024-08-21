@@ -5,6 +5,10 @@ namespace LoyaltyApi.Repositories
     public interface IRestaurantRepository
     {
          Task<Restaurant> GetRestaurantInfo(int restaurantId);
-         Task UpdateCreditPointsInfo(Restaurant restaurant);
+         Task UpdateCreditBuyingRate(Restaurant restaurant);
+         Task UpdateCreditSellingRate(Restaurant restaurant);
+
+         Task UpdateVoucherLifeTime(Restaurant restaurant);
+         Task CreditPointsLifeTime(Restaurant restaurant);
     }
 }

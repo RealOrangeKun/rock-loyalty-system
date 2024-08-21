@@ -28,19 +28,35 @@ namespace LoyaltyApi.Services
             return result.VoucherLifeTime;
         }
 
-        public async Task UpdateCreditBuyingRate(Restaurant restaurant)
+        public async Task UpdateCreditBuyingRate(int restaurantId , double creditPointsBuyingRate)
         {
-            throw new NotImplementedException();
+            Restaurant restaurant = await repository.GetRestaurantInfo(restaurantId);
+            restaurant.CreditPointsBuyingRate = creditPointsBuyingRate;
+
+            await repository.UpdateCreditBuyingRate(restaurant);
         }
 
-        public Task UpdateCreditSellingRate(Restaurant restaurant)
+        public async Task UpdateCreditPointsLifeTime(int restaurantId, int creditPointsLifeTime)
         {
-            throw new NotImplementedException();
+            Restaurant restaurant = await repository.GetRestaurantInfo(restaurantId);
+            restaurant.CreditPointsLifeTime = creditPointsLifeTime;
         }
 
-        public Task UpdateVoucherLifeTime(Restaurant restaurant)
+
+        public async Task UpdateCreditSellingRate(int restaurantId , double creditPointsSellingRate)
         {
-            throw new NotImplementedException();
+            Restaurant restaurant = await repository.GetRestaurantInfo(restaurantId);
+            restaurant.CreditPointsBuyingRate = creditPointsSellingRate;
+
+            await repository.UpdateCreditSellingRate(restaurant);
+        }
+
+        public async Task UpdateVoucherLifeTime(int restaurantId, int voucherLifeTime)
+        {
+            Restaurant restaurant = await repository.GetRestaurantInfo(restaurantId);
+            restaurant.CreditPointsBuyingRate = voucherLifeTime;
+
+            await repository.UpdateVoucherLifeTime(restaurant);
         }
     }
 }
