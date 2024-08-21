@@ -58,18 +58,7 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions?.SigningKey ?? throw new InvalidOperationException("JWT signing key not found"))),
     };
 })
-.AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
-{
-    options.Cookie.HttpOnly = true;
-    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-    options.Cookie.SameSite = SameSiteMode.Lax;
-    options.Cookie.Name = ".AspNetCore.Cookies";
-    options.Events.OnRedirectToLogin = context =>
-    {
-        context.Response.StatusCode = 401;
-        return Task.CompletedTask;
-    };
-})
+.AddCookie(CookieAuthenticationDefaults.AuthenticationScheme)
 .AddFacebook(FacebookDefaults.AuthenticationScheme, options =>
 {
     var facebookOptions = builder.Configuration.GetSection("FacebookOptions").Get<LoyaltyApi.Config.FacebookOptions>();
@@ -92,17 +81,7 @@ builder.Services.AddAuthentication(options =>
     options.ConsumerKey = twitterOptions?.ConsumerKey ?? throw new InvalidOperationException("Twitter Consumer Key not found");
     options.ConsumerSecret = twitterOptions?.ConsumerSecret ?? throw new InvalidOperationException("Twitter Consumer Secret not found");
     options.RetrieveUserDetails = true;
-    options.SaveTokens = true;
-    options.StateCookie = new CookieBuilder
-    {
-        Name = "__TwitterState",
-        SameSite = SameSiteMode.Lax,
-        SecurePolicy = CookieSecurePolicy.Always,
-        IsEssential = true,
-        Path = new PathString("/api/oauth2/signin-twitter")
-    };
-    options.CallbackPath = new PathString("/api/oauth2/signin-twitter/callback");
-
+    options.CallbackPath = new PathString("/signin-twitter/callback");
 });
 
 builder.Services.AddEndpointsApiExplorer();
