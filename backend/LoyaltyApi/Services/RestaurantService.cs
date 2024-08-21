@@ -1,3 +1,4 @@
+using LoyaltyApi.Models;
 using LoyaltyApi.Repositories;
 namespace LoyaltyApi.Services
 {
@@ -5,27 +6,41 @@ namespace LoyaltyApi.Services
     {
         public async Task<double> GetCreditPointBuyingRate(int restaurantId)
         {
-            dynamic restaurant = await repository.GetCreditPointsInfo(restaurantId);
-            return restaurant.CreditPointsBuyingRate;
+            var result = await repository.GetRestaurantInfo(restaurantId);
+            return result.CreditPointsBuyingRate;
         }
 
         public async Task<double> GetCreditPointSellingRate(int restaurantId)
         {
-            dynamic restaurant = await repository.GetCreditPointsInfo(restaurantId);
-            return restaurant.CreditPointsSellingRate;
+            var result = await repository.GetRestaurantInfo(restaurantId);
+            return result.CreditPointsSellingRate;
         }
 
         public async Task<double> GetLoyaltyPointBuyingRate(int restaurantId)
         {
-            dynamic restaurant = await repository.GetCreditPointsInfo(restaurantId);
-            return restaurant.CreditPointsBuyingRate;
+            var result = await repository.GetRestaurantInfo(restaurantId);
+            return result.LoyaltyPointsBuyingRate;
         }
 
         public async Task<int> GetVoucherLifeTime(int restaurantId)
         {
-            dynamic restaurant = await repository.GetCreditPointsInfo(restaurantId);
-            return restaurant.VoucherLifeTime;
+            var result = await repository.GetRestaurantInfo(restaurantId);
+            return result.VoucherLifeTime;
         }
 
+        public async Task UpdateCreditBuyingRate(Restaurant restaurant)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task UpdateCreditSellingRate(Restaurant restaurant)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task UpdateVoucherLifeTime(Restaurant restaurant)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

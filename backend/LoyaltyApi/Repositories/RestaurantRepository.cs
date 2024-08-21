@@ -1,3 +1,4 @@
+using System.Data;
 using LoyaltyApi.Data;
 using LoyaltyApi.Models;
 using Microsoft.EntityFrameworkCore;
@@ -6,15 +7,11 @@ namespace LoyaltyApi.Repositories
 {
     public class RestaurantRepository(RockDbContext dbContext) :IRestaurantRepository
     {
-       public async Task<object> GetCreditPointsInfo(int restaurantId){
+       public async Task<Restaurant> GetRestaurantInfo(int restaurantId){
         var restaurant = await dbContext.Restaurant.FirstOrDefaultAsync(r => r.RestaurantId == restaurantId);
-        var creditPointInfo = new {
-            restaurant.CreditPointsBuyingRate,
-            restaurant.CreditPointsSellingRate,
-            restaurant.CreditPointsLifeTime,
-        };
+       
 
-        return creditPointInfo;
+        return restaurant ?? throw new DataException("Restaurant not found");
         }
 
         public async Task UpdateCreditPointsInfo(Restaurant restaurant){
