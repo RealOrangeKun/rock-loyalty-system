@@ -11,9 +11,11 @@ namespace LoyaltyApi.Utilities
         public async Task<string> GetApiKey(string restaurantId)
         {
             using HttpClient client = new();
+            var envName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+            var isDevelopment = string.Equals(envName, "Development", StringComparison.OrdinalIgnoreCase);
             var body = new
             {
-                Acc = restaurantId ?? throw new ArgumentException("Resturant ID is missing"), // change acc for different restaurants
+                Acc = isDevelopment ? "600" : restaurantId ?? throw new ArgumentException("Resturant ID is missing"), // change acc for different restaurants
                 UsrId = apiOptions.Value.UserId,
                 Pass = apiOptions.Value.Password,
                 Lng = "ENG",
@@ -24,6 +26,28 @@ namespace LoyaltyApi.Utilities
             string jsonBody = JsonSerializer.Serialize(body);
             StringContent content = new(jsonBody, Encoding.UTF8, "application/json");
             var result = await client.PostAsync("http://192.168.1.11:5000/api/chkusr", content);
+            return await result.Content.ReadAsStringAsync();
+        }
+        public async Task<string> GenerateVoucher(Voucher voucher, string apiKey)
+        {
+            using HttpClient client = new();
+            var body = new
+            {
+                DTL = new[]
+                {
+                    new
+                        {
+                            VOCHNO = 1,// This is constant do not change it
+                            VOCHVAL = voucher.Value
+                        }
+                },
+                CNO = voucher.CustomerId.ToString(),
+                CCODE = "C"
+            };
+            string jsonBody = JsonSerializer.Serialize(voucher);
+            StringContent content = new(jsonBody, Encoding.UTF8, "application/json");
+            client.DefaultRequestHeaders.Add("XApiKey", apiKey);
+            var result = await client.PostAsync($"{apiOptions.Value.BaseUrl}/api/HISCMD/ADDVOC", content);
             return await result.Content.ReadAsStringAsync();
         }
     }
