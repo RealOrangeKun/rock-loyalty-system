@@ -18,6 +18,7 @@ Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
+
 builder.Services.AddDbContext<RockDbContext>(options => options.UseSqlite("Data Source=Dika.db"));
 
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("JwtOptions"));

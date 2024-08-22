@@ -16,9 +16,11 @@ namespace LoyaltyApi.Controllers
         public async Task<ActionResult> Login([FromBody] LoginRequestBody loginBody)
         {
             // TODO: use actual userService
-            // var user = await userService.ValidateUserAsync(loginBody);
-            string accessToken = tokenService.GenerateAccessToken(1, loginBody.RestaurantId);
-            string refreshToken = await tokenService.GenerateRefreshTokenAsync(1, loginBody.RestaurantId);
+            // var user = await userService.GetAndValidateUserAsync(loginBody);
+            // TODO: make random id if testing enviroment
+            // if (user == null) return Unauthorized();
+            string accessToken = tokenService.GenerateAccessToken(Random.Shared.Next(), loginBody.RestaurantId);
+            string refreshToken = await tokenService.GenerateRefreshTokenAsync(Random.Shared.Next(), loginBody.RestaurantId);
             HttpContext.Response.Cookies.Append("refreshToken", refreshToken, jwtOptions.Value.JwtCookieOptions);
             return Ok(new { accessToken });
         }
