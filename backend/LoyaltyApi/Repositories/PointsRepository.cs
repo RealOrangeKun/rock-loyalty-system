@@ -22,7 +22,7 @@ namespace LoyaltyApi.Repositories
             return await dbContext.Points.Where(p => p.CustomerId == customerId && p.RestaurantId == restaurantId).ToListAsync();
 
         }
-        public async Task <Points> GetPointsRecordAsync(int customerId, int restaurantId, int transactionId)
+        public async Task<Points?> GetPointsRecordAsync(int customerId, int restaurantId, int transactionId)
         {
             return await dbContext.Points.FirstOrDefaultAsync(p => p.CustomerId == customerId && p.RestaurantId == restaurantId && p.TransactionId == transactionId);
         }
