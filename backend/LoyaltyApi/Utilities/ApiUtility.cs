@@ -57,7 +57,7 @@ namespace LoyaltyApi.Utilities
             var result = await client.GetAsync($"{apiOptions.Value.BaseUrl}/api/concmd/GETCON/C/${phoneNumber ?? email}");
             var json = await result.Content.ReadAsStringAsync();
             var userJson = JsonSerializer.Deserialize<JsonElement>(json);
-            User user = new()
+            User? user = new()
             {
                 Id = userJson.GetProperty("CNO").GetInt32(),                   // Mapping "CNO" to User.Id
                 PhoneNumber = userJson.GetProperty("TEL1").GetString()!,       // Mapping "TEL1" to User.PhoneNumber
