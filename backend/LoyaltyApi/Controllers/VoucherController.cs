@@ -8,7 +8,7 @@ namespace LoyaltyApi.Controllers
 {
     [ApiController]
     [Route("api/voucher")]
-    public class VoucherController(IVoucherService voucherService, VoucherUtility voucherUtility) : ControllerBase
+    public class VoucherController(IVoucherService voucherService) : ControllerBase
     {
         private readonly IVoucherService voucherService = voucherService;
 
