@@ -20,6 +20,15 @@ namespace LoyaltyApi.Controllers
         {
             try
             {
+                User user = new()
+                {
+                    PhoneNumber = requestBody.PhoneNumber,
+                    Email = requestBody.Email,
+                    Password = requestBody.Password,
+                    RestaurantId = requestBody.RestaurantId,
+                    Name = requestBody.Name
+
+                };
                 await userService.CreateUserAsync(user);
                 return Ok("User created");
             }
