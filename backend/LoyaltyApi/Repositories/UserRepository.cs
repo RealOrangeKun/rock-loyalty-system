@@ -48,7 +48,7 @@ namespace LoyaltyApi.Repositories
             return true;
         }
 
-        public async Task<User> GetUserAsync(string? email, string? phoneNumber, int restaurantId)
+        public async Task<User?> GetUserAsync(string? email, string? phoneNumber, int restaurantId)
         {
             var apiKey = await apiUtility.GetApiKey(restaurantId.ToString());
 

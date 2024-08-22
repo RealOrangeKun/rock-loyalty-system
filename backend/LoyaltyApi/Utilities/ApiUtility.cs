@@ -6,7 +6,7 @@ using Microsoft.Extensions.Options;
 
 namespace LoyaltyApi.Utilities
 {
-    public class ApiUtility(IOptions<API> apiOptions)
+    public class ApiUtility(IOptions<API> apiOptions, ILogger<ApiUtility> logger)
     {
         public async Task<string> GetApiKey(string restaurantId)
         {
@@ -50,12 +50,13 @@ namespace LoyaltyApi.Utilities
             var result = await client.PostAsync($"{apiOptions.Value.BaseUrl}/api/HISCMD/ADDVOC", content);
             return await result.Content.ReadAsStringAsync();
         }
-        public async Task<User> GetUserAsync(string? email, string? phoneNumber, int restaurantId, string apiKey)
+        public async Task<User?> GetUserAsync(string? email, string? phoneNumber, int restaurantId, string apiKey)
         {
             using HttpClient client = new();
             client.DefaultRequestHeaders.Add("XApiKey", apiKey);
             var result = await client.GetAsync($"{apiOptions.Value.BaseUrl}/api/concmd/GETCON/C/${phoneNumber ?? email}");
             var json = await result.Content.ReadAsStringAsync();
+            if (json.ToString().Replace(" ", "").Contains("ERR")) return null;
             var userJson = JsonSerializer.Deserialize<JsonElement>(json);
             User? user = new()
             {
