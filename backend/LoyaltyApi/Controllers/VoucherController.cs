@@ -17,9 +17,7 @@ namespace LoyaltyApi.Controllers
         public async Task<ActionResult> CreateVoucher([FromBody] CreateVoucherRequest voucherRequest)
         {
             if (voucherRequest == null) return BadRequest("Voucher request is null");
-            // TODO: validate total points
-            // double ratio = restaurantService.GetRatio(voucherRequest.RestaurantId);
-            // int voucherValue = voucherUtility.CalculateVoucherValue(voucherRequest.Points, ratio);
+            
             Voucher voucher = new()
             {
                 RestaurantId = voucherRequest.RestaurantId,

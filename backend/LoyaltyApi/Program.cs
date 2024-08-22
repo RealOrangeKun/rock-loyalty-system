@@ -35,6 +35,8 @@ builder.Services.AddTransient<IUserRepository, UserRepository>();
 builder.Services.AddTransient<IUserService, UserService>();
 builder.Services.AddTransient<IVoucherRepository, VoucherRepository>();
 builder.Services.AddTransient<IVoucherService, VoucherService>();
+builder.Services.AddTransient<IRestaurantRepository, RestaurantRepository>();
+builder.Services.AddTransient<IRestaurantService, RestaurantService>();
 builder.Services.AddScoped<OAuth2Service>();
 builder.Services.AddTransient<ApiUtility>();
 
