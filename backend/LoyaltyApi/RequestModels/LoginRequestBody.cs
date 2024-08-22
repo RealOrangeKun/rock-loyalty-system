@@ -9,7 +9,7 @@ namespace LoyaltyApi.RequestModels
     {
         public string? Email { get; set; }
         public required string Password { get; set; }
-        public required string RestaurantId { get; set; }
+        public required int RestaurantId { get; set; }
 
         public string? PhoneNumber { get; set; }
     }

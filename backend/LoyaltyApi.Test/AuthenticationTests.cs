@@ -20,7 +20,8 @@ public class AuthenticationTests
         var loginBody = new
         {
             Email = "test",
-            Password = "test"
+            Password = "test",
+            RestaurantId = 1
         };
         // Act
         var response = httpClient.PostAsync("/api/auth/login", new StringContent(JsonSerializer.Serialize(loginBody), Encoding.UTF8, "application/json")).Result;

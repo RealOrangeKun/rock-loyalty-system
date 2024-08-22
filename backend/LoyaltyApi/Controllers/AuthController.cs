@@ -17,8 +17,8 @@ namespace LoyaltyApi.Controllers
         {
             // TODO: use actual userService
             // var user = await userService.ValidateUserAsync(loginBody);
-            string accessToken = tokenService.GenerateAccessToken(1, 1);
-            string refreshToken = await tokenService.GenerateRefreshTokenAsync(1, 1);
+            string accessToken = tokenService.GenerateAccessToken(1, loginBody.RestaurantId);
+            string refreshToken = await tokenService.GenerateRefreshTokenAsync(1, loginBody.RestaurantId);
             HttpContext.Response.Cookies.Append("refreshToken", refreshToken, jwtOptions.Value.JwtCookieOptions);
             return Ok(new { accessToken });
         }
