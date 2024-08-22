@@ -2,7 +2,7 @@ using LoyaltyApi.Models;
 using LoyaltyApi.Repositories;
 namespace LoyaltyApi.Services
 {
-    public class RestaurantService(RestaurantRepository repository) : IRestaurantService
+    public class RestaurantService(IRestaurantRepository repository) : IRestaurantService
     {
         public async Task<double> GetCreditPointBuyingRate(int restaurantId)
         {
@@ -28,7 +28,7 @@ namespace LoyaltyApi.Services
             return result.VoucherLifeTime;
         }
 
-        public async Task UpdateCreditBuyingRate(int restaurantId , double creditPointsBuyingRate)
+        public async Task UpdateCreditBuyingRate(int restaurantId, double creditPointsBuyingRate)
         {
             Restaurant restaurant = await repository.GetRestaurantInfo(restaurantId);
             restaurant.CreditPointsBuyingRate = creditPointsBuyingRate;
@@ -43,7 +43,7 @@ namespace LoyaltyApi.Services
         }
 
 
-        public async Task UpdateCreditSellingRate(int restaurantId , double creditPointsSellingRate)
+        public async Task UpdateCreditSellingRate(int restaurantId, double creditPointsSellingRate)
         {
             Restaurant restaurant = await repository.GetRestaurantInfo(restaurantId);
             restaurant.CreditPointsBuyingRate = creditPointsSellingRate;
