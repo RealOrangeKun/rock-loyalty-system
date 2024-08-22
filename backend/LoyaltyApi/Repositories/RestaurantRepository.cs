@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 namespace LoyaltyApi.Repositories
 {
     public class RestaurantRepository(RockDbContext dbContext) :IRestaurantRepository
-    {
+    { 
        public async Task<Restaurant> GetRestaurantInfo(int restaurantId){
         var restaurant = await dbContext.Restaurant.FirstOrDefaultAsync(r => r.RestaurantId == restaurantId);
         return restaurant ?? throw new DataException("Restaurant not found");

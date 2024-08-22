@@ -1,13 +1,15 @@
 using System.Text;
 using System.Text.Json;
 using LoyaltyApi.Config;
+using LoyaltyApi.Data;
 using LoyaltyApi.Models;
 using LoyaltyApi.Utilities;
 using Microsoft.Extensions.Options;
+using Microsoft.VisualBasic;
 
 namespace LoyaltyApi.Repositories
 {
-    public class UserRepository(IOptions<API> apiOptions, ApiUtility apiUtility, ILogger<UserRepository> logger) : IUserRepository
+    public class UserRepository(IOptions<API> apiOptions, ApiUtility apiUtility) : IUserRepository
     {
         public async Task<object> CreateUserAsync(User user)
         {
@@ -46,9 +48,12 @@ namespace LoyaltyApi.Repositories
             return true;
         }
 
-        public Task GetUserAsync(int userId, int restaurantId)
+        public async Task<User> GetUserAsync(string? email, string? phoneNumber, int restaurantId)
         {
-            throw new NotImplementedException();
+            var apiKey = await apiUtility.GetApiKey(restaurantId.ToString());
+
+           return  await apiUtility.GetUserAsync(email,phoneNumber,restaurantId,apiKey);
+           
         }
     }
 }

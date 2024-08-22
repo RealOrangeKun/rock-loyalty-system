@@ -8,7 +8,7 @@ namespace LoyaltyApi.Services
 {
     public interface IUserService
     {
-        Task GetAndValidateUserAsync(string phoneNumber, string password);
+        Task<User> GetAndValidateUserAsync(string? phoneNumber,string? email, string? password,int restaurantId);
         Task<object> CreateUserAsync(User user);
     }
 }

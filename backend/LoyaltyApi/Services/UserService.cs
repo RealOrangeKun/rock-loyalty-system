@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using LoyaltyApi.Models;
 using LoyaltyApi.Repositories;
 
@@ -14,9 +10,16 @@ namespace LoyaltyApi.Services
             return await userRepository.CreateUserAsync(user);
         }
 
-        public Task GetAndValidateUserAsync(string phoneNumber, string password)
+        public async Task<User> GetAndValidateUserAsync(string? phoneNumber,string? email, string? password,int restaurantId)
         {
-            throw new NotImplementedException();
+
+            User user =  await userRepository.GetUserAsync(email,phoneNumber,restaurantId);
+            if(user.Password != password)
+            {
+                throw new ArgumentException("Invalid password");
+            }
+            else
+            return user;
         }
     }
 }
