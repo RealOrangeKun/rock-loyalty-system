@@ -7,7 +7,7 @@ namespace LoyaltyApi.Repositories
     {
         Task<object> CreateUserAsync(User user);
 
-        Task <User>GetUserAsync(string? email, string? phoneNumber, int restaurantId);
+        Task<User> GetUserAsync(string? email, string? phoneNumber, int restaurantId);
 
     }
 }
