@@ -54,10 +54,11 @@ namespace LoyaltyApi.Utilities
         {
             using HttpClient client = new();
             client.DefaultRequestHeaders.Add("XApiKey", apiKey);
+            logger.LogCritical(email);
             string url = $"{apiOptions.Value.BaseUrl}/api/concmd/GETCON/C/{phoneNumber ?? email}";
-            logger.LogCritical(url);
             var result = await client.GetAsync(url);
             var json = await result.Content.ReadAsStringAsync();
+            logger.LogCritical(json);
             if (json.ToString().Replace(" ", "").Contains("ERR")) return null;
             var userJson = JsonSerializer.Deserialize<JsonElement>(json);
             User? user = new()
@@ -67,7 +68,7 @@ namespace LoyaltyApi.Utilities
                 Email = userJson.GetProperty("EMAIL").GetString()!,            // Mapping "EMAIL" to User.Email
                 Name = userJson.GetProperty("CNAME").GetString()!,             // Mapping "CNAME" to User.Name
                 RestaurantId = restaurantId,                                   // Use the passed restaurantId
-                Password = userJson.GetProperty("PASS").GetString()!,
+                // Password = userJson.GetProperty("PASS").GetString()!,
             };
             return user;
 
