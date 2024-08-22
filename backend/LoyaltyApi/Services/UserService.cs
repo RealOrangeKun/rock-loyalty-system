@@ -1,15 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using LoyaltyApi.Config;
 using LoyaltyApi.Models;
 using LoyaltyApi.Repositories;
-using LoyaltyApi.Utilities;
 
 namespace LoyaltyApi.Services
 {
-    public class UserService(IUserRepository userRepository, ApiUtility apiUtility) : IUserService
+    public class UserService(IUserRepository userRepository) : IUserService
     {
         public async Task<object> CreateUserAsync(User user)
         {
