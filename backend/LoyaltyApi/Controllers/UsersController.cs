@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using LoyaltyApi.Models;
 using LoyaltyApi.Repositories;
+using LoyaltyApi.RequestModels;
 using LoyaltyApi.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,7 +16,7 @@ namespace LoyaltyApi.Controllers
     {
         [HttpPost]
         [Route("")]
-        public async Task<ActionResult> CreateUser([FromBody] User user)
+        public async Task<ActionResult> CreateUser([FromBody] RegisterRequestBody requestBody)
         {
             try
             {
