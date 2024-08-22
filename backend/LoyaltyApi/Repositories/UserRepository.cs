@@ -52,8 +52,8 @@ namespace LoyaltyApi.Repositories
         {
             var apiKey = await apiUtility.GetApiKey(restaurantId.ToString());
 
-           return  await apiUtility.GetUserAsync(email,phoneNumber,restaurantId,apiKey);
-           
+            return await apiUtility.GetUserAsync(email, phoneNumber, restaurantId, apiKey);
+
         }
     }
 }
