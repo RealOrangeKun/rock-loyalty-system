@@ -2,37 +2,38 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using DotNetEnv;
+using Xunit.Abstractions;
 
 namespace LoyaltyApi.Test;
 
 public class AuthenticationTests
 {
     private readonly HttpClient httpClient = new();
-    private string name;
-    private string email;
-    public AuthenticationTests()
+    private readonly string name;
+    private readonly string email;
+    private readonly ITestOutputHelper outputHelper;
+    public AuthenticationTests(ITestOutputHelper outputHelper)
     {
         Env.Load();
         var baseUrl = Environment.GetEnvironmentVariable("BASE_URL");
         httpClient.BaseAddress = new Uri(baseUrl ?? throw new ArgumentException("BASE_URL is missing"));
-        var random = new Random();
         email = $"{Guid.NewGuid().ToString()[..8]}@{Guid.NewGuid().ToString()[..8]}.com";
         name = Guid.NewGuid().ToString()[..8];
+        this.outputHelper = outputHelper;
     }
+
     [Fact]
-    public async Task Register_With_Valid_Credentials()
+    public async Task Register()
     {
         // Arrange
-
         var registerBody = new
         {
-            Email = email,
-            Password = "test",
-            PhoneNumber = "1234567890",
-            Name = name,
-            RestaurantId = 1
+            email,
+            password = "test",
+            phoneNumber = "1234567890",
+            name,
+            restaurantId = 1
         };
-
         // Act
         var response = await httpClient.PostAsync("/api/user", new StringContent(JsonSerializer.Serialize(registerBody), Encoding.UTF8, "application/json"));
 
@@ -66,6 +67,7 @@ public class AuthenticationTests
             RestaurantId = 1
         };
         // Act
+
         var response = await httpClient.PostAsync("/api/auth/login", new StringContent(JsonSerializer.Serialize(loginBody), Encoding.UTF8, "application/json"));
 
         // Assert
@@ -76,4 +78,5 @@ public class AuthenticationTests
         Assert.Single(response.Headers.GetValues("Set-Cookie"));
         Assert.NotNull(response.Headers.GetValues("Set-Cookie")?.FirstOrDefault(x => x.Contains("refreshToken")));
     }
+
 }
