@@ -57,14 +57,14 @@ namespace LoyaltyApi.Utilities
             var result = await client.GetAsync($"{apiOptions.Value.BaseUrl}/api/concmd/GETCON/C/${phoneNumber ?? email}");
             var json = await result.Content.ReadAsStringAsync();
             var userJson = JsonSerializer.Deserialize<JsonElement>(json);
-            User user = new User
+            User user = new()
             {
                 Id = userJson.GetProperty("CNO").GetInt32(),                   // Mapping "CNO" to User.Id
                 PhoneNumber = userJson.GetProperty("TEL1").GetString()!,       // Mapping "TEL1" to User.PhoneNumber
                 Email = userJson.GetProperty("EMAIL").GetString()!,            // Mapping "EMAIL" to User.Email
                 Name = userJson.GetProperty("CNAME").GetString()!,             // Mapping "CNAME" to User.Name
                 RestaurantId = restaurantId,                                   // Use the passed restaurantId
-                Password   = userJson.GetProperty("PASS").GetString()!,                                           
+                Password = userJson.GetProperty("PASS").GetString()!,
             };
             return user;
 
