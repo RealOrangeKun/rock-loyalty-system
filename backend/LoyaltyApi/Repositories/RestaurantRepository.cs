@@ -21,7 +21,7 @@ namespace LoyaltyApi.Repositories
         }
 
 
-        public async Task CreditPointsLifeTime(Restaurant restaurant){
+        public async Task UpdateCreditPointsLifeTime(Restaurant restaurant){
             dbContext.Restaurant.Attach(restaurant);
             dbContext.Entry(restaurant).Property(r => r.CreditPointsLifeTime).IsModified = true;
             await dbContext.SaveChangesAsync();

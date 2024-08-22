@@ -9,6 +9,6 @@ namespace LoyaltyApi.Repositories
          Task UpdateCreditSellingRate(Restaurant restaurant);
 
          Task UpdateVoucherLifeTime(Restaurant restaurant);
-         Task CreditPointsLifeTime(Restaurant restaurant);
+         Task UpdateCreditPointsLifeTime(Restaurant restaurant);
     }
 }
