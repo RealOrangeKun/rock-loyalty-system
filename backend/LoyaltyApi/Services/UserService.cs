@@ -10,15 +10,11 @@ namespace LoyaltyApi.Services
             return await userRepository.CreateUserAsync(user);
         }
 
-        public async Task<User> GetAndValidateUserAsync(string? phoneNumber,string? email, string? password,int restaurantId)
+        public async Task<User> GetAndValidateUserAsync(string? phoneNumber, string? email, string? password, int restaurantId)
         {
 
-            User user =  await userRepository.GetUserAsync(email,phoneNumber,restaurantId);
-            if(user.Password != password)
-            {
-                throw new ArgumentException("Invalid password");
-            }
-            else
+            User user = await userRepository.GetUserAsync(email, phoneNumber, restaurantId);
+            if (user.Password != password) throw new ArgumentException("Invalid password");
             return user;
         }
     }
