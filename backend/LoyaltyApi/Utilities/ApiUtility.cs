@@ -54,7 +54,9 @@ namespace LoyaltyApi.Utilities
         {
             using HttpClient client = new();
             client.DefaultRequestHeaders.Add("XApiKey", apiKey);
-            var result = await client.GetAsync($"{apiOptions.Value.BaseUrl}/api/concmd/GETCON/C/${phoneNumber ?? email}");
+            string url = $"{apiOptions.Value.BaseUrl}/api/concmd/GETCON/C/{phoneNumber ?? email}";
+            logger.LogCritical(url);
+            var result = await client.GetAsync(url);
             var json = await result.Content.ReadAsStringAsync();
             if (json.ToString().Replace(" ", "").Contains("ERR")) return null;
             var userJson = JsonSerializer.Deserialize<JsonElement>(json);
