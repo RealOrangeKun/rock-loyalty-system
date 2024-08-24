@@ -1,0 +1,9 @@
+{
+  "scripts": {
+    "start": "dotnet run",
+    "test:e2e": "npx cypress open"
+  },
+  "devDependencies": {
+    "cypress": "^13.13.3"
+  }
+}
