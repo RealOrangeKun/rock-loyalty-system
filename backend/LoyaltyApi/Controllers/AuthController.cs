@@ -15,14 +15,31 @@ namespace LoyaltyApi.Controllers
         [Route("login")]
         public async Task<ActionResult> Login([FromBody] LoginRequestBody loginBody)
         {
+            try
+            {
+                if (loginBody.Email == null && loginBody.PhoneNumber == null) return BadRequest("Email or Phone number is required");
+                User? user = loginBody.Email != null ? await userService.GetUserByEmailAsync(loginBody.Email, loginBody.RestaurantId) :
+                    await userService.GetUserByPhonenumberAsync(loginBody.PhoneNumber ?? throw new ArgumentException("Phone number is required"), loginBody.RestaurantId);
+                // TODO: make random id if testing enviroment
+                if (user == null) return Unauthorized();
+                string accessToken = tokenService.GenerateAccessToken(user.Id, loginBody.RestaurantId);
+                string refreshToken = await tokenService.GenerateRefreshTokenAsync(user.Id, loginBody.RestaurantId);
+                HttpContext.Response.Cookies.Append("refreshToken", refreshToken, jwtOptions.Value.JwtCookieOptions);
+                return Ok(accessToken);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (HttpRequestException)
+            {
+                return Unauthorized();
+            }
+            catch (Exception)
+            {
+                return StatusCode(500);
+            }
 
-            User? user = await userService.GetAndValidateUserAsync(loginBody.PhoneNumber, loginBody.Email, loginBody.Password, loginBody.RestaurantId);
-            // TODO: make random id if testing enviroment
-            if (user == null) return Unauthorized();
-            string accessToken = tokenService.GenerateAccessToken(user.Id, loginBody.RestaurantId);
-            string refreshToken = await tokenService.GenerateRefreshTokenAsync(user.Id, loginBody.RestaurantId);
-            HttpContext.Response.Cookies.Append("refreshToken", refreshToken, jwtOptions.Value.JwtCookieOptions);
-            return Ok(accessToken);
         }
     }
 }
