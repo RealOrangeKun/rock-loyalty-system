@@ -1,9 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using LoyaltyApi.Models;
-using LoyaltyApi.Repositories;
 using LoyaltyApi.RequestModels;
 using LoyaltyApi.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -20,16 +15,9 @@ namespace LoyaltyApi.Controllers
         {
             try
             {
-                User user = new()
-                {
-                    PhoneNumber = requestBody.PhoneNumber,
-                    Email = requestBody.Email,
-                    Password = requestBody.Password,
-                    RestaurantId = requestBody.RestaurantId,
-                    Name = requestBody.Name
-
-                };
-                await userService.CreateUserAsync(user);
+                if (requestBody.Password == null) throw new ArgumentException("Password cannot be null");
+                User? user = await userService.CreateUserAsync(requestBody);
+                if (user == null) return StatusCode(500);
                 return Ok("User created");
             }
             catch (ArgumentException ex)
