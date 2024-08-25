@@ -9,7 +9,7 @@ using Microsoft.Extensions.Options;
 
 namespace LoyaltyApi.Repositories
 {
-    public class VoucherRepository(RockDbContext dbContext, IOptions<API> apiOptions, ApiUtility apiUtility, ILogger<VoucherRepository> logger) : IVoucherRepository
+    public class VoucherRepository(RockDbContext dbContext, ApiUtility apiUtility) : IVoucherRepository
     {
         public async Task<Voucher> CreateVoucherAsync(Voucher voucher)
         {
