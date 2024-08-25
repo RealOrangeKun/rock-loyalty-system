@@ -5,9 +5,9 @@ namespace LoyaltyApi.Repositories
 {
     public interface IUserRepository
     {
-        Task<object> CreateUserAsync(User user);
+        Task<User?> CreateUserAsync(User user);
 
-        Task<User?> GetUserAsync(string? email, string? phoneNumber, int restaurantId);
+        Task<User?> GetUserAsync(User user);
 
     }
 }
