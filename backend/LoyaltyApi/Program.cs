@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Facebook;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authentication.Twitter;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
@@ -24,7 +23,6 @@ builder.Services.AddDbContext<RockDbContext>(options => options.UseSqlite("Data 
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("JwtOptions"));
 builder.Services.Configure<LoyaltyApi.Config.FacebookOptions>(builder.Configuration.GetSection("FacebookOptions"));
 builder.Services.Configure<LoyaltyApi.Config.GoogleOptions>(builder.Configuration.GetSection("GoogleOptions"));
-builder.Services.Configure<LoyaltyApi.Config.TwitterOptions>(builder.Configuration.GetSection("TwitterOptions"));
 // builder.Services.Configure<LoyaltyApi.Config.AppleOptions>(builder.Configuration.GetSection("AppleOptions"));
 builder.Services.Configure<API>(builder.Configuration.GetSection("API"));
 
@@ -79,14 +77,6 @@ builder.Services.AddAuthentication(options =>
     options.Scope.Add("email");
     options.Scope.Add("profile");
     options.CallbackPath = new PathString("/signin-google");
-})
-.AddTwitter(TwitterDefaults.AuthenticationScheme, options =>
-{
-    var twitterOptions = builder.Configuration.GetSection("TwitterOptions").Get<LoyaltyApi.Config.TwitterOptions>();
-    options.ConsumerKey = twitterOptions?.ConsumerKey ?? throw new InvalidOperationException("Twitter Consumer Key not found");
-    options.ConsumerSecret = twitterOptions?.ConsumerSecret ?? throw new InvalidOperationException("Twitter Consumer Secret not found");
-    options.RetrieveUserDetails = true;
-    options.CallbackPath = new PathString("/signin-twitter");
 });
 
 builder.Services.AddEndpointsApiExplorer();
