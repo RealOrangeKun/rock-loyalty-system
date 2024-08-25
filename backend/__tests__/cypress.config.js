@@ -1,5 +1,5 @@
 const { defineConfig } = require("cypress");
-const { launchUrl } = require('../LoyaltyApi/Properties/launchSettings.json');
+const { launchUrl } = require('./config.js');
 
 module.exports = defineConfig({
   e2e: {
@@ -9,6 +9,7 @@ module.exports = defineConfig({
     specPattern: [
       "e2e/**/*.{cy,spec}.{js,ts,jsx,tsx}",
     ],
-    baseUrl: launchUrl
+    baseUrl: launchUrl,
+    experimentalRunAllSpecs: true
   },
 });

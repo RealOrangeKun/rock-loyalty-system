@@ -1,6 +1,4 @@
 /// <reference types="cypress" />
-const { launchUrl } = require("../../config")
-
 describe('Register', () => {
     it('successfull registration test', () => {
         const name = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
@@ -21,7 +19,7 @@ describe('Register', () => {
         };
         cy.request({
             method: 'POST',
-            url: `${launchUrl}/api/user/register`,
+            url: `/api/user/register`,
             body,
             headers: {
                 'Content-Type': 'application/json'

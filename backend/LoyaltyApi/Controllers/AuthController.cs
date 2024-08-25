@@ -22,7 +22,7 @@ namespace LoyaltyApi.Controllers
             string accessToken = tokenService.GenerateAccessToken(user.Id, loginBody.RestaurantId);
             string refreshToken = await tokenService.GenerateRefreshTokenAsync(user.Id, loginBody.RestaurantId);
             HttpContext.Response.Cookies.Append("refreshToken", refreshToken, jwtOptions.Value.JwtCookieOptions);
-            return Ok(new { accessToken });
+            return Ok(accessToken);
         }
     }
 }
