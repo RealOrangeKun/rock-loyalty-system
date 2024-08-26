@@ -7,42 +7,72 @@ namespace LoyaltyApi.Repositories
 {
     public class RestaurantRepository(RockDbContext dbContext) : IRestaurantRepository
     {
-        public async Task<Restaurant> GetRestaurantInfo(int restaurantId)
+        //Create Methods
+        public async Task CreateRestaurant(Restaurant restaurant)
         {
-            var restaurant = await dbContext.Restaurants.FirstOrDefaultAsync(r => r.RestaurantId == restaurantId);
-            return restaurant ?? throw new DataException("Restaurant not found");
+            await dbContext.Restaurants.AddAsync(restaurant);            
         }
-
+        //Get Methods
+        public async Task<Restaurant> GetRestaurantInfo(int restaurantId){
+        var restaurant = await dbContext.Restaurants.FirstOrDefaultAsync(r => r.RestaurantId == restaurantId);
+        return restaurant ?? throw new DataException("Restaurant not found");
+        }
+        //Update Methods
         public async Task UpdateCreditBuyingRate(Restaurant restaurant)
         {
-            dbContext.Restaurants.Attach(restaurant);
-            dbContext.Entry(restaurant).Property(r => r.CreditPointsBuyingRate).IsModified = true;
+            //If this doesn't work
+            var existingRestaurant = await dbContext.Restaurants.FirstOrDefaultAsync(r => r.RestaurantId == restaurant.RestaurantId);
+             if (existingRestaurant != null)
+             {
+                existingRestaurant.CreditPointsBuyingRate = restaurant.CreditPointsBuyingRate;
+                await dbContext.SaveChangesAsync();
+            }
 
-            await dbContext.SaveChangesAsync();
+            //Try This if the above doesn't work bas deh ht3ml update lel restaurant kolo i can handle it lw the above doesn't work
+
+            // dbContext.Restaurants.Update(restaurant);
+            // await dbContext.SaveChangesAsync();
         }
 
 
-        public async Task UpdateCreditPointsLifeTime(Restaurant restaurant)
-        {
-            dbContext.Restaurants.Attach(restaurant);
-            dbContext.Entry(restaurant).Property(r => r.CreditPointsLifeTime).IsModified = true;
-            await dbContext.SaveChangesAsync();
+        public async Task UpdateCreditPointsLifeTime(Restaurant restaurant){
+            var existingRestaurant = await dbContext.Restaurants.FirstOrDefaultAsync(r => r.RestaurantId == restaurant.RestaurantId);
+             if (existingRestaurant != null)
+             {
+                existingRestaurant.CreditPointsLifeTime = restaurant.CreditPointsLifeTime;
+                await dbContext.SaveChangesAsync();
+            }
+
+            // dbContext.Restaurants.Update(restaurant);
+            // await dbContext.SaveChangesAsync();
         }
 
         public async Task UpdateCreditSellingRate(Restaurant restaurant)
         {
-            dbContext.Restaurants.Attach(restaurant);
-            dbContext.Entry(restaurant).Property(r => r.CreditPointsSellingRate).IsModified = true;
-            await dbContext.SaveChangesAsync();
+            var existingRestaurant = await dbContext.Restaurants.FirstOrDefaultAsync(r => r.RestaurantId == restaurant.RestaurantId);
+             if (existingRestaurant != null)
+             {
+                existingRestaurant.CreditPointsSellingRate = restaurant.CreditPointsSellingRate;
+                await dbContext.SaveChangesAsync();
+            }
+
+            // dbContext.Restaurants.Update(restaurant);
+            // await dbContext.SaveChangesAsync();
         }
 
         public async Task UpdateVoucherLifeTime(Restaurant restaurant)
         {
-            dbContext.Restaurants.Attach(restaurant);
+           var existingRestaurant = await dbContext.Restaurants.FirstOrDefaultAsync(r => r.RestaurantId == restaurant.RestaurantId);
+             if (existingRestaurant != null)
+             {
+                existingRestaurant.VoucherLifeTime = restaurant.VoucherLifeTime;
+                await dbContext.SaveChangesAsync();
+            }
 
-            dbContext.Entry(restaurant).Property(r => r.VoucherLifeTime).IsModified = true;
 
-            await dbContext.SaveChangesAsync();
+
+            // dbContext.Restaurants.Update(restaurant);
+            // await dbContext.SaveChangesAsync();
         }
     }
 
