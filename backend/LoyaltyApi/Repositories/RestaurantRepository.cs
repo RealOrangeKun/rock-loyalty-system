@@ -11,6 +11,8 @@ namespace LoyaltyApi.Repositories
         public async Task CreateRestaurant(Restaurant restaurant)
         {
             await dbContext.Restaurants.AddAsync(restaurant);
+
+            await dbContext.SaveChangesAsync();
         }
         //Get Methods
         public async Task<Restaurant> GetRestaurantInfo(int restaurantId)
