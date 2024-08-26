@@ -1,0 +1,23 @@
+namespace LoyaltyApi.Models
+{
+    public class CreditPointsTransaction
+    {
+        public required int  TransactionId { get; set; }
+        
+        public required int CustomerId { get; set; }
+        
+        public required int RestaurantId { get; set; }
+        
+        public required int Points { get; set; }
+        
+        public required TransactionType TransactionType { get; set; } 
+        
+        public DateTime TransactionDate { get; set; } = DateTime.UtcNow;
+        
+        // Navigation properties
+        public Restaurant Restaurant { get; set; }
+        
+        public ICollection<CreditPointsTransactionDetail> CreditPointsTransactionDetails { get; set; }
+    }
+
+}
