@@ -40,6 +40,7 @@ describe('Login', () => {
             expect(response.body).to.not.be.undefined;
             expect(response.body).to.not.be.empty;
             expect(response.headers['set-cookie']).to.not.be.empty;
+            Cypress.env('accessToken', JSON.stringify(response.body));
         })
     });
 })

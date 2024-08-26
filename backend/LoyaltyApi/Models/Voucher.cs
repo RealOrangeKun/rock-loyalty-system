@@ -6,7 +6,6 @@ namespace LoyaltyApi.Models
 {
     public class Voucher
     {
-        [Key]
         public int? Id { get; set; }
         [ForeignKey("Restaurant")]
         public required int RestaurantId { get; set; }

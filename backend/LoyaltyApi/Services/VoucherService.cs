@@ -10,13 +10,13 @@ namespace LoyaltyApi.Services
     {
         public async Task<Voucher> CreateVoucherAsync(CreateVoucherRequest voucherRequest)
         {
-            int customerId = int.Parse(httpContext.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier) ?? httpContext.HttpContext.User?.FindFirstValue("sub") ?? throw new ArgumentException("Customer not found"));
-            int restaurantId = int.Parse(httpContext.HttpContext.Items["restaurantId"]?.ToString() ?? throw new ArgumentException("Restaurant not found"));
-            int voucherValue = voucherUtility.CalculateVoucherValue(voucherRequest.Points, restaurantRepository.GetRestaurantInfo(restaurantId).Result.CreditPointsSellingRate);
+            // int customerId = int.Parse(httpContext.HttpContext?.User?.FindFirstValue("sub") ?? throw new ArgumentException("Customer not found"));
+            // int restaurantId = int.Parse(httpContext.HttpContext.Items["restaurantId"]?.ToString() ?? throw new ArgumentException("Restaurant not found"));
+            int voucherValue = voucherUtility.CalculateVoucherValue(voucherRequest.Points, 2);
             Voucher voucher = new()
             {
-                RestaurantId = restaurantId,
-                CustomerId = customerId,
+                RestaurantId = 1,
+                CustomerId = 1,
                 Value = voucherValue
             };
             return await voucherRepository.CreateVoucherAsync(voucher);
