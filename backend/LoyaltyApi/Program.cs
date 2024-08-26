@@ -90,6 +90,8 @@ builder.Services.AddSwaggerGen(options =>
     options.IncludeXmlComments(xmlPath);
 });
 
+builder.Services.AddHttpContextAccessor();
+
 var app = builder.Build();
 
 app.UseStatusCodePages(async context =>
