@@ -53,14 +53,8 @@ namespace LoyaltyApi.Utilities
             if (message.Replace(" ", "").Contains("ERR"))
                 throw new HttpRequestException($"Request to create user failed with message: {message}");
             string responseContent = await result.Content.ReadAsStringAsync();
-
-
             var responseObject = JsonSerializer.Deserialize<List<String>>(responseContent) ?? throw new HttpRequestException("Request to create user failed");
-
-
             return responseObject.First();
-
-
         }
         public async Task<User?> GetUserAsync(User user, string apiKey)
         {
