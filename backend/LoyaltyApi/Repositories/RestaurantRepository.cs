@@ -9,7 +9,7 @@ namespace LoyaltyApi.Repositories
     {
         public async Task<Restaurant> GetRestaurantInfo(int restaurantId)
         {
-            var restaurant = await dbContext.Restaurant.FirstOrDefaultAsync(r => r.RestaurantId == restaurantId);
+            var restaurant = await dbContext.Restaurants.FirstOrDefaultAsync(r => r.RestaurantId == restaurantId);
             return restaurant ?? throw new DataException("Restaurant not found");
         }
 
@@ -38,7 +38,7 @@ namespace LoyaltyApi.Repositories
 
         public async Task UpdateVoucherLifeTime(Restaurant restaurant)
         {
-            dbContext.Restaurant.Attach(restaurant);
+            dbContext.Restaurants.Attach(restaurant);
 
             dbContext.Entry(restaurant).Property(r => r.VoucherLifeTime).IsModified = true;
 
