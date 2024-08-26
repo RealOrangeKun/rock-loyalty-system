@@ -40,6 +40,7 @@ builder.Services.AddTransient<IPointsRepository, PointsRepository>();
 builder.Services.AddScoped<IPointsService, PointsService>();
 builder.Services.AddScoped<OAuth2Service>();
 builder.Services.AddTransient<ApiUtility>();
+builder.Services.AddTransient<VoucherUtility>();
 
 // Configure authentication
 builder.Services.AddAuthentication(options =>

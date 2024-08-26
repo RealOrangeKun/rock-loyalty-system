@@ -6,7 +6,7 @@ using Microsoft.Extensions.Options;
 
 namespace LoyaltyApi.Utilities
 {
-    public class ApiUtility(IOptions<API> apiOptions)
+    public class ApiUtility(IOptions<API> apiOptions , ILogger<ApiUtility> logger)
     {
         public async Task<string> GetApiKey(string restaurantId)
         {
@@ -37,19 +37,38 @@ namespace LoyaltyApi.Utilities
                 {
                     new
                         {
-                            VOCHNO = 1,// This is constant do not change it
+                            VOCHNO = 3,// This is constant do not change it
                             VOCHVAL = voucher.Value
                         }
                 },
                 CNO = voucher.CustomerId.ToString(),
                 CCODE = "C"
             };
-            string jsonBody = JsonSerializer.Serialize(voucher);
+            string jsonBody = JsonSerializer.Serialize(body);
             StringContent content = new(jsonBody, Encoding.UTF8, "application/json");
             client.DefaultRequestHeaders.Add("XApiKey", apiKey);
             var result = await client.PostAsync($"{apiOptions.Value.BaseUrl}/api/HISCMD/ADDVOC", content);
-            return await result.Content.ReadAsStringAsync();
+           
+
+        // Assuming the response is in JSON format and contains the voucher codes array
+        string responseContent = await result.Content.ReadAsStringAsync();
+
+        // You need to deserialize the response and extract the first voucher code
+        var responseObject = JsonSerializer.Deserialize<ResponseType>(responseContent);
+
+        // Assuming the responseObject has a property with the voucher codes array
+         logger.LogCritical(responseObject.DTL.First().VOCHNO); 
+         return responseObject.DTL.First().VOCHNO;// Change this based on your response structure 
         }
+        public class ResponseType
+{
+    public DTLType[] DTL { get; set; }
+}
+
+public class DTLType
+{
+    public string VOCHNO { get; set; }
+}
         public async Task<User?> GetUserAsync(User user, string apiKey)
         {
             using HttpClient client = new();
