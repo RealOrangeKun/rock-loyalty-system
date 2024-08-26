@@ -5,7 +5,7 @@ namespace LoyaltyApi.Services
 {
     public class RestaurantService(IRestaurantRepository repository) : IRestaurantService
     {
-         //Get Methods
+        //Get Methods
         public Task<Restaurant> GetRestaurantInfo(int restaurantId)
         {
             return repository.GetRestaurantInfo(restaurantId);
@@ -68,9 +68,10 @@ namespace LoyaltyApi.Services
 
 
         //Create Methods
-          public async Task CreateRestaurant(CreateRestaurantRequestModel createRestaurant)
+        public async Task CreateRestaurant(CreateRestaurantRequestModel createRestaurant)
         {
-            Restaurant restaurant = new(){
+            Restaurant restaurant = new()
+            {
                 RestaurantId = createRestaurant.RestaurantId,
                 CreditPointsBuyingRate = createRestaurant.CreditPointsBuyingRate,
                 CreditPointsSellingRate = createRestaurant.CreditPointsSellingRate,
@@ -82,11 +83,6 @@ namespace LoyaltyApi.Services
             };
 
             await repository.CreateRestaurant(restaurant);
-        }
-
-        internal async Task CreateRestaurant(Restaurant restaurant)
-        {
-            throw new NotImplementedException();
         }
     }
 }
