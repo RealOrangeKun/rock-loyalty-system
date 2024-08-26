@@ -55,7 +55,7 @@ namespace LoyaltyApi.Utilities
             string responseContent = await result.Content.ReadAsStringAsync();
 
 
-            var responseObject = JsonSerializer.Deserialize<List<String>>(responseContent);
+            var responseObject = JsonSerializer.Deserialize<List<String>>(responseContent) ?? throw new HttpRequestException("Request to create user failed");
 
 
             return responseObject.First();

@@ -22,7 +22,7 @@ namespace LoyaltyApi.Data
                 .HasKey(x => new { x.CustomerId, x.RestaurantId, x.TokenValue });
 
             modelBuilder.Entity<Voucher>()
-                .HasKey(x => new { x.RestaurantId, x.CustomerId, x.Code });
+                .HasKey(x => new { x.RestaurantId, x.CustomerId, x.ShortCode });
 
             modelBuilder.Entity<CreditPointsTransaction>()
                 .HasKey(p => p.TransactionId);

@@ -1,4 +1,3 @@
-using LoyaltyApi.Filters;
 using LoyaltyApi.Models;
 using LoyaltyApi.RequestModels;
 using LoyaltyApi.Services;
@@ -28,9 +27,6 @@ namespace LoyaltyApi.Controllers
                 logger.LogCritical(ex.Message);
                 return StatusCode(500, ex.Message);
             }
-
-
-
         }
     }
 }

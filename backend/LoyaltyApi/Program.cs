@@ -3,7 +3,6 @@ using System.Text;
 using DotNetEnv;
 using LoyaltyApi.Config;
 using LoyaltyApi.Data;
-using LoyaltyApi.Filters;
 using LoyaltyApi.Repositories;
 using LoyaltyApi.Services;
 using LoyaltyApi.Utilities;
@@ -17,6 +16,9 @@ using Microsoft.IdentityModel.Tokens;
 Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddHttpContextAccessor();
+
 
 
 builder.Services.AddDbContext<RockDbContext>(options => options.UseSqlite("Data Source=Dika.db"));
@@ -42,7 +44,6 @@ builder.Services.AddTransient<IRestaurantService, RestaurantService>();
 builder.Services.AddScoped<OAuth2Service>();
 builder.Services.AddTransient<ApiUtility>();
 builder.Services.AddTransient<VoucherUtility>();
-builder.Services.AddScoped<ExtractDataFromTokenFilter>();
 
 // Configure authentication
 builder.Services.AddAuthentication(options =>
@@ -93,7 +94,6 @@ builder.Services.AddSwaggerGen(options =>
     options.IncludeXmlComments(xmlPath);
 });
 
-builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 

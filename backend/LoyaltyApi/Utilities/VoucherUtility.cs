@@ -9,16 +9,15 @@ namespace LoyaltyApi.Utilities
 
         public string ShortenVoucherCode(string voucherCode)
         {
-            using SHA256 sha256 = SHA256.Create();
-            byte[] hashBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(voucherCode));
+            byte[] hashBytes = SHA256.HashData(Encoding.UTF8.GetBytes(voucherCode));
 
-            StringBuilder hashString = new StringBuilder();
+            StringBuilder hashString = new();
             foreach (byte b in hashBytes)
             {
                 hashString.Append(b.ToString("x2"));
             }
 
-            return hashString.ToString().Substring(0, 5);
+            return hashString.ToString()[..5].ToUpper();
         }
     }
 }
