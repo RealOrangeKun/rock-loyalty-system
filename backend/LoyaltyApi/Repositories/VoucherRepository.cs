@@ -9,7 +9,7 @@ using Microsoft.Extensions.Options;
 
 namespace LoyaltyApi.Repositories
 {
-    public class VoucherRepository(RockDbContext dbContext, ApiUtility apiUtility) : IVoucherRepository
+    public class VoucherRepository(RockDbContext dbContext, ApiUtility apiUtility , VoucherUtility voucherUtility) : IVoucherRepository
     {
         public async Task<Voucher> CreateVoucherAsync(Voucher voucher)
         {
@@ -17,7 +17,9 @@ namespace LoyaltyApi.Repositories
 
             String result = await apiUtility.GenerateVoucher(voucher, apiKey);
 
-            voucher.Code = result;
+            voucher.LongCode = result;
+
+            voucher.ShortCode = voucherUtility.ShortenVoucherCode(result);
 
             await dbContext.Vouchers.AddAsync(voucher);
 

@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using LoyaltyApi.Config;
@@ -37,7 +38,7 @@ namespace LoyaltyApi.Utilities
                 {
                     new
                         {
-                            VOCHNO = 3,// This is constant do not change it
+                            VOCHNO = 1,// This is constant do not change it
                             VOCHVAL = voucher.Value
                         }
                 },
@@ -50,14 +51,14 @@ namespace LoyaltyApi.Utilities
             var result = await client.PostAsync($"{apiOptions.Value.BaseUrl}/api/HISCMD/ADDVOC", content);
            
 
-        // Assuming the response is in JSON format and contains the voucher codes array
         string responseContent = await result.Content.ReadAsStringAsync();
 
-        // You need to deserialize the response and extract the first voucher code
         var responseObject = JsonSerializer.Deserialize<List<String>>(responseContent);
 
-        // Assuming the responseObject has a property with the voucher codes array 
-         return responseObject.First();// Change this based on your response structure 
+        
+        return responseObject.First();
+
+    
         }
         public async Task<User?> GetUserAsync(User user, string apiKey)
         {

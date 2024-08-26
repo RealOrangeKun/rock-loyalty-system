@@ -21,6 +21,7 @@ namespace LoyaltyApi.Services
             };
             return await voucherRepository.CreateVoucherAsync(voucher);
 
+
         }
 
         public async Task<IEnumerable<Voucher>> GetUserVouchersAsync(int customerId, int restaurantId)

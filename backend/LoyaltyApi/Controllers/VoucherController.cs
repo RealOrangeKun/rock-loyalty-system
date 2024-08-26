@@ -23,7 +23,7 @@ namespace LoyaltyApi.Controllers
             if (voucherRequest == null) return BadRequest("Voucher request is null");
 
             Voucher voucher = await voucherService.CreateVoucherAsync(voucherRequest);
-            return Ok(voucher.Code);
+            return Ok(voucher.ShortCode);
 
         }
     }
