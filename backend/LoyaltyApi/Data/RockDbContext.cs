@@ -17,12 +17,12 @@ namespace LoyaltyApi.Data
         {
             modelBuilder.Entity<Restaurant>()
                 .HasKey(r => r.RestaurantId);
-            
+
             modelBuilder.Entity<Token>()
                 .HasKey(x => new { x.CustomerId, x.RestaurantId, x.TokenValue });
-            
+
             modelBuilder.Entity<Voucher>()
-                .HasKey(x => new { x.Id, x.RestaurantId, x.CustomerId, x.Code });
+                .HasKey(x => new { x.RestaurantId, x.CustomerId, x.Code });
 
             modelBuilder.Entity<CreditPointsTransaction>()
                 .HasKey(p => p.TransactionId);
@@ -53,7 +53,7 @@ namespace LoyaltyApi.Data
             modelBuilder.Entity<CreditPointsTransaction>()
                 .Property(p => p.TransactionType)
                 .HasConversion<string>(); // Store enum as string in the database
-            
+
             base.OnModelCreating(modelBuilder);
         }
     }
