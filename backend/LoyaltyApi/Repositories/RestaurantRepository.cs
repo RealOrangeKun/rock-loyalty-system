@@ -6,8 +6,13 @@ using Microsoft.EntityFrameworkCore;
 namespace LoyaltyApi.Repositories
 {
     public class RestaurantRepository(RockDbContext dbContext) :IRestaurantRepository
-    { 
-       public async Task<Restaurant> GetRestaurantInfo(int restaurantId){
+    {
+        public async Task CreateRestaurant(Restaurant restaurant)
+        {
+            await dbContext.Restaurant.AddAsync(restaurant);            
+        }
+
+        public async Task<Restaurant> GetRestaurantInfo(int restaurantId){
         var restaurant = await dbContext.Restaurant.FirstOrDefaultAsync(r => r.RestaurantId == restaurantId);
         return restaurant ?? throw new DataException("Restaurant not found");
         }
@@ -16,7 +21,6 @@ namespace LoyaltyApi.Repositories
         {
             dbContext.Restaurant.Attach(restaurant);
             dbContext.Entry(restaurant).Property(r => r.CreditPointsBuyingRate).IsModified = true;
-
             await dbContext.SaveChangesAsync();
         }
 
@@ -36,10 +40,8 @@ namespace LoyaltyApi.Repositories
 
         public async Task UpdateVoucherLifeTime(Restaurant restaurant)
         {
-        dbContext.Restaurant.Attach(restaurant);
-         
-        dbContext.Entry(restaurant).Property(r => r.VoucherLifeTime).IsModified = true;
-
+            dbContext.Restaurant.Attach(restaurant);
+            dbContext.Entry(restaurant).Property(r => r.VoucherLifeTime).IsModified = true;
             await dbContext.SaveChangesAsync();
         }
     }
