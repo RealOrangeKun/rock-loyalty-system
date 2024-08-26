@@ -11,8 +11,10 @@ namespace LoyaltyApi.Filters
     {
         public void OnActionExecuting(ActionExecutingContext context)
         {
-            string? customerId = context.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? context.HttpContext.User.FindFirstValue("sub");
-            string? restaurantId = context.HttpContext.User.FindFirstValue("restaurantId");
+            var user = context.HttpContext.User;
+            if (user.Identity == null) return;
+            var customerId = user.FindFirst("sub")?.Value;
+            var restaurantId = user.FindFirst("restaurantId")?.Value;
             if (string.IsNullOrEmpty(customerId) || string.IsNullOrEmpty(restaurantId)) return;
             context.HttpContext.Items.Add("customerId", customerId);
             context.HttpContext.Items.Add("restaurantId", restaurantId);
