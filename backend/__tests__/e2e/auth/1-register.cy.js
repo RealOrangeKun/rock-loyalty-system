@@ -6,10 +6,10 @@ describe('Register', () => {
         const password = 'Password123';
         const phoneNumber = Math.floor(Math.random() * 10 ** 12).toString().padStart(12, '0');
         const restaurantId = 600;
-        cy.wrap(email).as('email');
-        cy.wrap(password).as('password');
-        cy.wrap(name).as('username');
-        cy.wrap(phoneNumber).as('phoneNumber');
+        Cypress.env('email', email);
+        Cypress.env('password', password);
+        Cypress.env('phoneNumber', phoneNumber);
+        Cypress.env('name', name);
         const body = {
             name,
             email,
@@ -19,16 +19,16 @@ describe('Register', () => {
         };
         cy.request({
             method: 'POST',
-            url: `/api/user/register`,
+            url: `/api/user`,
             body,
             headers: {
                 'Content-Type': 'application/json'
             },
             failOnStatusCode: false
         }).then(response => {
+            cy.log('Api response: ' + JSON.stringify(response.body));
             expect(response.status).to.equal(200);
-            cy.log('Registration successfull api responded with: ');
-            cy.log(JSON.stringify(response.body));
+            Cypress.env('accessToken', JSON.stringify(response.body));
         })
     })
 })

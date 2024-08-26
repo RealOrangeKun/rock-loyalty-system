@@ -33,6 +33,8 @@ describe('Login', () => {
             },
             failOnStatusCode: false
         }).then(response => {
+            cy.log('Api response: ' + JSON.stringify(response.body));
+            cy.log(JSON.stringify(response.body));
             expect(response.status).to.equal(200);
             expect(response.body).to.not.be.null;
             expect(response.body).to.not.be.undefined;
