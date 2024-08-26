@@ -54,11 +54,10 @@ namespace LoyaltyApi.Utilities
         string responseContent = await result.Content.ReadAsStringAsync();
 
         // You need to deserialize the response and extract the first voucher code
-        var responseObject = JsonSerializer.Deserialize<ResponseType>(responseContent);
+        var responseObject = JsonSerializer.Deserialize<List<String>>(responseContent);
 
-        // Assuming the responseObject has a property with the voucher codes array
-         logger.LogCritical(responseObject.DTL.First().VOCHNO); 
-         return responseObject.DTL.First().VOCHNO;// Change this based on your response structure 
+        // Assuming the responseObject has a property with the voucher codes array 
+         return responseObject.First();// Change this based on your response structure 
         }
         public class ResponseType
 {

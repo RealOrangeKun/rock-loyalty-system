@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LoyaltyApi.Repositories
 {
-    public class RestaurantRepository(RockDbContext dbContext) :IRestaurantRepository
+    public class RestaurantRepository(RockDbContext dbContext) : IRestaurantRepository
     {
         //Create Methods
         public async Task CreateRestaurant(Restaurant restaurant)
@@ -76,4 +76,4 @@ namespace LoyaltyApi.Repositories
         }
     }
 
-    }
+}
