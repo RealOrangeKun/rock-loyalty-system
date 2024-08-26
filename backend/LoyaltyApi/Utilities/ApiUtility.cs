@@ -6,7 +6,7 @@ using Microsoft.Extensions.Options;
 
 namespace LoyaltyApi.Utilities
 {
-    public class ApiUtility(IOptions<API> apiOptions , ILogger<ApiUtility> logger)
+    public class ApiUtility(IOptions<API> apiOptions)
     {
         public async Task<string> GetApiKey(string restaurantId)
         {
@@ -37,7 +37,7 @@ namespace LoyaltyApi.Utilities
                 {
                     new
                         {
-                            VOCHNO = 3,// This is constant do not change it
+                            VOCHNO = 1,// This is constant do not change it
                             VOCHVAL = voucher.Value
                         }
                 },
@@ -48,16 +48,13 @@ namespace LoyaltyApi.Utilities
             StringContent content = new(jsonBody, Encoding.UTF8, "application/json");
             client.DefaultRequestHeaders.Add("XApiKey", apiKey);
             var result = await client.PostAsync($"{apiOptions.Value.BaseUrl}/api/HISCMD/ADDVOC", content);
-           
+            var message = await result.Content.ReadAsStringAsync();
+            if (message.Replace(" ", "").Contains("ERR"))
+                throw new HttpRequestException($"Request to create user failed with message: {message}");
+            string responseContent = await result.Content.ReadAsStringAsync();
 
-        // Assuming the response is in JSON format and contains the voucher codes array
-        string responseContent = await result.Content.ReadAsStringAsync();
-
-        // You need to deserialize the response and extract the first voucher code
-        var responseObject = JsonSerializer.Deserialize<List<String>>(responseContent);
-
-        // Assuming the responseObject has a property with the voucher codes array 
-         return responseObject.First();// Change this based on your response structure 
+            List<string>? responseObject = JsonSerializer.Deserialize<List<string>>(responseContent) ?? throw new HttpRequestException("Response object is null");
+            return responseObject.First();
         }
         public async Task<User?> GetUserAsync(User user, string apiKey)
         {
