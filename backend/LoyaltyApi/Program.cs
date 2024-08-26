@@ -17,6 +17,9 @@ Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddHttpContextAccessor();
+
+
 
 builder.Services.AddDbContext<RockDbContext>(options => options.UseSqlite("Data Source=Dika.db"));
 
@@ -91,7 +94,6 @@ builder.Services.AddSwaggerGen(options =>
     options.IncludeXmlComments(xmlPath);
 });
 
-builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 
