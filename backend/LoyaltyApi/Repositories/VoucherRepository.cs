@@ -15,11 +15,9 @@ namespace LoyaltyApi.Repositories
         {
             var apiKey = await apiUtility.GetApiKey(voucher.RestaurantId.ToString());
 
-            var result = await apiUtility.GenerateVoucher(voucher, apiKey);
+            String result = await apiUtility.GenerateVoucher(voucher, apiKey);
 
-            var codes = JsonSerializer.Deserialize<string[]>(result);
-
-            voucher.Code = codes?.First() ?? throw new DataException("Voucher not created");
+            voucher.Code = result;
 
             await dbContext.Vouchers.AddAsync(voucher);
 
