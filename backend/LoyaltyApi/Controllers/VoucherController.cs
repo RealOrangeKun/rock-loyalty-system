@@ -17,14 +17,8 @@ namespace LoyaltyApi.Controllers
         public async Task<ActionResult> CreateVoucher([FromBody] CreateVoucherRequest voucherRequest)
         {
             if (voucherRequest == null) return BadRequest("Voucher request is null");
-            
-            Voucher voucher = new()
-            {
-                RestaurantId = voucherRequest.RestaurantId,
-                CustomerId = voucherRequest.CustomerId,
-                // Value = voucherValue
-            };
-            await voucherService.CreateVoucherAsync(voucher);
+
+           Voucher voucher =  await voucherService.CreateVoucherAsync(voucherRequest);
             return Ok(voucher.Code);
 
         }

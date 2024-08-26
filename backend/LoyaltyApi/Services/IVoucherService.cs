@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using LoyaltyApi.Models;
+using LoyaltyApi.RequestModels;
 
 namespace LoyaltyApi.Services
 {
@@ -12,6 +13,6 @@ namespace LoyaltyApi.Services
 
         Task<Voucher> GetVoucherAsync(int voucherId, int restaurantId);
 
-        Task<Voucher> CreateVoucherAsync(Voucher voucher);
+        Task<Voucher> CreateVoucherAsync(CreateVoucherRequest voucherRequest);
     }
 }
