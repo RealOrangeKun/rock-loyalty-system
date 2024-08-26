@@ -7,8 +7,8 @@ namespace LoyaltyApi.Controllers
 {
 
     [ApiController]
-    [Route("[api/restaurant]")]
-    public class RestaurantController(RestaurantService restaurantService) : Controller
+    [Route("api/restaurant")]
+    public class RestaurantController(IRestaurantService restaurantService) : Controller
     {
        [HttpPost]
        [Route("")]
@@ -16,7 +16,7 @@ namespace LoyaltyApi.Controllers
        public async Task<ActionResult> CreateRestaurant([FromBody] CreateRestaurantRequestModel createRestaurant){
             try
             {
-                Restaurant restaurant = new(){
+                CreateRestaurantRequestModel restaurant = new(){
                 RestaurantId = createRestaurant.RestaurantId,
                 CreditPointsBuyingRate = createRestaurant.CreditPointsBuyingRate,
                 CreditPointsSellingRate = createRestaurant.CreditPointsSellingRate,
