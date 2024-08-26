@@ -3,6 +3,7 @@ using System.Text;
 using DotNetEnv;
 using LoyaltyApi.Config;
 using LoyaltyApi.Data;
+using LoyaltyApi.Filters;
 using LoyaltyApi.Repositories;
 using LoyaltyApi.Services;
 using LoyaltyApi.Utilities;
@@ -41,6 +42,7 @@ builder.Services.AddTransient<IRestaurantService, RestaurantService>();
 builder.Services.AddScoped<OAuth2Service>();
 builder.Services.AddTransient<ApiUtility>();
 builder.Services.AddTransient<VoucherUtility>();
+builder.Services.AddScoped<ExtractDataFromTokenFilter>();
 
 // Configure authentication
 builder.Services.AddAuthentication(options =>
