@@ -59,15 +59,6 @@ namespace LoyaltyApi.Utilities
         // Assuming the responseObject has a property with the voucher codes array 
          return responseObject.First();// Change this based on your response structure 
         }
-        public class ResponseType
-{
-    public DTLType[] DTL { get; set; }
-}
-
-public class DTLType
-{
-    public string VOCHNO { get; set; }
-}
         public async Task<User?> GetUserAsync(User user, string apiKey)
         {
             using HttpClient client = new();
