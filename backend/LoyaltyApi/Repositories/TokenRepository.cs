@@ -16,38 +16,39 @@ namespace LoyaltyApi.Repositories
 {
     public class TokenRepository(RockDbContext dbContext, IOptions<JwtOptions> jwtOptions) : ITokenRepository
     {
-        public string GenerateAccessToken(int userId, int restaurantId)
+        public string GenerateAccessToken(Token token)
         {
-            JwtSecurityToken token = GenerateToken(userId, restaurantId, TokenType.AccessToken);
-            return new JwtSecurityTokenHandler().WriteToken(token);
+            JwtSecurityToken generatedToken = GenerateToken(token);
+            return new JwtSecurityTokenHandler().WriteToken(generatedToken);
         }
 
-        private JwtSecurityToken GenerateToken(int customerId, int restaurantId, TokenType type)
+        private JwtSecurityToken GenerateToken(Token token)
         {
             var claims = new[]{
-                new Claim(JwtRegisteredClaimNames.Sub,customerId.ToString()),
-                new Claim("restaurantId", restaurantId.ToString())
+                new Claim(JwtRegisteredClaimNames.Sub,token.CustomerId.ToString()),
+                new Claim("restaurantId", token.RestaurantId.ToString()),
+                new Claim("role", token.Role.ToString())
             };
             var signingKey = jwtOptions.Value.SigningKey.ToString();
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(signingKey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-            var token = new JwtSecurityToken(
+            var generatedToken = new JwtSecurityToken(
                 issuer: null,
                 audience: null,
                 claims: claims,
                 expires: DateTime.Now.AddMinutes(jwtOptions.Value.ExpirationInMinutes),
                 signingCredentials: creds
             );
-            return token;
+            return generatedToken;
         }
 
-        public bool ValidateRefreshToken(string token)
+        public bool ValidateRefreshToken(Token token)
         {
             return ValidateToken(token)
-            && dbContext.Tokens.Any(t => t.TokenValue == token && t.TokenType == TokenType.RefreshToken);
+            && dbContext.Tokens.Any(t => t.TokenValue == token.TokenValue && t.TokenType == TokenType.RefreshToken);
         }
 
-        public bool ValidateToken(string token)
+        public bool ValidateToken(Token token)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.UTF8.GetBytes(jwtOptions.Value.SigningKey);
@@ -59,21 +60,22 @@ namespace LoyaltyApi.Repositories
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(key)
             };
-            tokenHandler.ValidateToken(token, validationParameters, out SecurityToken validatedToken);
+            tokenHandler.ValidateToken(token.TokenValue, validationParameters, out SecurityToken validatedToken);
             return validatedToken != null;
         }
 
-        public async Task<string> GenerateRefreshTokenAsync(int customerId, int restaurantId)
+        public async Task<string> GenerateRefreshTokenAsync(Token token)
         {
-            JwtSecurityToken token = GenerateToken(customerId, restaurantId, TokenType.RefreshToken);
+            JwtSecurityToken generatedToken = GenerateToken(token);
             var tokenHandler = new JwtSecurityTokenHandler();
-            string valueToken = tokenHandler.WriteToken(token).ToString();
+            string valueToken = tokenHandler.WriteToken(generatedToken).ToString();
             int subject = int.Parse(tokenHandler.ReadJwtToken(valueToken).Claims.First(claim => claim.Type == "sub").Value);
             DateTime expiration = tokenHandler.ReadJwtToken(valueToken).ValidTo;
+            int restaurantId = int.Parse(tokenHandler.ReadJwtToken(valueToken).Claims.First(claim => claim.Type == "restaurantId").Value);
             var refreshToken = new Token
             {
                 TokenValue = valueToken,
-                CustomerId = customerId,
+                CustomerId = subject,
                 RestaurantId = restaurantId,
                 TokenType = TokenType.RefreshToken
             };

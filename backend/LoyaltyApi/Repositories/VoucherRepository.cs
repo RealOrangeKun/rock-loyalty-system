@@ -9,13 +9,13 @@ using Microsoft.Extensions.Options;
 
 namespace LoyaltyApi.Repositories
 {
-    public class VoucherRepository(RockDbContext dbContext, ApiUtility apiUtility , VoucherUtility voucherUtility) : IVoucherRepository
+    public class VoucherRepository(RockDbContext dbContext, ApiUtility apiUtility, VoucherUtility voucherUtility) : IVoucherRepository
     {
         public async Task<Voucher> CreateVoucherAsync(Voucher voucher)
         {
             var apiKey = await apiUtility.GetApiKey(voucher.RestaurantId.ToString());
 
-            String result = await apiUtility.GenerateVoucher(voucher, apiKey);
+            string result = await apiUtility.GenerateVoucher(voucher, apiKey);
 
             voucher.LongCode = result;
 

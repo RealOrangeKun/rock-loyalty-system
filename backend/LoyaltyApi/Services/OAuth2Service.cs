@@ -31,8 +31,8 @@ namespace LoyaltyApi.Services
                 };
                 await userRepository.CreateUserAsync(user);
             };
-            var accessToken = tokenService.GenerateAccessToken(1, restaurantId);
-            var refreshToken = await tokenService.GenerateRefreshTokenAsync(1, restaurantId);
+            var accessToken = tokenService.GenerateAccessToken(user.Id, user.RestaurantId, Role.User);
+            var refreshToken = await tokenService.GenerateRefreshTokenAsync(user.Id, user.RestaurantId, Role.User);
             context.Response.Cookies.Append("refreshToken", refreshToken, jwtOptions.Value.JwtCookieOptions);
             return new OkObjectResult(accessToken);
         }
