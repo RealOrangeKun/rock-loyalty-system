@@ -28,12 +28,23 @@ namespace LoyaltyApi.Services
 
         public async Task<IEnumerable<Voucher>> GetUserVouchersAsync(int customerId, int restaurantId)
         {
-            return await voucherRepository.GetUserVouchersAsync(customerId, restaurantId);
+            Voucher voucher = new()
+            {
+                CustomerId = customerId,
+                RestaurantId = restaurantId
+            };
+            return await voucherRepository.GetUserVouchersAsync(voucher);
         }
 
-        public async Task<Voucher> GetVoucherAsync(int voucherId, int restaurantId)
+        public async Task<Voucher> GetVoucherAsync(int customerId, int restaurantId, string shortCode)
         {
-            return await voucherRepository.GetVoucherAsync(voucherId, restaurantId);
+            Voucher voucher = new()
+            {
+                RestaurantId = restaurantId,
+                ShortCode = shortCode,
+                CustomerId = customerId
+            };
+            return await voucherRepository.GetVoucherAsync(voucher);
         }
     }
 }

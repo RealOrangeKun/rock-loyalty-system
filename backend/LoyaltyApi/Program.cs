@@ -28,6 +28,7 @@ builder.Services.Configure<LoyaltyApi.Config.FacebookOptions>(builder.Configurat
 builder.Services.Configure<LoyaltyApi.Config.GoogleOptions>(builder.Configuration.GetSection("GoogleOptions"));
 // builder.Services.Configure<LoyaltyApi.Config.AppleOptions>(builder.Configuration.GetSection("AppleOptions"));
 builder.Services.Configure<API>(builder.Configuration.GetSection("API"));
+builder.Services.Configure<AdminOptions>(builder.Configuration.GetSection("AdminOptions"));
 
 builder.Services.AddControllers();
 

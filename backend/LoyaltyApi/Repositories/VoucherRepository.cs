@@ -9,13 +9,13 @@ using Microsoft.Extensions.Options;
 
 namespace LoyaltyApi.Repositories
 {
-    public class VoucherRepository(RockDbContext dbContext, ApiUtility apiUtility , VoucherUtility voucherUtility) : IVoucherRepository
+    public class VoucherRepository(RockDbContext dbContext, ApiUtility apiUtility, VoucherUtility voucherUtility) : IVoucherRepository
     {
         public async Task<Voucher> CreateVoucherAsync(Voucher voucher)
         {
             var apiKey = await apiUtility.GetApiKey(voucher.RestaurantId.ToString());
 
-            String result = await apiUtility.GenerateVoucher(voucher, apiKey);
+            string result = await apiUtility.GenerateVoucher(voucher, apiKey);
 
             voucher.LongCode = result;
 
@@ -28,15 +28,15 @@ namespace LoyaltyApi.Repositories
             return voucher;
         }
 
-        public async Task<IEnumerable<Voucher>> GetUserVouchersAsync(int customerId, int restaurantId)
+        public async Task<IEnumerable<Voucher>> GetUserVouchersAsync(Voucher voucher)
         {
-            return await dbContext.Vouchers.Where(v => v.CustomerId == customerId && v.RestaurantId == restaurantId).ToListAsync();
+            return await dbContext.Vouchers.Where(v => v.CustomerId == voucher.CustomerId && v.RestaurantId == voucher.CustomerId).ToListAsync();
 
         }
 
-        public async Task<Voucher> GetVoucherAsync(int voucherId, int restaurantId)
+        public async Task<Voucher> GetVoucherAsync(Voucher voucher)
         {
-            return await dbContext.Vouchers.FirstOrDefaultAsync(v => v.Id == voucherId && v.RestaurantId == restaurantId) ?? throw new DataException("Voucher not found");
+            return await dbContext.Vouchers.FirstOrDefaultAsync(v => v.CustomerId == voucher.CustomerId && v.RestaurantId == v.RestaurantId && v.ShortCode == voucher.ShortCode) ?? throw new DataException("Voucher not found");
         }
     }
 }

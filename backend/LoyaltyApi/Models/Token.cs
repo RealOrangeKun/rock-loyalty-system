@@ -4,14 +4,16 @@ namespace LoyaltyApi.Models
 {
     public class Token
     {
-        [Key]
-        public required string TokenValue { get; set; }
+        public string TokenValue { get; set; }
 
-        public required TokenType TokenType { get; set; }
+        public TokenType TokenType { get; set; }
 
-        public required int CustomerId { get; set; }
+        public int CustomerId { get; set; }
 
-        public required int RestaurantId { get; set; }
+        public Role Role { get; set; }
+
+        public int RestaurantId
+        { get; set; }
 
         public Token() { }
     }

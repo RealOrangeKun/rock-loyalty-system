@@ -1,13 +1,15 @@
+using LoyaltyApi.Models;
+
 namespace LoyaltyApi.Repositories
 {
     public interface ITokenRepository
     {
-        string GenerateAccessToken(int userId, int restaurantId);
+        string GenerateAccessToken(Token token);
 
-        Task<string> GenerateRefreshTokenAsync(int userId, int restaurantId);
+        Task<string> GenerateRefreshTokenAsync(Token token);
 
-        bool ValidateToken(string token);
+        bool ValidateToken(Token token);
 
-        bool ValidateRefreshToken(string token);
+        bool ValidateRefreshToken(Token token);
     }
 }

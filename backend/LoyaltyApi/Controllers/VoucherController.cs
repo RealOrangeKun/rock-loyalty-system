@@ -7,14 +7,14 @@ using Microsoft.AspNetCore.Mvc;
 namespace LoyaltyApi.Controllers
 {
     [ApiController]
-    [Route("api/voucher")]
+    [Route("api/vouchers")]
     public class VoucherController(IVoucherService voucherService, ILogger<VoucherController> logger) : ControllerBase
     {
         private readonly IVoucherService voucherService = voucherService;
 
         [HttpPost]
         [Route("")]
-        [Authorize]
+        [Authorize(Roles = "User")]
         public async Task<ActionResult> CreateVoucher([FromBody] CreateVoucherRequest voucherRequest)
         {
             try
@@ -24,7 +24,6 @@ namespace LoyaltyApi.Controllers
             }
             catch (Exception ex)
             {
-                logger.LogCritical(ex.Message);
                 return StatusCode(500, ex.Message);
             }
         }
