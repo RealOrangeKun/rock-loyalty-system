@@ -2,7 +2,9 @@ namespace LoyaltyApi.Models
 {
     public class CreditPointsTransaction
     {
-        public required int  TransactionId { get; set; }
+        public int  TransactionId { get; set; }
+        
+        public int ReceiptId { get; set; }
         
         public required int CustomerId { get; set; }
         
