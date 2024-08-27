@@ -9,6 +9,8 @@ namespace LoyaltyApi.Data
 
         public DbSet<CreditPointsTransaction> CreditPointsTransactions { get; set; }
 
+        public DbSet<CreditPointsTransactionDetail> CreditPointsTransactionsDetails { get; set; }
+
         public DbSet<Restaurant> Restaurants { get; set; }
 
         public DbSet<Voucher> Vouchers { get; set; }
@@ -28,17 +30,21 @@ namespace LoyaltyApi.Data
                 .HasKey(p => p.TransactionId);
 
             modelBuilder.Entity<CreditPointsTransaction>()
+                .Property(p => p.TransactionId)
+                .ValueGeneratedOnAdd();
+
+            modelBuilder.Entity<CreditPointsTransaction>()
                 .HasOne(p => p.Restaurant)
                 .WithMany()
                 .HasForeignKey(p => p.RestaurantId);
 
             modelBuilder.Entity<CreditPointsTransactionDetail>()
                 .HasKey(d => d.DetailId);
-            
+
             modelBuilder.Entity<CreditPointsTransactionDetail>()
                 .Property(d => d.DetailId)
                 .ValueGeneratedOnAdd();
-            
+
             modelBuilder.Entity<CreditPointsTransactionDetail>()
                 .HasOne(d => d.Transaction)
                 .WithMany(p => p.CreditPointsTransactionDetails)
