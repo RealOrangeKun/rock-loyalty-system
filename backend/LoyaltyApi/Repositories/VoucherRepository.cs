@@ -28,9 +28,9 @@ namespace LoyaltyApi.Repositories
             return voucher;
         }
 
-        public async Task<IEnumerable<dynamic>> GetUserVouchersAsync(Voucher voucher)
+        public async Task<IEnumerable<Voucher>> GetUserVouchersAsync(int customerId, int restaurantId)
         {
-            return await dbContext.Vouchers.Where(v => v.CustomerId == voucher.CustomerId && v.RestaurantId == voucher.CustomerId).Select(v => new { v.ShortCode, v.Value, v.IsUsed }).ToListAsync();
+            return await dbContext.Vouchers.Where(v => v.CustomerId == customerId && v.RestaurantId == restaurantId).ToListAsync();
         }
 
         public async Task<Voucher?> GetVoucherAsync(Voucher voucher)

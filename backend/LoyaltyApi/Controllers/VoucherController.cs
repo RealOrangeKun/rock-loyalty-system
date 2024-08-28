@@ -37,7 +37,40 @@ namespace LoyaltyApi.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
-
+        [HttpGet]
+        [Route("")]
+        [Authorize(Roles = "User")]
+        public async Task<ActionResult> GetVocher([FromQuery] int customerId, [FromQuery] int restaurantId , [FromQuery] string shortCode){
+            try
+            {
+              var voucher = await voucherService.GetVoucherAsync(customerId, restaurantId, shortCode);
+              var result = new{
+                voucher.Value,
+                voucher.IsUsed
+              };
+              return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                
+                return StatusCode(500,ex.Message);
+            }
+        }
+        [HttpGet]
+        [Route("user")]
+        [Authorize(Roles = "User")]
+        public async Task<ActionResult> GetUserVouchers([FromQuery] int customerId, [FromQuery] int restaurantId)
+        {
+            try
+            {
+                var vouchers = await voucherService.GetUserVouchersAsync(customerId, restaurantId);
+                return Ok(vouchers.Select(v => new { v.ShortCode, v.Value, v.IsUsed }));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
 
     }
 }
