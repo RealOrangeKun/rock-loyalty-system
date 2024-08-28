@@ -29,7 +29,7 @@ namespace LoyaltyApi.Services
 
         }
 
-        public async Task<IEnumerable<Voucher>> GetUserVouchersAsync(int customerId, int restaurantId)
+        public async Task<IEnumerable<dynamic>> GetUserVouchersAsync(int customerId, int restaurantId)
         {
             Voucher voucher = new()
             {
@@ -47,7 +47,7 @@ namespace LoyaltyApi.Services
                 ShortCode = shortCode,
                 CustomerId = customerId
             };
-            return await voucherRepository.GetVoucherAsync(voucher);
+            return await voucherRepository.GetVoucherAsync(voucher) ?? throw new Exception("Voucher not found");
         }
     }
 }

@@ -6,9 +6,9 @@ namespace LoyaltyApi.Repositories
     {
         Task<Voucher> CreateVoucherAsync(Voucher voucher);
 
-        Task<Voucher> GetVoucherAsync(Voucher voucher);
+        Task<dynamic?> GetVoucherAsync(Voucher voucher);
 
-        Task<IEnumerable<Voucher>> GetUserVouchersAsync(Voucher voucher);
+        Task<IEnumerable<dynamic>> GetUserVouchersAsync(Voucher voucher);
 
     }
 }
