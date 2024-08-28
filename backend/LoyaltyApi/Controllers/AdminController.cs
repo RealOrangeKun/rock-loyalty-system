@@ -19,15 +19,9 @@ namespace LoyaltyApi.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult> GetVoucherLongCode([FromQuery] string shortCode, [FromQuery] int customerId, [FromQuery] int restaurantId)
         {
-            try
-            {
-                Voucher voucher = await voucherService.GetVoucherAsync(customerId, restaurantId, shortCode);
-                return Ok(voucher.LongCode);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message);
-            }
+
+            Voucher voucher = await voucherService.GetVoucherAsync(customerId, restaurantId, shortCode);
+            return Ok(voucher.LongCode);
         }
         [HttpPost]
         [Route("transactions")]
