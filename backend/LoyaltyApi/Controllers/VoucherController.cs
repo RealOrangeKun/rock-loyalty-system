@@ -9,7 +9,9 @@ namespace LoyaltyApi.Controllers
 {
     [ApiController]
     [Route("api/vouchers")]
-    public class VoucherController(IVoucherService voucherService, ICreditPointsTransactionService pointsTransactionService) : ControllerBase
+    public class VoucherController(IVoucherService voucherService,
+    ICreditPointsTransactionService pointsTransactionService,
+    ILogger<VoucherController> logger) : ControllerBase
     {
         private readonly IVoucherService voucherService = voucherService;
 
@@ -34,43 +36,39 @@ namespace LoyaltyApi.Controllers
             }
             catch (Exception ex)
             {
+                logger.LogCritical(ex.Message);
                 return StatusCode(500, ex.Message);
             }
         }
         [HttpGet]
-        [Route("")]
         [Authorize(Roles = "User")]
-        public async Task<ActionResult> GetVoucher([FromQuery] int customerId, [FromQuery] int restaurantId , [FromQuery] string shortCode){
-            try
-            {
-              var voucher = await voucherService.GetVoucherAsync(customerId, restaurantId, shortCode);
-              var result = new{
-                voucher.Value,
-                voucher.IsUsed
-              };
-              return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                
-                return StatusCode(500,ex.Message);
-            }
-        }
-        [HttpGet]
-        [Route("user")]
-        [Authorize(Roles = "User")]
-        public async Task<ActionResult> GetUserVouchers([FromQuery] int customerId, [FromQuery] int restaurantId)
+        public async Task<ActionResult> GetVocher([FromQuery] string? shortCode)
         {
             try
             {
-                var vouchers = await voucherService.GetUserVouchersAsync(customerId, restaurantId);
-                return Ok(vouchers.Select(v => new { v.ShortCode, v.Value, v.IsUsed }));
+                if (shortCode is null)
+                {
+                    var vochers = await voucherService.GetUserVouchersAsync(null, null);
+                    return Ok(vochers.Select(v => new
+                    {
+                        v.ShortCode,
+                        v.IsUsed,
+                        v.Value
+                    }));
+                }
+                var voucher = await voucherService.GetVoucherAsync(null, null, shortCode);
+                var result = new
+                {
+                    voucher.Value,
+                    voucher.IsUsed
+                };
+                return Ok(result);
             }
             catch (Exception ex)
             {
+
                 return StatusCode(500, ex.Message);
             }
         }
-
     }
 }

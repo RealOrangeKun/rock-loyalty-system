@@ -4,3 +4,4 @@ Migrations
 *.db-wal
 *db-shm
 .vscode
+config.json

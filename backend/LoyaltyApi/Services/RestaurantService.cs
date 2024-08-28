@@ -42,17 +42,12 @@ namespace LoyaltyApi.Services
         //Update Methods
         public async Task UpdateRestaurantInfo(int restaurantId, RestaurantCreditPointsRequestModel restaurantRequestModel)
         {
-            Restaurant restaurantUpdated = new()
-            {
-                CreditPointsBuyingRate = restaurantRequestModel.CreditPointsBuyingRate,
-                CreditPointsSellingRate = restaurantRequestModel.CreditPointsSellingRate,
-                CreditPointsLifeTime = restaurantRequestModel.CreditPointsLifeTime,
-                VoucherLifeTime = restaurantRequestModel.VoucherLifeTime,
-                RestaurantId = restaurantId,
-
-            };
-
-            await repository.UpdateRestaurant(restaurantId, restaurantUpdated);
+            Restaurant existingRestaurant = await repository.GetRestaurantInfo(restaurantId) ?? throw new Exception("Invalid restaurant");
+            existingRestaurant.CreditPointsBuyingRate = restaurantRequestModel.CreditPointsBuyingRate ?? existingRestaurant.CreditPointsBuyingRate;
+            existingRestaurant.CreditPointsSellingRate = restaurantRequestModel.CreditPointsSellingRate ?? existingRestaurant.CreditPointsSellingRate;
+            existingRestaurant.VoucherLifeTime = restaurantRequestModel.VoucherLifeTime ?? existingRestaurant.VoucherLifeTime;
+            existingRestaurant.CreditPointsLifeTime = restaurantRequestModel.CreditPointsLifeTime ?? existingRestaurant.CreditPointsLifeTime;
+            await repository.UpdateRestaurant(existingRestaurant);
         }
 
         //Create Methods

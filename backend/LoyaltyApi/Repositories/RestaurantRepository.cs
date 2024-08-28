@@ -23,25 +23,19 @@ namespace LoyaltyApi.Repositories
             return restaurant;
         }
         //Update Method
-        public async Task UpdateRestaurant(int RestaurantId ,Restaurant requestRestaurant)
+        public async Task UpdateRestaurant(Restaurant restaurant)
         {
             //If this doesn't work
-            var existingRestaurant = await dbContext.Restaurants.FirstOrDefaultAsync(r => r.RestaurantId == RestaurantId);
-            if (existingRestaurant != null)
-            {
-                existingRestaurant.CreditPointsLifeTime = requestRestaurant.CreditPointsLifeTime;
-                existingRestaurant.CreditPointsSellingRate = requestRestaurant.CreditPointsSellingRate;   
-                existingRestaurant.CreditPointsBuyingRate = requestRestaurant.CreditPointsBuyingRate;
-                existingRestaurant.VoucherLifeTime = requestRestaurant.VoucherLifeTime;
-                await dbContext.SaveChangesAsync();
-            }
+
+            dbContext.Restaurants.Update(restaurant);
+            await dbContext.SaveChangesAsync();
 
             //Try This if the above doesn't work bas deh ht3ml update lel restaurant kolo i can handle it lw the above doesn't work
 
             // dbContext.Restaurants.Update(restaurant);
             // await dbContext.SaveChangesAsync();
         }
-      
+
     }
 
 }

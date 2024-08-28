@@ -19,7 +19,7 @@ describe('Register', () => {
         };
         cy.request({
             method: 'POST',
-            url: `/api/user`,
+            url: `/api/users`,
             body,
             headers: {
                 'Content-Type': 'application/json'
