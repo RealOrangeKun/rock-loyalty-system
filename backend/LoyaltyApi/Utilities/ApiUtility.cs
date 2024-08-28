@@ -7,7 +7,7 @@ using Microsoft.Extensions.Options;
 
 namespace LoyaltyApi.Utilities
 {
-    public class ApiUtility(IOptions<API> apiOptions)
+    public class ApiUtility(IOptions<API> apiOptions , ILogger<ApiUtility> logger)
     {
         public async Task<string> GetApiKey(string restaurantId)
         {
@@ -46,6 +46,7 @@ namespace LoyaltyApi.Utilities
                 CCODE = "C"
             };
             string jsonBody = JsonSerializer.Serialize(body);
+            logger.LogCritical(jsonBody);
             StringContent content = new(jsonBody, Encoding.UTF8, "application/json");
             client.DefaultRequestHeaders.Add("XApiKey", apiKey);
             var result = await client.PostAsync($"{apiOptions.Value.BaseUrl}/api/HISCMD/ADDVOC", content);
@@ -53,7 +54,10 @@ namespace LoyaltyApi.Utilities
             if (message.Replace(" ", "").Contains("ERR"))
                 throw new HttpRequestException($"Request to create user failed with message: {message}");
             string responseContent = await result.Content.ReadAsStringAsync();
+            logger.LogCritical(responseContent);
             var responseObject = JsonSerializer.Deserialize<List<String>>(responseContent) ?? throw new HttpRequestException("Request to create user failed");
+    
+
             return responseObject.First();
         }
         public async Task<User?> GetUserAsync(User user, string apiKey)
