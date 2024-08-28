@@ -1,33 +1,38 @@
 using System.Data;
 using LoyaltyApi.Data;
 using LoyaltyApi.Models;
+using LoyaltyApi.RequestModels;
+using Microsoft.AspNetCore.Routing.Constraints;
 using Microsoft.EntityFrameworkCore;
 
 namespace LoyaltyApi.Repositories
 {
     public class RestaurantRepository(RockDbContext dbContext) : IRestaurantRepository
     {
-        //Create Methods
+        //Create Method
         public async Task CreateRestaurant(Restaurant restaurant)
         {
             await dbContext.Restaurants.AddAsync(restaurant);
 
             await dbContext.SaveChangesAsync();
         }
-        //Get Methods
-        public async Task<Restaurant> GetRestaurantInfo(int restaurantId)
+        //Get Method
+        public async Task<Restaurant?> GetRestaurantInfo(int restaurantId)
         {
             var restaurant = await dbContext.Restaurants.FirstOrDefaultAsync(r => r.RestaurantId == restaurantId);
-            return restaurant ?? throw new DataException("Restaurant not found");
+            return restaurant;
         }
-        //Update Methods
-        public async Task UpdateCreditBuyingRate(Restaurant restaurant)
+        //Update Method
+        public async Task UpdateRestaurant(int RestaurantId ,Restaurant requestRestaurant)
         {
             //If this doesn't work
-            var existingRestaurant = await dbContext.Restaurants.FirstOrDefaultAsync(r => r.RestaurantId == restaurant.RestaurantId);
+            var existingRestaurant = await dbContext.Restaurants.FirstOrDefaultAsync(r => r.RestaurantId == RestaurantId);
             if (existingRestaurant != null)
             {
-                existingRestaurant.CreditPointsBuyingRate = restaurant.CreditPointsBuyingRate;
+                existingRestaurant.CreditPointsLifeTime = requestRestaurant.CreditPointsLifeTime;
+                existingRestaurant.CreditPointsSellingRate = requestRestaurant.CreditPointsSellingRate;   
+                existingRestaurant.CreditPointsBuyingRate = requestRestaurant.CreditPointsBuyingRate;
+                existingRestaurant.VoucherLifeTime = requestRestaurant.VoucherLifeTime;
                 await dbContext.SaveChangesAsync();
             }
 
@@ -36,48 +41,7 @@ namespace LoyaltyApi.Repositories
             // dbContext.Restaurants.Update(restaurant);
             // await dbContext.SaveChangesAsync();
         }
-
-
-        public async Task UpdateCreditPointsLifeTime(Restaurant restaurant)
-        {
-            var existingRestaurant = await dbContext.Restaurants.FirstOrDefaultAsync(r => r.RestaurantId == restaurant.RestaurantId);
-            if (existingRestaurant != null)
-            {
-                existingRestaurant.CreditPointsLifeTime = restaurant.CreditPointsLifeTime;
-                await dbContext.SaveChangesAsync();
-            }
-
-            // dbContext.Restaurants.Update(restaurant);
-            // await dbContext.SaveChangesAsync();
-        }
-
-        public async Task UpdateCreditSellingRate(Restaurant restaurant)
-        {
-            var existingRestaurant = await dbContext.Restaurants.FirstOrDefaultAsync(r => r.RestaurantId == restaurant.RestaurantId);
-            if (existingRestaurant != null)
-            {
-                existingRestaurant.CreditPointsSellingRate = restaurant.CreditPointsSellingRate;
-                await dbContext.SaveChangesAsync();
-            }
-
-            // dbContext.Restaurants.Update(restaurant);
-            // await dbContext.SaveChangesAsync();
-        }
-
-        public async Task UpdateVoucherLifeTime(Restaurant restaurant)
-        {
-            var existingRestaurant = await dbContext.Restaurants.FirstOrDefaultAsync(r => r.RestaurantId == restaurant.RestaurantId);
-            if (existingRestaurant != null)
-            {
-                existingRestaurant.VoucherLifeTime = restaurant.VoucherLifeTime;
-                await dbContext.SaveChangesAsync();
-            }
-
-
-
-            // dbContext.Restaurants.Update(restaurant);
-            // await dbContext.SaveChangesAsync();
-        }
+      
     }
 
 }

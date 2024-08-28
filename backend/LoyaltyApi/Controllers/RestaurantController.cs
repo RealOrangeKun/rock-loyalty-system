@@ -51,40 +51,13 @@ namespace LoyaltyApi.Controllers
        }
 
        [HttpPut]
-       [Route("creditpointsbuyingrate/{id}")]
+      [Route ("updaterestuanrt/{id}")]
 
-       public async Task<ActionResult> UpdateCreditBuyingRate ([FromRoute]int id, [FromBody] double creditPointsBuyingRate){
+       public async Task<ActionResult> UpdateRestaurant([FromRoute]int id, [FromBody] RestaurantCreditPointsRequestModel updateRestaurant){
            try
            {
-               await restaurantService.UpdateCreditBuyingRate(id, creditPointsBuyingRate);
-               return Ok("Credit buying rate updated");
-           }
-           catch (Exception ex)
-           {
-               return BadRequest(ex.Message);
-        
-     }
-       }
-        [HttpPut]
-        [Route("creditpointssellingrate/{id}")]
-       public async Task<ActionResult> UpdateCreditSellingRate ([FromRoute]int id, [FromBody] double creditPointsSellingRate){
-           try
-           {
-               await restaurantService.UpdateCreditSellingRate(id, creditPointsSellingRate);
-               return Ok("Credit selling rate updated");
-           }    
-           catch (Exception ex)
-           {
-               return BadRequest(ex.Message);
-           }
-       }
-       [HttpPut]
-       [Route("voucherlifetime/{id}")]
-       public async Task<ActionResult> UpdateVoucherLifeTime ([FromRoute]int id, [FromBody] int voucherLifeTime){ 
-           try
-           {
-               await restaurantService.UpdateVoucherLifeTime(id, voucherLifeTime);
-               return Ok("Voucher lifetime updated");
+               await restaurantService.UpdateRestaurantInfo(id, updateRestaurant);
+               return Ok("Restaurant Updated");
            }
            catch (Exception ex)
            {

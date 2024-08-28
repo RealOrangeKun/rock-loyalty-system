@@ -41,7 +41,7 @@ builder.Services.AddTransient<IVoucherService, VoucherService>();
 builder.Services.AddTransient<IRestaurantRepository, RestaurantRepository>();
 builder.Services.AddTransient<IRestaurantService, RestaurantService>();
 builder.Services.AddTransient<ICreditPointsTransactionRepository, CreditPointsTransactionRepository>();
-builder.Services.AddTransient<ICreditPointsTransactionService, CreditPointsTransactionService>();
+// builder.Services.AddTransient<ICreditPointsTransactionService, CreditPointsTransactionService>();
 builder.Services.AddScoped<OAuth2Service>();
 builder.Services.AddTransient<ApiUtility>();
 builder.Services.AddTransient<VoucherUtility>();

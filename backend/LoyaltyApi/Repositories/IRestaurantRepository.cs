@@ -1,17 +1,15 @@
 using LoyaltyApi.Models;
+using LoyaltyApi.RequestModels;
 
 namespace LoyaltyApi.Repositories
 {
     public interface IRestaurantRepository
     {
-         Task<Restaurant> GetRestaurantInfo(int restaurantId);
+         Task<Restaurant?> GetRestaurantInfo(int restaurantId);
 
          //Update Methods
-         Task UpdateCreditBuyingRate(Restaurant restaurant);
-         Task UpdateCreditSellingRate(Restaurant restaurant);
+         Task UpdateRestaurant(int restaurantId, Restaurant resturantRequest);
 
-         Task UpdateVoucherLifeTime(Restaurant restaurant);
-         Task UpdateCreditPointsLifeTime(Restaurant restaurant);
 
          //Create Method 
          Task CreateRestaurant(Restaurant restaurant);

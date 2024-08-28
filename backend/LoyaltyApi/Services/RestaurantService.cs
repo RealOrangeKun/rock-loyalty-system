@@ -1,33 +1,34 @@
 using LoyaltyApi.Models;
 using LoyaltyApi.Repositories;
 using LoyaltyApi.RequestModels;
+using Microsoft.AspNetCore.Http.HttpResults;
 namespace LoyaltyApi.Services
 {
     public class RestaurantService(IRestaurantRepository repository) : IRestaurantService
     {
         //Get Methods
-        public Task<Restaurant> GetRestaurantInfo(int restaurantId)
+        public Task<Restaurant?> GetRestaurantInfo(int restaurantId)
         {
             return repository.GetRestaurantInfo(restaurantId);
         }
-        public async Task<double> GetCreditPointBuyingRate(int restaurantId)
+        public async Task<double?> GetCreditPointBuyingRate(int restaurantId)
         {
             var result = await repository.GetRestaurantInfo(restaurantId);
             return result.CreditPointsBuyingRate;
         }
 
-        public async Task<double> GetCreditPointSellingRate(int restaurantId)
+        public async Task<double?> GetCreditPointSellingRate(int restaurantId)
         {
             var result = await repository.GetRestaurantInfo(restaurantId);
             return result.CreditPointsSellingRate;
         }
 
-        public async Task<double> GetLoyaltyPointBuyingRate(int restaurantId)
+        public async Task<double?> GetLoyaltyPointBuyingRate(int restaurantId)
         {
             var result = await repository.GetRestaurantInfo(restaurantId);
             return result.LoyaltyPointsBuyingRate;
         }
-        public async Task<int> GetVoucherLifeTime(int restaurantId)
+        public async Task<int?> GetVoucherLifeTime(int restaurantId)
         {
             var result = await repository.GetRestaurantInfo(restaurantId);
             return result.VoucherLifeTime;
@@ -35,37 +36,23 @@ namespace LoyaltyApi.Services
 
 
         //Update Methods
-        public async Task UpdateCreditBuyingRate(int restaurantId, double creditPointsBuyingRate)
+        public async Task UpdateRestaurantInfo(int restaurantId, RestaurantCreditPointsRequestModel restaurantRequestModel  )
         {
-            Restaurant restaurant = await repository.GetRestaurantInfo(restaurantId);
-            restaurant.CreditPointsBuyingRate = creditPointsBuyingRate;
+            
+        
+              Restaurant restaurantUpdated = new(){
+                CreditPointsBuyingRate = restaurantRequestModel.CreditPointsBuyingRate,
+                CreditPointsSellingRate = restaurantRequestModel.CreditPointsSellingRate,
+                CreditPointsLifeTime = restaurantRequestModel.CreditPointsLifeTime,
+                VoucherLifeTime = restaurantRequestModel.VoucherLifeTime,
+                RestaurantId = restaurantId,
+                    
+            };
 
-            await repository.UpdateCreditBuyingRate(restaurant);
+             await repository.UpdateRestaurant(restaurantId, restaurantUpdated);
+             
+
         }
-
-        public async Task UpdateCreditPointsLifeTime(int restaurantId, int creditPointsLifeTime)
-        {
-            Restaurant restaurant = await repository.GetRestaurantInfo(restaurantId);
-            restaurant.CreditPointsLifeTime = creditPointsLifeTime;
-        }
-
-
-        public async Task UpdateCreditSellingRate(int restaurantId, double creditPointsSellingRate)
-        {
-            Restaurant restaurant = await repository.GetRestaurantInfo(restaurantId);
-            restaurant.CreditPointsBuyingRate = creditPointsSellingRate;
-
-            await repository.UpdateCreditSellingRate(restaurant);
-        }
-
-        public async Task UpdateVoucherLifeTime(int restaurantId, int voucherLifeTime)
-        {
-            Restaurant restaurant = await repository.GetRestaurantInfo(restaurantId);
-            restaurant.CreditPointsBuyingRate = voucherLifeTime;
-
-            await repository.UpdateVoucherLifeTime(restaurant);
-        }
-
 
         //Create Methods
         public async Task CreateRestaurant(CreateRestaurantRequestModel createRestaurant)
@@ -84,5 +71,6 @@ namespace LoyaltyApi.Services
 
             await repository.CreateRestaurant(restaurant);
         }
+        
     }
 }
