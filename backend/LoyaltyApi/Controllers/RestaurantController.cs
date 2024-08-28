@@ -1,5 +1,6 @@
 using LoyaltyApi.RequestModels;
 using LoyaltyApi.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LoyaltyApi.Controllers
@@ -7,6 +8,7 @@ namespace LoyaltyApi.Controllers
 
     [ApiController]
     [Route("api/restaurant")]
+    [Authorize(Roles = "Admin")]
     public class RestaurantController(IRestaurantService restaurantService) : Controller
     {
         [HttpPost]
