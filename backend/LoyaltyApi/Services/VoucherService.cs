@@ -7,7 +7,12 @@ using LoyaltyApi.Utilities;
 
 namespace LoyaltyApi.Services
 {
-    public class VoucherService(IVoucherRepository voucherRepository, VoucherUtility voucherUtility, IRestaurantRepository restaurantRepository, IHttpContextAccessor httpContext, ICreditPointsTransactionRepository creditPointsTransactionRepository) : IVoucherService
+    public class VoucherService(IVoucherRepository voucherRepository,
+    VoucherUtility voucherUtility,
+    IRestaurantRepository restaurantRepository,
+    IHttpContextAccessor httpContext,
+    ICreditPointsTransactionRepository creditPointsTransactionRepository,
+    ILogger<VoucherService> logger) : IVoucherService
     {
         public async Task<Voucher> CreateVoucherAsync(CreateVoucherRequest voucherRequest)
         {
@@ -18,6 +23,7 @@ namespace LoyaltyApi.Services
             if (availablePoints < voucherRequest.Points) throw new PointsNotEnoughException("Not enough points");
             double ratio = (await restaurantRepository.GetRestaurantInfo(restaurantId) ?? throw new ArgumentException("restaurant not found")).CreditPointsSellingRate;
             int voucherValue = voucherUtility.CalculateVoucherValue(voucherRequest.Points, ratio);
+            if (voucherValue == 0) throw new MinimumPointsNotReachedException("Point used too low");
             Voucher voucher = new()
             {
                 RestaurantId = restaurantId,

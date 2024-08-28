@@ -22,13 +22,20 @@ namespace LoyaltyApi.Controllers
             {
                 Voucher voucher = await voucherService.CreateVoucherAsync(voucherRequest);
                 await pointsTransactionService.SpendPointsAsync(voucher.CustomerId, voucher.RestaurantId, voucherRequest.Points);
-                return Ok(voucher.ShortCode);
+                return StatusCode(201, voucher.ShortCode);
             }
             catch (PointsNotEnoughException ex)
             {
                 return BadRequest(ex.Message);
             }
-            
+            catch (MinimumPointsNotReachedException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
         [HttpGet]

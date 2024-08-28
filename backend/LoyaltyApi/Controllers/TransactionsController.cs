@@ -17,7 +17,7 @@ namespace LoyaltyApi.Controllers
             try
             {
                 await pointsTransactionService.AddTransactionAsync(createTransactionRequest);
-                return Created();
+                return StatusCode(201);
             }
             catch (Exception ex)
             {
