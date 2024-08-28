@@ -33,19 +33,22 @@ namespace LoyaltyApi.Services
             return await voucherRepository.CreateVoucherAsync(voucher);
         }
 
-        public async Task<IEnumerable<Voucher>> GetUserVouchersAsync(int customerId, int restaurantId)
+        public async Task<IEnumerable<Voucher>> GetUserVouchersAsync(int? customerId, int? restaurantId)
         {
-            
-            return await voucherRepository.GetUserVouchersAsync(customerId, restaurantId);
+            int customerIdJwt = customerId ?? int.Parse(httpContext.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new ArgumentException("customerId not found"));
+            int restaurantIdJwt = restaurantId ?? int.Parse(httpContext.HttpContext?.User?.FindFirst("restaurantId")?.Value ?? throw new ArgumentException("restaurantId not found"));
+            return await voucherRepository.GetUserVouchersAsync(customerId ?? customerIdJwt, restaurantId ?? restaurantIdJwt);
         }
 
-        public async Task<Voucher> GetVoucherAsync(int customerId, int restaurantId, string shortCode)
+        public async Task<Voucher> GetVoucherAsync(int? customerId, int? restaurantId, string shortCode)
         {
+            int customerIdJwt = customerId ?? int.Parse(httpContext.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new ArgumentException("customerId not found"));
+            int restaurantIdJwt = restaurantId ?? int.Parse(httpContext.HttpContext?.User?.FindFirst("restaurantId")?.Value ?? throw new ArgumentException("restaurantId not found"));
             Voucher voucher = new()
             {
-                RestaurantId = restaurantId,
+                RestaurantId = restaurantId ?? restaurantIdJwt,
                 ShortCode = shortCode,
-                CustomerId = customerId
+                CustomerId = customerId ?? customerIdJwt
             };
             return await voucherRepository.GetVoucherAsync(voucher) ?? throw new Exception("Voucher not found");
         }

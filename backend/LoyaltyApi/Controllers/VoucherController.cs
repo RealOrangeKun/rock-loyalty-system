@@ -40,30 +40,32 @@ namespace LoyaltyApi.Controllers
         [HttpGet]
         [Route("")]
         [Authorize(Roles = "User")]
-        public async Task<ActionResult> GetVocher([FromQuery] int customerId, [FromQuery] int restaurantId , [FromQuery] string shortCode){
+        public async Task<ActionResult> GetVocher([FromQuery] string shortCode)
+        {
             try
             {
-              var voucher = await voucherService.GetVoucherAsync(customerId, restaurantId, shortCode);
-              var result = new{
-                voucher.Value,
-                voucher.IsUsed
-              };
-              return Ok(result);
+                var voucher = await voucherService.GetVoucherAsync(null, null, shortCode);
+                var result = new
+                {
+                    voucher.Value,
+                    voucher.IsUsed
+                };
+                return Ok(result);
             }
             catch (Exception ex)
             {
-                
-                return StatusCode(500,ex.Message);
+
+                return StatusCode(500, ex.Message);
             }
         }
         [HttpGet]
         [Route("user")]
         [Authorize(Roles = "User")]
-        public async Task<ActionResult> GetUserVouchers([FromQuery] int customerId, [FromQuery] int restaurantId)
+        public async Task<ActionResult> GetUserVouchers()
         {
             try
             {
-                var vouchers = await voucherService.GetUserVouchersAsync(customerId, restaurantId);
+                var vouchers = await voucherService.GetUserVouchersAsync(null, null);
                 return Ok(vouchers.Select(v => new { v.ShortCode, v.Value, v.IsUsed }));
             }
             catch (Exception ex)
@@ -71,6 +73,5 @@ namespace LoyaltyApi.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
-
     }
 }
