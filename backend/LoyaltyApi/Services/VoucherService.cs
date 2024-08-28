@@ -28,7 +28,8 @@ namespace LoyaltyApi.Services
             {
                 RestaurantId = restaurantId,
                 CustomerId = customerId,
-                Value = voucherValue
+                Value = voucherValue,
+                DateOfCreation = DateTime.Now
             };
             return await voucherRepository.CreateVoucherAsync(voucher);
         }
