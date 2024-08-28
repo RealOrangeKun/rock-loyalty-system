@@ -45,6 +45,10 @@ builder.Services.AddTransient<ICreditPointsTransactionRepository, CreditPointsTr
 builder.Services.AddScoped<OAuth2Service>();
 builder.Services.AddTransient<ApiUtility>();
 builder.Services.AddTransient<VoucherUtility>();
+builder.Services.AddTransient<CreditPointsUtility>();
+builder.Services.AddTransient<ICreditPointsTransactionDetailRepository, CreditPointsTransactionDetailRepository>();
+builder.Services.AddTransient<ICreditPointsTransactionRepository, CreditPointsTransactionRepository>();
+builder.Services.AddTransient<ICreditPointsTransactionService, CreditPointsTransactionService>();
 
 // Configure authentication
 builder.Services.AddAuthentication(options =>

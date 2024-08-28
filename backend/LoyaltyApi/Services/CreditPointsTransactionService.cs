@@ -1,20 +1,24 @@
-﻿// using LoyaltyApi.Data;
-// using LoyaltyApi.Models;
-// using LoyaltyApi.Repositories;
-// using LoyaltyApi.RequestModels;
+using System.Security.Claims;
+using LoyaltyApi.Data;
+using LoyaltyApi.Models;
+using LoyaltyApi.Repositories;
+using LoyaltyApi.RequestModels;
+using LoyaltyApi.Utilities;
 
 // namespace LoyaltyApi.Services;
 
-// public class CreditPointsTransactionService(
-//     ICreditPointsTransactionRepository transactionRepository,
-//     ICreditPointsTransactionDetailRepository transactionDetailRepository,
-//     IRestaurantRepository restaurantRepository,
-//     RockDbContext context) : ICreditPointsTransactionService
-// {
-//     public async Task<CreditPointsTransaction?> GetTransactionByIdAsync(int transactionId)
-//     {
-//         return await transactionRepository.GetTransactionByIdAsync(transactionId);
-//     }
+public class CreditPointsTransactionService(
+    ICreditPointsTransactionRepository transactionRepository,
+    ICreditPointsTransactionDetailRepository transactionDetailRepository,
+    IRestaurantRepository restaurantRepository,
+    RockDbContext context,
+    IHttpContextAccessor httpContext,
+    CreditPointsUtility creditPointsUtility) : ICreditPointsTransactionService
+{
+    public async Task<CreditPointsTransaction?> GetTransactionByIdAsync(int transactionId)
+    {
+        return await transactionRepository.GetTransactionByIdAsync(transactionId);
+    }
 
 //     public async Task<CreditPointsTransaction?> GetTransactionByReceiptIdAsync(int receiptId)
 //     {
@@ -27,25 +31,20 @@
 //         return await transactionRepository.GetTransactionsByCustomerAndRestaurantAsync(customerId, restaurantId);
 //     }
 
-//     public async Task AddTransactionAsync(CreateTransactionRequest transactionRequest)
-//     {
-//         var restaurant = await restaurantRepository.GetRestaurantInfo(transactionRequest.RestaurantId);
-//         if (restaurant == null)
-//         {
-//             throw new Exception("Invalid restaurant");
-//         }
-
-//         var transaction = new CreditPointsTransaction
-//         {
-//             CustomerId = transactionRequest.CustomerId,
-//             RestaurantId = transactionRequest.RestaurantId,
-//             ReceiptId = transactionRequest.ReceiptId,
-//             TransactionType = transactionRequest.TransactionType,
-//             Points = Convert.ToInt32(transactionRequest.Amount * restaurant.CreditPointsBuyingRate),
-//             TransactionDate = transactionRequest.TransactionDate ?? DateTime.Now
-//         };
-//         await transactionRepository.AddTransactionAsync(transaction);
-//     }
+    public async Task AddTransactionAsync(CreateTransactionRequest transactionRequest)
+    {
+        var restaurant = await restaurantRepository.GetRestaurantInfo(transactionRequest.RestaurantId) ?? throw new Exception("Invalid restaurant");
+        var transaction = new CreditPointsTransaction
+        {
+            CustomerId = transactionRequest.CustomerId,
+            RestaurantId = transactionRequest.RestaurantId,
+            ReceiptId = transactionRequest.ReceiptId,
+            TransactionType = transactionRequest.TransactionType,
+            Points = creditPointsUtility.CalculateCreditPoints(transactionRequest.Amount, restaurant.CreditPointsSellingRate),
+            TransactionDate = transactionRequest.TransactionDate ?? DateTime.Now
+        };
+        await transactionRepository.AddTransactionAsync(transaction);
+    }
 
 //     /// <summary>
 //     /// Spends the specified number of credit points for a customer at a restaurant.
@@ -103,10 +102,10 @@
 
 //                 var availablePoints = transaction.Points;
 
-//                 if (availablePoints <= 0) continue;
-                
-//                 var pointsToUse = Math.Min(availablePoints, remainingPoints);
-//                 remainingPoints -= pointsToUse;
+                if (availablePoints <= 0) continue;
+
+                var pointsToUse = Math.Min(availablePoints, remainingPoints);
+                remainingPoints -= pointsToUse;
 
 //                 var transactionDetail = new CreditPointsTransactionDetail
 //                 {
@@ -127,10 +126,12 @@
 //         }
 //     }
 
-//     public async Task<int> GetCustomerPointsAsync(int customerId, int restaurantId)
-//     {
-//         return await transactionRepository.GetCustomerPointsAsync(customerId, restaurantId);
-//     }
+    public async Task<int> GetCustomerPointsAsync(int? customerId, int? restaurantId)
+    {
+        int customerIdJwt = customerId ?? int.Parse(httpContext.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new ArgumentException("customerId not found"));
+        int restaurantIdJwt = restaurantId ?? int.Parse(httpContext.HttpContext?.User?.FindFirst("restaurantId")?.Value ?? throw new ArgumentException("restaurantId not found"));
+        return await transactionRepository.GetCustomerPointsAsync(customerId ?? customerIdJwt, restaurantId ?? restaurantIdJwt);
+    }
 
 //     public Task<int> ExpirePointsAsync(int customerId, int restaurantId)
 //     {
