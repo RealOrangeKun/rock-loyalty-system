@@ -13,7 +13,6 @@ namespace LoyaltyApi.Controllers
     ICreditPointsTransactionService pointsTransactionService,
     ILogger<VoucherController> logger) : ControllerBase
     {
-        private readonly IVoucherService voucherService = voucherService;
 
         [HttpPost]
         [Route("")]
