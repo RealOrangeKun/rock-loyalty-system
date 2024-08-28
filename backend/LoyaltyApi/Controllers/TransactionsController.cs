@@ -9,20 +9,13 @@ namespace LoyaltyApi.Controllers
     [Route("api/transactions")]
     public class TransactionsController(ICreditPointsTransactionService pointsTransactionService) : ControllerBase
     {
-        [HttpPost]
+        [HttpGet]
         [Route("")]
-        [Authorize(Roles = "Admin")]
-        public async Task<ActionResult> CreateTransaction(CreateTransactionRequest createTransactionRequest)
+        [Authorize(Roles = "User")]
+        public async Task<ActionResult> GetTransactions()
         {
-            try
-            {
-                await pointsTransactionService.AddTransactionAsync(createTransactionRequest);
-                return StatusCode(201);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message);
-            }
+            var transactions = await pointsTransactionService.GetTransactionsByCustomerAndRestaurantAsync(customerId, restaurantId);
+            return Ok(transactions);
         }
     }
 }
