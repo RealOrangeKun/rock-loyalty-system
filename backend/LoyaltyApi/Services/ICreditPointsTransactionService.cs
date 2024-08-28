@@ -19,9 +19,9 @@ namespace LoyaltyApi.Services
         public Task AddTransactionAsync(CreateTransactionRequest transactionRequest);
 
         public Task SpendPointsAsync(int customerId, int restaurantId, int points);
-        
-        public Task<int> GetCustomerPointsAsync(int customerId, int restaurantId);
-        
+
+        public Task<int> GetCustomerPointsAsync(int? customerId, int? restaurantId);
+
         public Task<int> ExpirePointsAsync(int customerId, int restaurantId);
     }
 }
