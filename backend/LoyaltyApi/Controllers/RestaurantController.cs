@@ -1,4 +1,3 @@
-using LoyaltyApi.Models;
 using LoyaltyApi.RequestModels;
 using LoyaltyApi.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -39,7 +38,6 @@ namespace LoyaltyApi.Controllers
         }
         [HttpGet]
         [Route("{id}")]
-
         public async Task<ActionResult> GetRestaurant([FromRoute] int id)
         {
             try
@@ -56,7 +54,6 @@ namespace LoyaltyApi.Controllers
 
         [HttpPut]
         [Route("updaterestuanrt/{id}")]
-
         public async Task<ActionResult> UpdateRestaurant([FromRoute] int id, [FromBody] RestaurantCreditPointsRequestModel updateRestaurant)
         {
             try
