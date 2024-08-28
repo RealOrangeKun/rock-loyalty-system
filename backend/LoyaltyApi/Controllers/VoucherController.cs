@@ -8,14 +8,14 @@ using Microsoft.AspNetCore.Mvc;
 namespace LoyaltyApi.Controllers
 {
     [ApiController]
-    [Route("api/vouchers")]
+    [Route("api")]
     public class VoucherController(IVoucherService voucherService,
     ICreditPointsTransactionService pointsTransactionService,
     ILogger<VoucherController> logger) : ControllerBase
     {
 
         [HttpPost]
-        [Route("")]
+        [Route("vouchers")]
         [Authorize(Roles = "User")]
         public async Task<ActionResult> CreateVoucher([FromBody] CreateVoucherRequest voucherRequest)
         {
@@ -23,7 +23,7 @@ namespace LoyaltyApi.Controllers
             {
                 Voucher voucher = await voucherService.CreateVoucherAsync(voucherRequest);
                 await pointsTransactionService.SpendPointsAsync(voucher.CustomerId, voucher.RestaurantId, voucherRequest.Points);
-                return StatusCode(201, voucher.ShortCode);
+                return StatusCode(StatusCodes.Status201Created, voucher.ShortCode);
             }
             catch (PointsNotEnoughException ex)
             {
@@ -40,6 +40,7 @@ namespace LoyaltyApi.Controllers
             }
         }
         [HttpGet]
+        [Route("vouchers")]
         [Authorize(Roles = "User")]
         public async Task<ActionResult> GetVocher([FromQuery] string? shortCode)
         {
@@ -68,6 +69,14 @@ namespace LoyaltyApi.Controllers
 
                 return StatusCode(500, ex.Message);
             }
+        }
+        [HttpGet]
+        [Route("admin/vouchers")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult> GetVoucherLongCode([FromQuery] string shortCode, [FromQuery] int customerId, [FromQuery] int restaurantId)
+        {
+            Voucher voucher = await voucherService.GetVoucherAsync(customerId, restaurantId, shortCode);
+            return Ok(voucher.LongCode);
         }
     }
 }
