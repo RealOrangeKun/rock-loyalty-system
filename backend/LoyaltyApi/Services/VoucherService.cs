@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using LoyaltyApi.Exceptions;
 using LoyaltyApi.Models;
 using LoyaltyApi.Repositories;
 using LoyaltyApi.RequestModels;
@@ -6,13 +7,15 @@ using LoyaltyApi.Utilities;
 
 namespace LoyaltyApi.Services
 {
-    public class VoucherService(IVoucherRepository voucherRepository, VoucherUtility voucherUtility, IRestaurantRepository restaurantRepository, IHttpContextAccessor httpContext, ILogger<VoucherService> logger) : IVoucherService
+    public class VoucherService(IVoucherRepository voucherRepository, VoucherUtility voucherUtility, IRestaurantRepository restaurantRepository, IHttpContextAccessor httpContext, ICreditPointsTransactionRepository creditPointsTransactionRepository) : IVoucherService
     {
         public async Task<Voucher> CreateVoucherAsync(CreateVoucherRequest voucherRequest)
         {
             var user = httpContext.HttpContext?.User;
             int customerId = int.Parse(user?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new ArgumentException("customerId not found"));
             int restaurantId = int.Parse(user.FindFirst("restaurantId")?.Value ?? throw new ArgumentException("restaurantId not found"));
+            var availablePoints = await creditPointsTransactionRepository.GetCustomerPointsAsync(customerId, restaurantId);
+            if (availablePoints < voucherRequest.Points) throw new PointsNotEnoughException("Not enough points");
             double ratio = (await restaurantRepository.GetRestaurantInfo(restaurantId)).CreditPointsSellingRate;
             int voucherValue = voucherUtility.CalculateVoucherValue(voucherRequest.Points, ratio);
             Voucher voucher = new()
