@@ -14,7 +14,7 @@ namespace LoyaltyApi.Controllers
         [Authorize(Roles = "User")]
         public async Task<ActionResult> GetTransactions()
         {
-            var transactions = await pointsTransactionService.GetTransactionsByCustomerAndRestaurantAsync(customerId, restaurantId);
+            var transactions = await pointsTransactionService.GetTransactionsByCustomerAndRestaurantAsync(null, null);
             return Ok(transactions);
         }
     }

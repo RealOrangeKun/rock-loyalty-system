@@ -25,10 +25,12 @@ public class CreditPointsTransactionService(
         return await transactionRepository.GetTransactionByReceiptIdAsync(receiptId);
     }
 
-    public async Task<IEnumerable<CreditPointsTransaction>> GetTransactionsByCustomerAndRestaurantAsync(int customerId,
-        int restaurantId)
+    public async Task<IEnumerable<CreditPointsTransaction>> GetTransactionsByCustomerAndRestaurantAsync(int? customerId,
+        int? restaurantId)
     {
-        return await transactionRepository.GetTransactionsByCustomerAndRestaurantAsync(customerId, restaurantId);
+        int customerIdJwt = customerId ?? int.Parse(httpContext.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new ArgumentException("customerId not found"));
+        int restaurantIdJwt = restaurantId ?? int.Parse(httpContext.HttpContext?.User?.FindFirst("restaurantId")?.Value ?? throw new ArgumentException("restaurantId not found"));
+        return await transactionRepository.GetTransactionsByCustomerAndRestaurantAsync(customerId ?? customerIdJwt, restaurantId ?? restaurantIdJwt);
     }
 
     public async Task AddTransactionAsync(CreateTransactionRequest transactionRequest)

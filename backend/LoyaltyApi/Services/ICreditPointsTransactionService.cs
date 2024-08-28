@@ -13,8 +13,8 @@ namespace LoyaltyApi.Services
 
         public Task<CreditPointsTransaction?> GetTransactionByReceiptIdAsync(int receiptId);
 
-        public Task<IEnumerable<CreditPointsTransaction>> GetTransactionsByCustomerAndRestaurantAsync(int customerId,
-            int restaurantId);
+        public Task<IEnumerable<CreditPointsTransaction>> GetTransactionsByCustomerAndRestaurantAsync(int? customerId,
+            int? restaurantId);
 
         public Task AddTransactionAsync(CreateTransactionRequest transactionRequest);
 
