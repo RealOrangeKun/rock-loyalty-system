@@ -5,7 +5,7 @@ namespace LoyaltyApi.Utilities
 {
     public class VoucherUtility
     {
-        public int CalculateVoucherValue(int points, double ratio) => (int)(points * ratio);
+        public int CalculateVoucherValue(int points, double ratio) => Convert.ToInt32(points * (ratio / 100));
 
         public string ShortenVoucherCode(string voucherCode)
         {
