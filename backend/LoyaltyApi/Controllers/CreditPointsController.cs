@@ -14,7 +14,7 @@ namespace LoyaltyApi.Controllers
     {
         [HttpGet]
         [Route("")]
-        [Authorize(Roles = "User, Admin")]
+        [Authorize(Roles = "User")]
         public async Task<ActionResult> GetPoints()
         {
             int points = await pointsTransactionService.GetCustomerPointsAsync(null, null);

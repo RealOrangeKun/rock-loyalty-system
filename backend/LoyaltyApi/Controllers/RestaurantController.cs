@@ -16,19 +16,7 @@ namespace LoyaltyApi.Controllers
         {
             try
             {
-                CreateRestaurantRequestModel restaurant = new()
-                {
-                    RestaurantId = createRestaurant.RestaurantId,
-                    CreditPointsBuyingRate = createRestaurant.CreditPointsBuyingRate,
-                    CreditPointsSellingRate = createRestaurant.CreditPointsSellingRate,
-                    LoyaltyPointsBuyingRate = createRestaurant.LoyaltyPointsBuyingRate,
-                    LoyaltyPointsSellingRate = createRestaurant.LoyaltyPointsSellingRate,
-                    CreditPointsLifeTime = createRestaurant.CreditPointsLifeTime,
-                    LoyaltyPointsLifeTime = createRestaurant.LoyaltyPointsLifeTime,
-                    VoucherLifeTime = createRestaurant.VoucherLifeTime
-                };
-
-                await restaurantService.CreateRestaurant(restaurant);
+                await restaurantService.CreateRestaurant(createRestaurant);
                 return Ok("Restaurant Created");
             }
             catch (Exception ex)
@@ -53,7 +41,7 @@ namespace LoyaltyApi.Controllers
         }
 
         [HttpPut]
-        [Route("updaterestuanrt/{id}")]
+        [Route("{id}")]
         public async Task<ActionResult> UpdateRestaurant([FromRoute] int id, [FromBody] RestaurantCreditPointsRequestModel updateRestaurant)
         {
             try
