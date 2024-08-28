@@ -40,7 +40,7 @@ namespace LoyaltyApi.Controllers
         [HttpGet]
         [Route("")]
         [Authorize(Roles = "User")]
-        public async Task<ActionResult> GetVocher([FromQuery] int customerId, [FromQuery] int restaurantId , [FromQuery] string shortCode){
+        public async Task<ActionResult> GetVoucher([FromQuery] int customerId, [FromQuery] int restaurantId , [FromQuery] string shortCode){
             try
             {
               var voucher = await voucherService.GetVoucherAsync(customerId, restaurantId, shortCode);

@@ -3,6 +3,7 @@ using System.Text;
 using DotNetEnv;
 using LoyaltyApi.Config;
 using LoyaltyApi.Data;
+using LoyaltyApi.Models;
 using LoyaltyApi.Repositories;
 using LoyaltyApi.Services;
 using LoyaltyApi.Utilities;
@@ -10,6 +11,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Facebook;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
@@ -48,7 +50,7 @@ builder.Services.AddTransient<CreditPointsUtility>();
 builder.Services.AddTransient<ICreditPointsTransactionDetailRepository, CreditPointsTransactionDetailRepository>();
 builder.Services.AddTransient<ICreditPointsTransactionRepository, CreditPointsTransactionRepository>();
 builder.Services.AddTransient<ICreditPointsTransactionService, CreditPointsTransactionService>();
-
+builder.Services.AddTransient<IPasswordHasher<User> , PasswordHasher<User>>();
 // Configure authentication
 builder.Services.AddAuthentication(options =>
 {
