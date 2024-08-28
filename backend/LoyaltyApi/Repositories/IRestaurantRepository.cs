@@ -5,13 +5,13 @@ namespace LoyaltyApi.Repositories
 {
     public interface IRestaurantRepository
     {
-         Task<Restaurant?> GetRestaurantInfo(int restaurantId);
+        Task<Restaurant?> GetRestaurantInfo(int restaurantId);
 
-         //Update Methods
-         Task UpdateRestaurant(int restaurantId, Restaurant resturantRequest);
+        //Update Methods
+        Task UpdateRestaurant(Restaurant restaurant);
 
 
-         //Create Method 
-         Task CreateRestaurant(Restaurant restaurant);
+        //Create Method 
+        Task CreateRestaurant(Restaurant restaurant);
     }
 }
