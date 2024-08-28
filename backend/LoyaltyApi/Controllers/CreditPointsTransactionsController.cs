@@ -3,6 +3,7 @@ using LoyaltyApi.Models;
 using LoyaltyApi.RequestModels;
 using LoyaltyApi.Services;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace LoyaltyApi.Controllers;
@@ -12,8 +13,10 @@ namespace LoyaltyApi.Controllers;
 public class CreditPointsTransactionController(ICreditPointsTransactionService transactionService) : ControllerBase
 {
     // Get transaction by transaction id
-    [HttpGet("credit-points-transactions/{transactionId}")]
-    public async Task<IActionResult> GetTransaction(int transactionId)
+    [HttpGet]
+    [Route("credit-points-transactions/{transactionId}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> GetTransactionById(int transactionId)
     {
         var transaction = await transactionService.GetTransactionByIdAsync(transactionId);
         if (transaction == null)
@@ -25,7 +28,9 @@ public class CreditPointsTransactionController(ICreditPointsTransactionService t
     }
 
     // Get transaction by receipt id
-    [HttpGet("credit-points-transactions/receipt/{receiptId}")]
+    [HttpGet]
+    [Route("credit-points-transactions/receipt/{receiptId}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetTransactionByReceiptId(int receiptId)
     {
         var transaction = await transactionService.GetTransactionByReceiptIdAsync(receiptId);
@@ -38,7 +43,9 @@ public class CreditPointsTransactionController(ICreditPointsTransactionService t
     }
 
     // Add transaction
-    [HttpPost("credit-points-transactions")]
+    [HttpPost]
+    [Route("credit-points-transactions")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> AddTransaction(CreateTransactionRequest transactionRequest)
     {
         await transactionService.AddTransactionAsync(transactionRequest);
@@ -46,7 +53,9 @@ public class CreditPointsTransactionController(ICreditPointsTransactionService t
     }
 
     // Get all transactions made by customerId and restaurantId
-    [HttpGet("customers/{customerId}/restaurants/{restaurantId}/credit-points-transactions")]
+    [HttpGet]
+    [Route("customers/{customerId}/restaurants/{restaurantId}/credit-points-transactions")]
+    [Authorize(Roles = "Admin, User")]
     public async Task<IActionResult> GetTransactionsByCustomer(int customerId, int restaurantId)
     {
         var transactions =
@@ -57,12 +66,5 @@ public class CreditPointsTransactionController(ICreditPointsTransactionService t
         }
 
         return Ok(transactions);
-    }
-
-    [HttpGet("customers/{customerId}/restaurants/{restaurantId}/total-credit-points")]
-    public async Task<IActionResult> GetTotalPoints(int customerId, int restaurantId)
-    {
-        var totalPoints = await transactionService.GetCustomerPointsAsync(customerId, restaurantId);
-        return Ok(totalPoints);
     }
 }
