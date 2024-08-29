@@ -13,7 +13,7 @@ describe('Transactions', () => {
         };
         cy.request({
             method: 'POST',
-            url: `/api/admin/transactions`,
+            url: `/api/admin/credit-points-transactions`,
             body,
             headers: {
                 'Content-Type': 'application/json',
@@ -36,7 +36,7 @@ describe('Transactions', () => {
         };
         cy.request({
             method: 'POST',
-            url: `/api/admin/transactions`,
+            url: `/api/admin/credit-points-transactions`,
             body,
             headers: {
                 'Content-Type': 'application/json',
