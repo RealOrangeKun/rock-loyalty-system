@@ -14,7 +14,7 @@ public class CreditPointsTransactionController(ICreditPointsTransactionService t
 {
     // Get transaction by transaction id
     [HttpGet]
-    [Route("credit-points-transactions/{transactionId}")]
+    [Route("admin/credit-points-transactions/{transactionId}")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetTransactionById(int transactionId)
     {
@@ -29,7 +29,7 @@ public class CreditPointsTransactionController(ICreditPointsTransactionService t
 
     // Get transaction by receipt id
     [HttpGet]
-    [Route("credit-points-transactions/receipt/{receiptId}")]
+    [Route("admin/credit-points-transactions/receipt/{receiptId}")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetTransactionByReceiptId(int receiptId)
     {
@@ -44,7 +44,7 @@ public class CreditPointsTransactionController(ICreditPointsTransactionService t
 
     // Add transaction
     [HttpPost]
-    [Route("credit-points-transactions")]
+    [Route("admin/credit-points-transactions")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> AddTransaction(CreateTransactionRequest transactionRequest)
     {
