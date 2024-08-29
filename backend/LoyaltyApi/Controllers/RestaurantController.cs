@@ -7,7 +7,7 @@ namespace LoyaltyApi.Controllers
 {
 
     [ApiController]
-    [Route("api/restaurant")]
+    [Route("api/admin/restaurants")]
     [Authorize(Roles = "Admin")]
     public class RestaurantController(IRestaurantService restaurantService) : Controller
     {
@@ -19,7 +19,7 @@ namespace LoyaltyApi.Controllers
             try
             {
                 await restaurantService.CreateRestaurant(createRestaurant);
-                return Ok("Restaurant Created");
+                return StatusCode(StatusCodes.Status201Created, "Restaurant created");
             }
             catch (Exception ex)
             {
