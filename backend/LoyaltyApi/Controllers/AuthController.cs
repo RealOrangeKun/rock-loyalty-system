@@ -2,6 +2,7 @@ using LoyaltyApi.Config;
 using LoyaltyApi.Models;
 using LoyaltyApi.RequestModels;
 using LoyaltyApi.Services;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
@@ -9,7 +10,10 @@ namespace LoyaltyApi.Controllers
 {
     [ApiController]
     [Route("api/auth")]
-    public class AuthController(ITokenService tokenService, IOptions<JwtOptions> jwtOptions, IUserService userService, IOptions<AdminOptions> adminOptions) : ControllerBase
+    public class AuthController(ITokenService tokenService,
+    IOptions<JwtOptions> jwtOptions, IUserService userService,
+    IOptions<AdminOptions> adminOptions,
+    IPasswordService passwordService) : ControllerBase
     {
         [HttpPost]
         [Route("login")]
@@ -25,8 +29,9 @@ namespace LoyaltyApi.Controllers
                 }
                 User? user = loginBody.Email != null ? await userService.GetUserByEmailAsync(loginBody.Email, loginBody.RestaurantId) :
                     await userService.GetUserByPhonenumberAsync(loginBody.PhoneNumber ?? throw new ArgumentException("Phone number is required"), loginBody.RestaurantId);
-                // TODO: make random id if testing enviroment
                 if (user == null) return Unauthorized();
+                Password? password = await passwordService.GetAndValidatePasswordAsync(user.Id, user.RestaurantId, loginBody.Password);
+                if (password is null) return Unauthorized();
                 string accessToken = tokenService.GenerateAccessToken(user.Id, loginBody.RestaurantId, Role.User);
                 string refreshToken = await tokenService.GenerateRefreshTokenAsync(user.Id, loginBody.RestaurantId, Role.User);
                 HttpContext.Response.Cookies.Append("refreshToken", refreshToken, jwtOptions.Value.JwtCookieOptions);
@@ -44,7 +49,7 @@ namespace LoyaltyApi.Controllers
             {
                 return StatusCode(500);
             }
-
         }
+
     }
 }
