@@ -1,22 +1,24 @@
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using LoyaltyApi.Config;
 using LoyaltyApi.Models;
 using Microsoft.Extensions.Options;
 
 namespace LoyaltyApi.Utilities
 {
-    public class ApiUtility(IOptions<API> apiOptions , ILogger<ApiUtility> logger)
+    public class ApiUtility(IOptions<API> apiOptions)
     {
         public async Task<string> GetApiKey(string restaurantId)
         {
             using HttpClient client = new();
             var envName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
             var isDevelopment = string.Equals(envName, "Development", StringComparison.OrdinalIgnoreCase);
+            var isTesting = string.Equals(envName, "Testing", StringComparison.OrdinalIgnoreCase);
             var body = new
             {
-                Acc = isDevelopment ? "600" : restaurantId ?? throw new ArgumentException("Resturant ID is missing"), // change acc for different restaurants
+                Acc = isDevelopment || isTesting ? "600" : restaurantId ?? throw new ArgumentException("Resturant ID is missing"), // change acc for different restaurants
                 UsrId = apiOptions.Value.UserId,
                 Pass = apiOptions.Value.Password,
                 Lng = "ENG",
@@ -46,7 +48,6 @@ namespace LoyaltyApi.Utilities
                 CCODE = "C"
             };
             string jsonBody = JsonSerializer.Serialize(body);
-            logger.LogCritical(jsonBody);
             StringContent content = new(jsonBody, Encoding.UTF8, "application/json");
             client.DefaultRequestHeaders.Add("XApiKey", apiKey);
             var result = await client.PostAsync($"{apiOptions.Value.BaseUrl}/api/HISCMD/ADDVOC", content);
@@ -54,9 +55,8 @@ namespace LoyaltyApi.Utilities
             if (message.Replace(" ", "").Contains("ERR"))
                 throw new HttpRequestException($"Request to create user failed with message: {message}");
             string responseContent = await result.Content.ReadAsStringAsync();
-            logger.LogCritical(responseContent);
             var responseObject = JsonSerializer.Deserialize<List<String>>(responseContent) ?? throw new HttpRequestException("Request to create user failed");
-    
+
 
             return responseObject.First();
         }
@@ -64,10 +64,10 @@ namespace LoyaltyApi.Utilities
         {
             using HttpClient client = new();
             client.DefaultRequestHeaders.Add("XApiKey", apiKey);
-            string url = $"{apiOptions.Value.BaseUrl}/api/concmd/GETCON/C/{user.PhoneNumber ?? user.Email ?? throw new ArgumentException("Phone number or email is missing")}";
+            string url = $"{apiOptions.Value.BaseUrl}/api/concmd/GETCON/C/{user.PhoneNumber ?? user.Email ?? user.Id.ToString() ?? throw new ArgumentException("Phone number or email is missing")}";
             var result = await client.GetAsync(url);
             var json = await result.Content.ReadAsStringAsync();
-            if (json.ToString().Replace(" ", "").Contains("ERR")) throw new HttpRequestException("User not found");
+            if (json.ToString().Replace(" ", "").Contains("ERR")) return null;
             var userJson = JsonSerializer.Deserialize<JsonElement>(json);
             User? createdUser = new()
             {
@@ -76,10 +76,8 @@ namespace LoyaltyApi.Utilities
                 Email = userJson.GetProperty("EMAIL").GetString()!,            // Mapping "EMAIL" to User.Email
                 Name = userJson.GetProperty("CNAME").GetString()!,             // Mapping "CNAME" to User.Name
                 RestaurantId = user.RestaurantId,                                   // Use the passed restaurantId
-                // Password = userJson.GetProperty("PASS").GetString()!,
             };
             return createdUser;
-
         }
         public async Task<User?> CreateUserAsync(User user, string apiKey)
         {
@@ -90,7 +88,6 @@ namespace LoyaltyApi.Utilities
                 CNO = "0", // 0 if New Customer else Check The Cno if Exist Update Else Insert
                 CNAME = user.Name,
                 FORDES = user.Name, // foreign desc
-                // PASS = user.Password, // password
                 TEL1 = user.PhoneNumber,
                 TEL2 = "",
                 EMAIL = user.Email,
@@ -98,9 +95,6 @@ namespace LoyaltyApi.Utilities
             };
             // Serialize the body object to JSON
             string jsonBody = JsonSerializer.Serialize(body);
-
-            var envName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-            var isDevelopment = string.Equals(envName, "Development", StringComparison.OrdinalIgnoreCase);
 
             client.DefaultRequestHeaders.Add("XApiKey", apiKey);
 
@@ -114,7 +108,37 @@ namespace LoyaltyApi.Utilities
             string message = await response.Content.ReadAsStringAsync();
             if (message.Replace(" ", "").Contains("ERR"))
                 throw new HttpRequestException($"Request to create user failed with message: {message}");
+            Match match = Regex.Match(message, @"\d+");
+            user.Id = int.Parse(match.Value);
+            return user;
+        }
+        public async Task<User> UpdateUserAsync(User user, string apiKey)
+        {
+            using HttpClient client = new();
+            var body = new
+            {
+                CCODE = "C", // Constant For Customer 
+                CNO = user.Id.ToString(), // 0 if New Customer else Check The Cno if Exist Update Else Insert
+                CNAME = user.Name,
+                FORDES = user.Name, // foreign desc
+                TEL1 = user.PhoneNumber,
+                TEL2 = "",
+                EMAIL = user.Email,
+                EMAIL1 = "",
+            };
+            // Serialize the body object to JSON
+            string jsonBody = JsonSerializer.Serialize(body);
 
+            client.DefaultRequestHeaders.Add("XApiKey", apiKey);
+
+            // Create a StringContent object with the JSON and specify the content type
+            StringContent content = new(jsonBody, Encoding.UTF8, "application/json");
+
+            // Send the POST request
+            HttpResponseMessage response = await client.PostAsync($"{apiOptions.Value.BaseUrl}/api/CONCMD/ADDCON", content);
+            string message = await response.Content.ReadAsStringAsync();
+            if (message.Replace(" ", "").Contains("ERR"))
+                throw new HttpRequestException($"Request to create user failed with message: {message}");
             return user;
         }
     }
