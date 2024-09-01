@@ -36,7 +36,7 @@ namespace LoyaltyApi.Repositories
                 issuer: null,
                 audience: null,
                 claims: claims,
-                expires: DateTime.Now.AddMinutes(jwtOptions.Value.ExpirationInMinutes),
+                expires: token.TokenType != TokenType.RefreshToken ? DateTime.Now.AddMinutes(jwtOptions.Value.ExpirationInMinutes) : DateTime.Now.AddMonths(6),
                 signingCredentials: creds
             );
             return generatedToken;
@@ -82,6 +82,26 @@ namespace LoyaltyApi.Repositories
             await dbContext.Tokens.AddAsync(refreshToken);
             await dbContext.SaveChangesAsync();
             return refreshToken.TokenValue;
+        }
+
+        public async Task<string> GenerateForgotPasswordTokenAsync(Token token)
+        {
+            JwtSecurityToken generatedToken = GenerateToken(token);
+            var tokenHandler = new JwtSecurityTokenHandler();
+            string valueToken = tokenHandler.WriteToken(generatedToken).ToString();
+            int subject = int.Parse(tokenHandler.ReadJwtToken(valueToken).Claims.First(claim => claim.Type == "sub").Value);
+            DateTime expiration = tokenHandler.ReadJwtToken(valueToken).ValidTo;
+            int restaurantId = int.Parse(tokenHandler.ReadJwtToken(valueToken).Claims.First(claim => claim.Type == "restaurantId").Value);
+            var forgotPasswordToken = new Token
+            {
+                TokenValue = valueToken,
+                CustomerId = subject,
+                RestaurantId = restaurantId,
+                TokenType = TokenType.ForgotPasswordToken
+            };
+            await dbContext.Tokens.AddAsync(forgotPasswordToken);
+            await dbContext.SaveChangesAsync();
+            return forgotPasswordToken.TokenValue;
         }
     }
 }
