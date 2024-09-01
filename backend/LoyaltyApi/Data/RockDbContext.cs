@@ -14,6 +14,7 @@ namespace LoyaltyApi.Data
         public DbSet<Restaurant> Restaurants { get; set; }
 
         public DbSet<Voucher> Vouchers { get; set; }
+        public DbSet<Password> Passwords { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -63,6 +64,9 @@ namespace LoyaltyApi.Data
             modelBuilder.Entity<CreditPointsTransaction>()
                 .Property(p => p.TransactionType)
                 .HasConversion<string>(); // Store enum as string in the database
+
+            modelBuilder.Entity<Password>()
+            .HasKey(p => new { p.CustomerId, p.RestaurantId });
 
             base.OnModelCreating(modelBuilder);
         }
