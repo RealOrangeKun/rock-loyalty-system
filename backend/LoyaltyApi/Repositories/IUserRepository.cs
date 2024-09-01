@@ -9,5 +9,7 @@ namespace LoyaltyApi.Repositories
 
         Task<User?> GetUserAsync(User user);
 
+        Task<User> UpdateUserAsync(User user);
+
     }
 }
