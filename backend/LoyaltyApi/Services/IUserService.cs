@@ -12,5 +12,8 @@ namespace LoyaltyApi.Services
         Task<User?> GetUserByPhonenumberAsync(string phoneNumber, int restaurantId);
         Task<User?> CreateUserAsync(RegisterRequestBody registerRequestBody);
         Task<User?> GetUserByEmailAsync(string email, int restaurantId);
+
+        Task<User?> GetUserByIdAsync();
+        Task<User> UpdateUserAsync(UpdateUserRequestModel requestModel);
     }
 }
