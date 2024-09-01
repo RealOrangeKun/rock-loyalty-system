@@ -1,9 +1,9 @@
 /// <reference types="cypress" />
-const accessToken = require('../../config.json').accessToken;
- describe('Vouchers', () => {
-     it('failed voucher generation test', () => {
+describe('Vouchers', () => {
+    const accessToken = require('../../config.json').accessToken;
+    it('failed voucher generation test', () => {
         const body = {
-            points : Infinity
+            points: Infinity
         };
         cy.request({
             method: 'POST',
@@ -18,10 +18,10 @@ const accessToken = require('../../config.json').accessToken;
             cy.log('Api response: ' + JSON.stringify(response.body));
             expect(response.status).to.equal(400);
         })
-     });
-     it('successfull voucher generation test', () => {
+    });
+    it('successfull voucher generation test', () => {
         const body = {
-            points : 100
+            points: 100
         };
         cy.request({
             method: 'POST',
@@ -36,8 +36,8 @@ const accessToken = require('../../config.json').accessToken;
             cy.log('Api response: ' + JSON.stringify(response.body));
             expect(response.status).to.equal(201);
         })
-     });
-     it('successfull getting all voucher', () => {
+    });
+    it('successfull getting all voucher', () => {
         cy.request({
             method: 'GET',
             url: `/api/vouchers`,
@@ -50,5 +50,5 @@ const accessToken = require('../../config.json').accessToken;
             cy.log('Api response: ' + JSON.stringify(response.body));
             expect(response.status).to.equal(200);
         })
-     });
- })
+    });
+})

@@ -27,4 +27,19 @@ describe('Points', () => {
             expect(response.status).to.equal(401);
         })
     });
+    it('successfull spending points test', () => { 
+        cy.request({
+            method: 'POST',
+            url: `/api/vouchers`,
+            body: {
+                points: 100
+            },
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `bearer ${accessToken}`
+            },
+            failOnStatusCode: false
+        })
+
+    });
 })

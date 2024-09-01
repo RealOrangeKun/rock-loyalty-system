@@ -15,7 +15,7 @@ describe('Restaurant Settings', () => {
         };
         cy.request({
             method: 'POST',
-            url: `/api/admin/restaurant`,
+            url: `/api/admin/restaurants`,
             body,
             headers: {
                 'Content-Type': 'application/json',
@@ -39,7 +39,7 @@ describe('Restaurant Settings', () => {
         };
         cy.request({
             method: 'POST',
-            url: `/api/admin/restaurant`,
+            url: `/api/admin/restaurants`,
             body,
             headers: {
                 'Content-Type': 'application/json',
@@ -53,7 +53,7 @@ describe('Restaurant Settings', () => {
     it('successfull getting restaurant settings test', () => {
         cy.request({
             method: 'GET',
-            url: `/api/admin/restaurant`,
+            url: `/api/admin/restaurants/600`,
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `bearer ${adminToken}`
@@ -72,7 +72,7 @@ describe('Restaurant Settings', () => {
         };
         cy.request({
             method: 'PUT',
-            url: `/api/admin/restaurant`,
+            url: `/api/admin/restaurants/600`,
             body,
             headers: {
                 'Content-Type': 'application/json',
@@ -83,7 +83,7 @@ describe('Restaurant Settings', () => {
             expect(response.status).to.equal(200);
             cy.request({
                 method: 'GET',
-                url: `/api/admin/restaurant`,
+                url: `/api/admin/restaurants/600`,
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `bearer ${adminToken}`
