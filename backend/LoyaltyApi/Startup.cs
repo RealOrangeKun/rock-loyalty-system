@@ -49,13 +49,23 @@ namespace LoyaltyApi
             services.AddTransient<ICreditPointsTransactionDetailRepository, CreditPointsTransactionDetailRepository>();
             services.AddTransient<ICreditPointsTransactionRepository, CreditPointsTransactionRepository>();
             services.AddTransient<ICreditPointsTransactionService, CreditPointsTransactionService>();
-            services.AddTransient<IPasswordHasher<User>, PasswordHasher<User>>();
+            services.AddTransient<IPasswordHasher<Password>, PasswordHasher<Password>>();
+            services.AddTransient<IPasswordRepository, PasswordRepository>();
+            services.AddTransient<IPasswordService, PasswordService>();
 
             // Database setup
-            if (env.IsEnvironment("Testing") || env.IsDevelopment())
+            if (env.IsEnvironment("Testing"))
             {
                 services.AddDbContext<RockDbContext>(options =>
                     options.UseSqlite("Data Source=Dika.db"));
+            }
+            else if (env.IsDevelopment())
+            {
+                services.AddDbContext<RockDbContext>(options =>
+                {
+                    options.UseMySql(configuration.GetSection("ConnectionStrings:DefaultConnection").Value,
+                    new MySqlServerVersion(new Version(8, 0, 29)));
+                });
             }
 
             services.AddAuthentication(options =>
