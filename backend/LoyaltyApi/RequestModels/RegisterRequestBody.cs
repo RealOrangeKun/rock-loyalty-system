@@ -2,7 +2,7 @@ namespace LoyaltyApi.RequestModels
 {
     public class RegisterRequestBody
     {
-        public required string PhoneNumber { get; set; }
+        public string? PhoneNumber { get; set; }
         public required string Email { get; set; }
         public string? Password { get; set; }
         public required int RestaurantId { get; set; }
