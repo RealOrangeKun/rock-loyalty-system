@@ -24,6 +24,10 @@ namespace LoyaltyApi.Data
             modelBuilder.Entity<Token>()
                 .HasKey(x => new { x.CustomerId, x.RestaurantId, x.TokenValue });
 
+            modelBuilder.Entity<Token>()
+            .Property(x => x.TokenType)
+            .HasConversion<string>();
+
             modelBuilder.Entity<Voucher>()
                 .HasKey(x => x.ShortCode);
 

@@ -1,7 +1,6 @@
 using System.Diagnostics;
 using System.Reflection;
 using System.Text;
-using DotNetEnv;
 using LoyaltyApi.Config;
 using LoyaltyApi.Data;
 using LoyaltyApi.Models;
