@@ -9,7 +9,8 @@ using Microsoft.Extensions.Options;
 
 namespace LoyaltyApi.Utilities
 {
-    public class EmailUtility(IOptions<EmailOptions> emailOptions)
+    public class EmailUtility(IOptions<EmailOptions> emailOptions,
+    ILogger<EmailUtility> logger)
     {
         public async Task SendEmailAsync(string email, string subject, string message, string name)
         {
@@ -17,7 +18,7 @@ namespace LoyaltyApi.Utilities
             var body = new
             {
                 recipient = email,
-                name,
+                senderName = name,
                 subject,
                 body = message
             };
@@ -27,7 +28,26 @@ namespace LoyaltyApi.Utilities
             StringContent content = new(jsonBody, Encoding.UTF8, "application/json");
             client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", emailOptions.Value.Key);
 
-            var result = await client.PostAsync($"{emailOptions.Value.BaseUrl}/api/email", content);
+            try
+            {
+                // Send the POST request
+                var result = await client.PostAsync($"{emailOptions.Value.BaseUrl}/api/email", content);
+
+                // Log the status code
+                logger.LogInformation($"Response Status Code: {result.StatusCode}");
+
+                // Optionally read and log the response content
+                var responseContent = await result.Content.ReadAsStringAsync();
+                logger.LogInformation($"Response Content: {responseContent}");
+
+                // Ensure the request was successful
+                result.EnsureSuccessStatusCode();
+            }
+            catch (HttpRequestException ex)
+            {
+                // Log exception details
+                logger.LogError($"Request failed: {ex.Message}");
+            }
         }
     }
 }

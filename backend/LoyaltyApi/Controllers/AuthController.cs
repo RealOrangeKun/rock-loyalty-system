@@ -5,6 +5,7 @@ using LoyaltyApi.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 
 namespace LoyaltyApi.Controllers
 {
@@ -32,6 +33,7 @@ namespace LoyaltyApi.Controllers
                 if (user == null) return Unauthorized();
                 Password? password = await passwordService.GetAndValidatePasswordAsync(user.Id, user.RestaurantId, loginBody.Password);
                 if (password is null) return Unauthorized();
+                if (!password.Confirmed) return Unauthorized();
                 string accessToken = tokenService.GenerateAccessToken(user.Id, loginBody.RestaurantId, Role.User);
                 string refreshToken = await tokenService.GenerateRefreshTokenAsync(user.Id, loginBody.RestaurantId, Role.User);
                 HttpContext.Response.Cookies.Append("refreshToken", refreshToken, jwtOptions.Value.JwtCookieOptions);
@@ -54,16 +56,9 @@ namespace LoyaltyApi.Controllers
         [Route("confirm-email/{token}")]
         public async Task<ActionResult> ConfirmEmail(string token)
         {
-            try
-            {
-                if (token == null) return Unauthorized();
-                await passwordService.ConfirmEmail(token);
-                return Ok();
-            }
-            catch (Exception)
-            {
-                return StatusCode(500);
-            }
+            if (token == null) return Unauthorized();
+            await passwordService.ConfirmEmail(token);
+            return Ok();
         }
     }
 }

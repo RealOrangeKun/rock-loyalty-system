@@ -47,6 +47,8 @@ namespace LoyaltyApi
             services.AddTransient<ApiUtility>();
             services.AddTransient<VoucherUtility>();
             services.AddTransient<CreditPointsUtility>();
+            services.AddTransient<TokenUtility>();
+            services.AddTransient<EmailUtility>();
             services.AddTransient<ICreditPointsTransactionDetailRepository, CreditPointsTransactionDetailRepository>();
             services.AddTransient<ICreditPointsTransactionRepository, CreditPointsTransactionRepository>();
             services.AddTransient<ICreditPointsTransactionService, CreditPointsTransactionService>();

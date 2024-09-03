@@ -16,12 +16,11 @@ namespace LoyaltyApi.Utilities
             var jwtToken = tokenHandler.ReadJwtToken(token);
             var customerId = int.Parse(jwtToken.Claims.First(claim => claim.Type == "sub").Value);
             var restaurantId = int.Parse(jwtToken.Claims.First(claim => claim.Type == "restaurantId").Value);
-            var role = int.Parse(jwtToken.Claims.First(claim => claim.Type == "role").Value);
             return new Token
             {
                 CustomerId = customerId,
                 RestaurantId = restaurantId,
-                Role = (Role)role
+                Role = Role.User
             };
         }
     }
