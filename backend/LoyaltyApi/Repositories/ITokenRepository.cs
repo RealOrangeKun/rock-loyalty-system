@@ -15,5 +15,6 @@ namespace LoyaltyApi.Repositories
         Task<string> GenerateForgotPasswordTokenAsync(Token token);
 
         Task<string> GenerateConfirmEmailTokenAsync(Token token);
+        bool ValidateForgotPasswordTokenAsync(Token token);
     }
 }

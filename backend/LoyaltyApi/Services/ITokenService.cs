@@ -10,6 +10,8 @@ namespace LoyaltyApi.Services
         Task<string> GenerateConfirmEmailTokenAsync(int customerId, int restaurantId);
         bool ValidateRefreshToken(string? token);
         bool ValidateConfirmEmailToken(string token);
+        bool ValidateForgotPasswordToken(string token);
+
 
         Task<(string accessTokenValue, string refreshTokenValue)> RefreshTokensAsync();
     }

@@ -21,7 +21,7 @@ namespace LoyaltyApi.Controllers
             {
                 User? existingUser = await userService.GetUserByEmailAsync(requestBody.Email, requestBody.RestaurantId) ??
                     await userService.GetUserByPhonenumberAsync(requestBody.PhoneNumber ?? "0", requestBody.RestaurantId);
-                // if (existingUser is not null) return BadRequest("User already exists");
+                if (existingUser is not null) return BadRequest("User already exists");
                 if (requestBody.Password == null) throw new ArgumentException("Password cannot be null");
                 User? user = await userService.CreateUserAsync(requestBody);
                 var confirmToken = await tokenService.GenerateConfirmEmailTokenAsync(user.Id, user.RestaurantId);

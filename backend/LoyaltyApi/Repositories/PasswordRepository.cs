@@ -17,6 +17,8 @@ namespace LoyaltyApi.Repositories
             return password;
         }
 
+
+
         public async Task<Password?> GetPasswordAsync(Password password)
         {
             return await dbContext.Passwords.FirstOrDefaultAsync(p => p.CustomerId == password.CustomerId && p.RestaurantId == password.RestaurantId);

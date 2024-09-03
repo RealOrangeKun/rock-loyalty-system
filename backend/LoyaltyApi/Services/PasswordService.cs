@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using LoyaltyApi.Models;
 using LoyaltyApi.Repositories;
 using LoyaltyApi.Utilities;
@@ -10,7 +11,8 @@ namespace LoyaltyApi.Services
         IPasswordHasher<Password> passwordHasher,
         ITokenService tokenService,
         TokenUtility tokenUtility,
-        ILogger<PasswordService> logger) : IPasswordService
+        ILogger<PasswordService> logger,
+        IHttpContextAccessor httpContext) : IPasswordService
     {
         public async Task ConfirmEmail(string token)
         {
@@ -39,6 +41,7 @@ namespace LoyaltyApi.Services
             return await repository.CreatePasswordAsync(passwordModel);
         }
 
+
         public async Task<Password?> GetAndValidatePasswordAsync(int customerId, int restaurantId, string inputPassword)
         {
             Password passwordModel = new()
@@ -52,20 +55,24 @@ namespace LoyaltyApi.Services
             return password;
         }
 
-        public async Task<Password> UpdatePasswordAsync(int customerId, int restaurantId, string password)
+        public async Task<Password> UpdatePasswordAsync(int? customerId, int? restaurantId, string password)
         {
+            int customerIdJwt = customerId ?? int.Parse(httpContext.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new ArgumentException("customerId not found"));
+            int restaurantIdJwt = restaurantId ?? int.Parse(httpContext.HttpContext?.User?.FindFirst("restaurantId")?.Value ?? throw new ArgumentException("restaurantId not found"));
             Password passwordModel = new()
             {
-                CustomerId = customerId,
-                RestaurantId = restaurantId,
-                Value = password
+                CustomerId = customerId ?? customerIdJwt,
+                RestaurantId = restaurantId ?? restaurantIdJwt,
+                Value = password,
+                Confirmed = true
             };
+            string hashedPassword = passwordHasher.HashPassword(passwordModel, password);
+            passwordModel.Value = hashedPassword;
             return await repository.UpdatePasswordAsync(passwordModel);
         }
         private bool VerifyPassword(Password password, string providedPassword)
         {
             return passwordHasher.VerifyHashedPassword(password, password.Value, providedPassword) != PasswordVerificationResult.Failed;
-
         }
     }
 }

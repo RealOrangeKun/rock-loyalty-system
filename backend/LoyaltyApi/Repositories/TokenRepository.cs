@@ -131,5 +131,11 @@ namespace LoyaltyApi.Repositories
             return ValidateToken(token)
             && dbContext.Tokens.Any(t => t.TokenValue == token.TokenValue && t.TokenType == TokenType.ConfirmEmail);
         }
+
+        public bool ValidateForgotPasswordTokenAsync(Token token)
+        {
+            return ValidateToken(token)
+            && dbContext.Tokens.Any(t => t.TokenValue == token.TokenValue && t.TokenType == TokenType.ForgotPasswordToken);
+        }
     }
 }

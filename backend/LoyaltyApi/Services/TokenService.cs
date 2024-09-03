@@ -97,5 +97,15 @@ namespace LoyaltyApi.Services
             };
             return repository.ValidateConfirmEmailToken(tokenModel);
         }
+
+        public bool ValidateForgotPasswordToken(string token)
+        {
+            Token tokenModel = new()
+            {
+                TokenValue = token,
+                TokenType = TokenType.ForgotPasswordToken
+            };
+            return repository.ValidateForgotPasswordTokenAsync(tokenModel);
+        }
     }
 }
