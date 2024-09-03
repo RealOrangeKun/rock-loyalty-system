@@ -76,5 +76,26 @@ namespace LoyaltyApi.Services
             };
             return await repository.GenerateForgotPasswordTokenAsync(token);
         }
+
+        public async Task<string> GenerateConfirmEmailTokenAsync(int customerId, int restaurantId)
+        {
+            Token token = new()
+            {
+                CustomerId = customerId,
+                RestaurantId = restaurantId,
+                TokenType = TokenType.ConfirmEmail
+            };
+            return await repository.GenerateConfirmEmailTokenAsync(token);
+        }
+
+        public bool ValidateConfirmEmailToken(string token)
+        {
+            Token tokenModel = new()
+            {
+                TokenValue = token,
+                TokenType = TokenType.ConfirmEmail
+            };
+            return repository.ValidateConfirmEmailToken(tokenModel);
+        }
     }
 }

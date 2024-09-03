@@ -14,7 +14,8 @@ using Sprache;
 
 namespace LoyaltyApi.Repositories
 {
-    public class TokenRepository(RockDbContext dbContext, IOptions<JwtOptions> jwtOptions) : ITokenRepository
+    public class TokenRepository(RockDbContext dbContext,
+    IOptions<JwtOptions> jwtOptions) : ITokenRepository
     {
         public string GenerateAccessToken(Token token)
         {
@@ -102,6 +103,33 @@ namespace LoyaltyApi.Repositories
             await dbContext.Tokens.AddAsync(forgotPasswordToken);
             await dbContext.SaveChangesAsync();
             return forgotPasswordToken.TokenValue;
+        }
+
+        public async Task<string> GenerateConfirmEmailTokenAsync(Token token)
+        {
+            JwtSecurityToken generatedToken = GenerateToken(token);
+            var tokenHandler = new JwtSecurityTokenHandler();
+            string valueToken = tokenHandler.WriteToken(generatedToken).ToString();
+            int subject = int.Parse(tokenHandler.ReadJwtToken(valueToken).Claims.First(claim => claim.Type == "sub").Value);
+            DateTime expiration = tokenHandler.ReadJwtToken(valueToken).ValidTo;
+            int restaurantId = int.Parse(tokenHandler.ReadJwtToken(valueToken).Claims.First(claim => claim.Type == "restaurantId").Value);
+            var confirmEmailToken = new Token
+            {
+                TokenValue = valueToken,
+                CustomerId = subject,
+                RestaurantId = restaurantId,
+                TokenType = TokenType.ConfirmEmail
+            };
+            await dbContext.Tokens.AddAsync(confirmEmailToken);
+            await dbContext.SaveChangesAsync();
+            return confirmEmailToken.TokenValue;
+
+        }
+
+        public bool ValidateConfirmEmailToken(Token token)
+        {
+            return ValidateToken(token)
+            && dbContext.Tokens.Any(t => t.TokenValue == token.TokenValue && t.TokenType == TokenType.ConfirmEmail);
         }
     }
 }

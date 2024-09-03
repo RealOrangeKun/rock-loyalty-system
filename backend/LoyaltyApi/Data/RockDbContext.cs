@@ -68,6 +68,10 @@ namespace LoyaltyApi.Data
             modelBuilder.Entity<Password>()
             .HasKey(p => new { p.CustomerId, p.RestaurantId });
 
+            modelBuilder.Entity<Password>()
+            .Property(p => p.Confirmed)
+            .HasDefaultValue(false);
+
             base.OnModelCreating(modelBuilder);
         }
     }

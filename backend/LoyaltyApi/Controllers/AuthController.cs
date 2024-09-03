@@ -50,6 +50,20 @@ namespace LoyaltyApi.Controllers
                 return StatusCode(500);
             }
         }
-
+        [HttpGet]
+        [Route("confirm-email/{token}")]
+        public async Task<ActionResult> ConfirmEmail(string token)
+        {
+            try
+            {
+                if (token == null) return Unauthorized();
+                await passwordService.ConfirmEmail(token);
+                return Ok();
+            }
+            catch (Exception)
+            {
+                return StatusCode(500);
+            }
+        }
     }
 }

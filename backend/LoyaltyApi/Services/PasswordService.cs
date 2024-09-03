@@ -1,13 +1,36 @@
 using LoyaltyApi.Models;
 using LoyaltyApi.Repositories;
+using LoyaltyApi.Utilities;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
 
 namespace LoyaltyApi.Services
 {
     public class PasswordService(IPasswordRepository repository,
         IPasswordHasher<Password> passwordHasher,
+        ITokenService tokenService,
+        TokenUtility tokenUtility,
         ILogger<PasswordService> logger) : IPasswordService
     {
+        public async Task ConfirmEmail(string token)
+        {
+            if (!tokenService.ValidateConfirmEmailToken(token)) throw new SecurityTokenMalformedException("Invalid Confirm Email Token");
+            Token tokenModel = new()
+            {
+                TokenValue = token,
+                TokenType = TokenType.ConfirmEmail
+            };
+            Token tokenData = tokenUtility.ReadToken(token);
+            Password passwordModel = new()
+            {
+                CustomerId = tokenData.CustomerId,
+                RestaurantId = tokenData.RestaurantId,
+            };
+            Password? password = await repository.GetPasswordAsync(passwordModel) ?? throw new Exception("Password not found");
+            password.Confirmed = true;
+            await repository.UpdatePasswordAsync(password);
+        }
+
         public async Task<Password> CreatePasswordAsync(int customerId, int restaurantId, string password)
         {
             if (password is null) throw new ArgumentException("Password cannot be null");

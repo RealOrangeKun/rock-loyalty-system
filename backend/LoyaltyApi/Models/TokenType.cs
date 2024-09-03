@@ -4,7 +4,8 @@ namespace LoyaltyApi.Models
     {
         AccessToken,
         RefreshToken,
-        ForgotPasswordToken
+        ForgotPasswordToken,
+        ConfirmEmail
 
     }
 }

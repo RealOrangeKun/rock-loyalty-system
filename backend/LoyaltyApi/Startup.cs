@@ -29,6 +29,7 @@ namespace LoyaltyApi
             services.Configure<Config.GoogleOptions>(configuration.GetSection("GoogleOptions"));
             // services.Configure<LoyaltyApi.Config.AppleOptions>(configuration.GetSection("AppleOptions"));
             services.Configure<API>(configuration.GetSection("API"));
+            services.Configure<EmailOptions>(configuration.GetSection("EmailOptions"));
             services.Configure<AdminOptions>(configuration.GetSection("AdminOptions"));
 
             services.AddControllers();
