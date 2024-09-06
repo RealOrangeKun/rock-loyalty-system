@@ -22,6 +22,6 @@ namespace LoyaltyApi.Services
 
         public Task<int> GetCustomerPointsAsync(int? customerId, int? restaurantId);
 
-        public Task<int> ExpirePointsAsync(int customerId, int restaurantId);
+        public Task<int> ExpirePointsAsync();
     }
 }

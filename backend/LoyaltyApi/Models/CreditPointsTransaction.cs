@@ -20,6 +20,8 @@ namespace LoyaltyApi.Models
         public Restaurant Restaurant { get; set; }
         
         public ICollection<CreditPointsTransactionDetail> CreditPointsTransactionDetails { get; set; }
+        
+        public bool IsExpired { get; set; } = false; 
     }
 
 }

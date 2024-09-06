@@ -24,6 +24,12 @@ public class CreditPointsTransactionDetailRepository(RockDbContext dbContext) : 
         await dbContext.SaveChangesAsync();
     }
 
+    public async Task AddTransactionDetailsAsync(List<CreditPointsTransactionDetail> details)
+    {
+        await dbContext.CreditPointsTransactionsDetails.AddRangeAsync(details);
+        await dbContext.SaveChangesAsync();
+    }
+
     public async Task UpdateTransactionDetailAsync(CreditPointsTransactionDetail transactionDetail)
     {
         dbContext.CreditPointsTransactionsDetails.Update(transactionDetail);
@@ -39,5 +45,12 @@ public class CreditPointsTransactionDetailRepository(RockDbContext dbContext) : 
             dbContext.CreditPointsTransactionsDetails.Remove(transactionDetail);
             await dbContext.SaveChangesAsync();
         }
+    }
+    public async Task<int> GetTotalPointsSpentForEarnTransaction(int earnTransactionId)
+    {
+        // Sum up all points used from the specified earn transaction
+        return await dbContext.CreditPointsTransactionsDetails
+            .Where(detail => detail.EarnTransactionId == earnTransactionId)
+            .SumAsync(detail => detail.PointsUsed);
     }
 }

@@ -32,6 +32,11 @@ public class CreditPointsTransactionRepository(RockDbContext dbContext) : ICredi
         await dbContext.CreditPointsTransactions.AddAsync(transaction);
         await dbContext.SaveChangesAsync();
     }
+    public async Task AddTransactionsAsync(List<CreditPointsTransaction> transactions)
+    {
+        await dbContext.CreditPointsTransactions.AddRangeAsync(transactions);
+        await dbContext.SaveChangesAsync();
+    }
 
     public async Task UpdateTransactionAsync(CreditPointsTransaction transaction)
     {
@@ -54,5 +59,19 @@ public class CreditPointsTransactionRepository(RockDbContext dbContext) : ICredi
         return await dbContext.CreditPointsTransactions
             .Where(t => t.CustomerId == customerId && t.RestaurantId == restaurantId)
             .SumAsync(t => t.Points);
+    }
+    
+    public async Task<IEnumerable<CreditPointsTransaction>> GetExpiredTransactionsAsync(Dictionary<int, int> restaurantMap, DateTime currentDate)
+    {
+        // Use SQL query to get all transactions that have expired based on the restaurant's lifetime
+        var query = from transaction in dbContext.CreditPointsTransactions
+            join restaurant in dbContext.Restaurants
+                on transaction.RestaurantId equals restaurant.RestaurantId
+            where transaction.TransactionType == TransactionType.Earn &&
+                  transaction.Points > 0 &&
+                  transaction.TransactionDate < currentDate.AddDays(-restaurant.CreditPointsLifeTime)
+            select transaction;
+
+        return await query.ToListAsync();
     }
 }
