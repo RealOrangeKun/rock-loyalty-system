@@ -21,7 +21,7 @@ namespace LoyaltyApi.Services
             int restaurantId = int.Parse(user.FindFirst("restaurantId")?.Value ?? throw new ArgumentException("restaurantId not found"));
             var availablePoints = await creditPointsTransactionRepository.GetCustomerPointsAsync(customerId, restaurantId);
             if (availablePoints < voucherRequest.Points) throw new PointsNotEnoughException("Not enough points");
-            double ratio = (await restaurantRepository.GetRestaurantInfo(restaurantId) ?? throw new ArgumentException("restaurant not found")).CreditPointsSellingRate;
+            double ratio = (await restaurantRepository.GetRestaurantById(restaurantId) ?? throw new ArgumentException("restaurant not found")).CreditPointsSellingRate;
             int voucherValue = voucherUtility.CalculateVoucherValue(voucherRequest.Points, ratio);
             if (voucherValue == 0) throw new MinimumPointsNotReachedException("Point used too low");
             Voucher voucher = new()

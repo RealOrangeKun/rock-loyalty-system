@@ -5,7 +5,9 @@ namespace LoyaltyApi.Repositories
 {
     public interface IRestaurantRepository
     {
-        Task<Restaurant?> GetRestaurantInfo(int restaurantId);
+        Task<Restaurant?> GetRestaurantById(int restaurantId);
+
+        Task<IEnumerable<Restaurant>> GetAllRestaurantsAsync();
 
         //Update Methods
         Task UpdateRestaurant(Restaurant restaurant);

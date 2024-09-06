@@ -17,10 +17,15 @@ namespace LoyaltyApi.Repositories
             await dbContext.SaveChangesAsync();
         }
         //Get Method
-        public async Task<Restaurant?> GetRestaurantInfo(int restaurantId)
+        public async Task<Restaurant?> GetRestaurantById(int restaurantId)
         {
             var restaurant = await dbContext.Restaurants.FirstOrDefaultAsync(r => r.RestaurantId == restaurantId);
             return restaurant;
+        }
+
+        public async Task<IEnumerable<Restaurant>> GetAllRestaurantsAsync()
+        {
+            return await dbContext.Restaurants.ToListAsync();
         }
         //Update Method
         public async Task UpdateRestaurant(Restaurant restaurant)
