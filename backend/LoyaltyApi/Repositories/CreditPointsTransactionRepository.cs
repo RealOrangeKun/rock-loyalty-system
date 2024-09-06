@@ -68,6 +68,7 @@ public class CreditPointsTransactionRepository(RockDbContext dbContext) : ICredi
             join restaurant in dbContext.Restaurants
                 on transaction.RestaurantId equals restaurant.RestaurantId
             where transaction.TransactionType == TransactionType.Earn &&
+                  transaction.IsExpired == false &&
                   transaction.Points > 0 &&
                   transaction.TransactionDate < currentDate.AddDays(-restaurant.CreditPointsLifeTime)
             select transaction;
