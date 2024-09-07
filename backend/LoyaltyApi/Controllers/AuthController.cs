@@ -48,7 +48,11 @@ public class AuthController(
     /// Sample response:
     ///
     ///     {
-    ///        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+    ///        "success": true,
+    ///        "message": "Login successful",
+    ///        "data": {
+    ///            "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+    ///        }
     ///     }
     /// </remarks>
     [HttpPost]
@@ -59,44 +63,57 @@ public class AuthController(
         try
         {
             if (loginBody.Email == null && loginBody.PhoneNumber == null)
-                return BadRequest("Email or Phone number is required");
+                return BadRequest(new { success = false, message = "Email or Phone number is required" });
+
             if (loginBody.Email == adminOptions.Value.Username && loginBody.Password == adminOptions.Value.Password)
             {
                 logger.LogInformation("Admin login request for restaurant {RestaurantId}", loginBody.RestaurantId);
                 string accessTokenAdmin = tokenService.GenerateAccessToken(0, loginBody.RestaurantId, Role.Admin);
-                return Ok(accessTokenAdmin);
+                return Ok(new
+                {
+                    success = true, message = "Admin login successful", data = new { accessToken = accessTokenAdmin }
+                });
             }
+
 
             User? user = loginBody.Email != null
                 ? await userService.GetUserByEmailAsync(loginBody.Email, loginBody.RestaurantId)
                 : await userService.GetUserByPhonenumberAsync(
                     loginBody.PhoneNumber ?? throw new ArgumentException("Phone number is required"),
                     loginBody.RestaurantId);
-            if (user == null) return Unauthorized();
+            if (user == null)
+                return Unauthorized(new { success = false, message = "Invalid credentials." });
+
             Password? password =
                 await passwordService.GetAndValidatePasswordAsync(user.Id, user.RestaurantId, loginBody.Password);
-            if (password is null) return Unauthorized();
-            if (!password.Confirmed) return Unauthorized();
+            if (password is null || !password.Confirmed)
+                return Unauthorized(new { success = false, message = "Invalid credentials." });
+
             string accessToken = tokenService.GenerateAccessToken(user.Id, loginBody.RestaurantId, Role.User);
             string refreshToken =
                 await tokenService.GenerateRefreshTokenAsync(user.Id, loginBody.RestaurantId, Role.User);
             HttpContext.Response.Cookies.Append("refreshToken", refreshToken, jwtOptions.Value.JwtCookieOptions);
-            return Ok(accessToken);
+            return Ok(new
+            {
+                success = true,
+                message = "Login successful",
+                data = new { accessToken }
+            });
         }
         catch (ArgumentException ex)
         {
             logger.LogError(ex, "Login failed for restaurant {RestaurantId}", loginBody.RestaurantId);
-            return BadRequest(ex.Message);
+            return BadRequest(new { success = false, message = ex.Message });
         }
         catch (HttpRequestException ex)
         {
             logger.LogError(ex, "Login failed for restaurant {RestaurantId}", loginBody.RestaurantId);
-            return Unauthorized();
+            return Unauthorized(new { success = false, message = "Invalid credentials." });
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "Login failed for restaurant {RestaurantId}", loginBody.RestaurantId);
-            return StatusCode(500);
+            return StatusCode(500, new { success = false, message = "Internal server error." });
         }
     }
 
@@ -119,6 +136,7 @@ public class AuthController(
     /// Sample response:
     ///
     ///     {
+    ///         "success": true,
     ///        "message": "Email confirmed successfully."
     ///     }
     /// </remarks>
@@ -129,14 +147,20 @@ public class AuthController(
         logger.LogInformation("Confirm email request for token {Token}", token);
         try
         {
-            if (token == null) return Unauthorized();
+            if (token == null)
+                return Unauthorized(new { success = false, message = "Token is required." });
+
             await passwordService.ConfirmEmail(token);
-            return Ok();
+            return Ok(new
+            {
+                success = true,
+                message = "Email confirmed successfully."
+            });
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "Confirm email failed for token {Token}", token);
-            return StatusCode(500);
+            return StatusCode(500, new { success = false, message = "Internal server error." });
         }
     }
 }
