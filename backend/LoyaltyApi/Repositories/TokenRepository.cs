@@ -15,11 +15,13 @@ using Sprache;
 namespace LoyaltyApi.Repositories
 {
     public class TokenRepository(RockDbContext dbContext,
-    IOptions<JwtOptions> jwtOptions) : ITokenRepository
+    IOptions<JwtOptions> jwtOptions,
+    ILogger<TokenRepository> logger) : ITokenRepository
     {
         public string GenerateAccessToken(Token token)
         {
             JwtSecurityToken generatedToken = GenerateToken(token);
+            logger.LogInformation("Generated access token for customer {CustomerId} and restaurant {RestaurantId}", token.CustomerId, token.RestaurantId);
             return new JwtSecurityTokenHandler().WriteToken(generatedToken);
         }
 
@@ -45,6 +47,7 @@ namespace LoyaltyApi.Repositories
 
         public bool ValidateRefreshToken(Token token)
         {
+            logger.LogInformation("Validating refresh token for customer {CustomerId} and restaurant {RestaurantId}", token.CustomerId, token.RestaurantId);
             return ValidateToken(token)
             && dbContext.Tokens.Any(t => t.TokenValue == token.TokenValue && t.TokenType == TokenType.RefreshToken);
         }
@@ -82,6 +85,7 @@ namespace LoyaltyApi.Repositories
             };
             await dbContext.Tokens.AddAsync(refreshToken);
             await dbContext.SaveChangesAsync();
+            logger.LogInformation("Generated refresh token for customer {CustomerId} and restaurant {RestaurantId}", token.CustomerId, token.RestaurantId);
             return refreshToken.TokenValue;
         }
 
@@ -102,6 +106,7 @@ namespace LoyaltyApi.Repositories
             };
             await dbContext.Tokens.AddAsync(forgotPasswordToken);
             await dbContext.SaveChangesAsync();
+            logger.LogInformation("Generated forgot password token for customer {CustomerId} and restaurant {RestaurantId}", token.CustomerId, token.RestaurantId);
             return forgotPasswordToken.TokenValue;
         }
 
@@ -122,18 +127,21 @@ namespace LoyaltyApi.Repositories
             };
             await dbContext.Tokens.AddAsync(confirmEmailToken);
             await dbContext.SaveChangesAsync();
+            logger.LogInformation("Generated confirm email token for customer {CustomerId} and restaurant {RestaurantId}", token.CustomerId, token.RestaurantId);
             return confirmEmailToken.TokenValue;
 
         }
 
         public bool ValidateConfirmEmailToken(Token token)
         {
+            logger.LogInformation("Validating confirm email token for customer {CustomerId} and restaurant {RestaurantId}", token.CustomerId, token.RestaurantId);
             return ValidateToken(token)
             && dbContext.Tokens.Any(t => t.TokenValue == token.TokenValue && t.TokenType == TokenType.ConfirmEmail);
         }
 
         public bool ValidateForgotPasswordTokenAsync(Token token)
         {
+            logger.LogInformation("Validating forgot password token for customer {CustomerId} and restaurant {RestaurantId}", token.CustomerId, token.RestaurantId);
             return ValidateToken(token)
             && dbContext.Tokens.Any(t => t.TokenValue == token.TokenValue && t.TokenType == TokenType.ForgotPasswordToken);
         }

@@ -9,13 +9,15 @@ namespace LoyaltyApi.Controllers
     [ApiController]
     [Route("api/admin/restaurants")]
     [Authorize(Roles = "Admin")]
-    public class RestaurantController(IRestaurantService restaurantService) : Controller
+    public class RestaurantController(IRestaurantService restaurantService,
+    ILogger<RestaurantController> logger) : Controller
     {
         [HttpPost]
         [Route("")]
 
         public async Task<ActionResult> CreateRestaurant([FromBody] CreateRestaurantRequestModel createRestaurant)
         {
+            logger.LogInformation("Create restaurant request for restaurant with id {id}", createRestaurant.RestaurantId);
             try
             {
                 await restaurantService.CreateRestaurant(createRestaurant);
@@ -30,6 +32,7 @@ namespace LoyaltyApi.Controllers
         [Route("{id}")]
         public async Task<ActionResult> GetRestaurant([FromRoute] int id)
         {
+            logger.LogInformation("Get restaurant request for restaurant with id {id}", id);
             try
             {
                 var result = await restaurantService.GetRestaurantInfo(id);
@@ -46,6 +49,7 @@ namespace LoyaltyApi.Controllers
         [Route("{id}")]
         public async Task<ActionResult> UpdateRestaurant([FromRoute] int id, [FromBody] RestaurantCreditPointsRequestModel updateRestaurant)
         {
+            logger.LogInformation("Update restaurant request for restaurant with id {id}", id);
             try
             {
                 await restaurantService.UpdateRestaurantInfo(id, updateRestaurant);

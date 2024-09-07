@@ -8,7 +8,7 @@ using LoyaltyApi.Models;
 
 namespace LoyaltyApi.Utilities
 {
-    public class TokenUtility
+    public class TokenUtility(ILogger<TokenUtility> logger)
     {
         public Token ReadToken(string token)
         {
@@ -16,6 +16,7 @@ namespace LoyaltyApi.Utilities
             var jwtToken = tokenHandler.ReadJwtToken(token);
             var customerId = int.Parse(jwtToken.Claims.First(claim => claim.Type == "sub").Value);
             var restaurantId = int.Parse(jwtToken.Claims.First(claim => claim.Type == "restaurantId").Value);
+            logger.LogInformation("Read token for customer {CustomerId} and restaurant {RestaurantId}", customerId, restaurantId);
             return new Token
             {
                 CustomerId = customerId,

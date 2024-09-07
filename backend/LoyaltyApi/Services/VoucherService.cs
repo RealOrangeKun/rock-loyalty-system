@@ -17,12 +17,17 @@ namespace LoyaltyApi.Services
         public async Task<Voucher> CreateVoucherAsync(CreateVoucherRequest voucherRequest)
         {
             var user = httpContext.HttpContext?.User;
+            logger.LogTrace("user: {user}", user);
             int customerId = int.Parse(user?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new ArgumentException("customerId not found"));
+            logger.LogTrace("customerId: {customerId}", customerId);
             int restaurantId = int.Parse(user.FindFirst("restaurantId")?.Value ?? throw new ArgumentException("restaurantId not found"));
+            logger.LogTrace("restaurantId: {restaurantId}", restaurantId);
             var availablePoints = await creditPointsTransactionRepository.GetCustomerPointsAsync(customerId, restaurantId);
+            logger.LogTrace("availablePoints: {availablePoints}", availablePoints);
             if (availablePoints < voucherRequest.Points) throw new PointsNotEnoughException("Not enough points");
             double ratio = (await restaurantRepository.GetRestaurantById(restaurantId) ?? throw new ArgumentException("restaurant not found")).CreditPointsSellingRate;
             int voucherValue = voucherUtility.CalculateVoucherValue(voucherRequest.Points, ratio);
+            logger.LogTrace("voucherValue: {voucherValue}", voucherValue);
             if (voucherValue == 0) throw new MinimumPointsNotReachedException("Point used too low");
             Voucher voucher = new()
             {
@@ -37,14 +42,18 @@ namespace LoyaltyApi.Services
         public async Task<IEnumerable<Voucher>> GetUserVouchersAsync(int? customerId, int? restaurantId)
         {
             int customerIdJwt = customerId ?? int.Parse(httpContext.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new ArgumentException("customerId not found"));
+            logger.LogTrace("customerIdJwt: {customerIdJwt}", customerIdJwt);
             int restaurantIdJwt = restaurantId ?? int.Parse(httpContext.HttpContext?.User?.FindFirst("restaurantId")?.Value ?? throw new ArgumentException("restaurantId not found"));
+            logger.LogTrace("restaurantIdJwt: {restaurantIdJwt}", restaurantIdJwt);
             return await voucherRepository.GetUserVouchersAsync(customerId ?? customerIdJwt, restaurantId ?? restaurantIdJwt);
         }
 
         public async Task<Voucher> GetVoucherAsync(int? customerId, int? restaurantId, string shortCode)
         {
             int customerIdJwt = customerId ?? int.Parse(httpContext.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new ArgumentException("customerId not found"));
+            logger.LogTrace("customerIdJwt: {customerIdJwt}", customerIdJwt);
             int restaurantIdJwt = restaurantId ?? int.Parse(httpContext.HttpContext?.User?.FindFirst("restaurantId")?.Value ?? throw new ArgumentException("restaurantId not found"));
+            logger.LogTrace("restaurantIdJwt: {restaurantIdJwt}", restaurantIdJwt);
             Voucher voucher = new()
             {
                 RestaurantId = restaurantId ?? restaurantIdJwt,

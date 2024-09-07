@@ -13,16 +13,20 @@ using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using Serilog;
+using Serilog.Core;
 
 namespace LoyaltyApi
 {
-    public class Startup(IWebHostEnvironment env, IConfiguration configuration)
+    public class Startup(IWebHostEnvironment env,
+    IConfiguration configuration)
     {
         public void ConfigureServices(IServiceCollection services)
         {
+            Log.Logger.Information("Configuring services");
             services.AddHttpContextAccessor();
-
             services.Configure<JwtOptions>(configuration.GetSection("JwtOptions"));
             services.Configure<Config.FacebookOptions>(configuration.GetSection("FacebookOptions"));
             services.Configure<Config.GoogleOptions>(configuration.GetSection("GoogleOptions"));
@@ -30,8 +34,11 @@ namespace LoyaltyApi
             services.Configure<API>(configuration.GetSection("API"));
             services.Configure<EmailOptions>(configuration.GetSection("EmailOptions"));
             services.Configure<AdminOptions>(configuration.GetSection("AdminOptions"));
-
+            Log.Logger.Information("Configuring services done");
+            Log.Logger.Information("Configuring controllers");
             services.AddControllers();
+            Log.Logger.Information("Configuring controllers done");
+            Log.Logger.Information("Configuring services in container");
 
             services.AddTransient<ITokenRepository, TokenRepository>();
             services.AddTransient<ITokenService, TokenService>();
@@ -54,22 +61,30 @@ namespace LoyaltyApi
             services.AddTransient<IPasswordHasher<Password>, PasswordHasher<Password>>();
             services.AddTransient<IPasswordRepository, PasswordRepository>();
             services.AddTransient<IPasswordService, PasswordService>();
+            Log.Logger.Information("Configuring services in container done");
 
+
+            Log.Logger.Information("Configuring database");
             // Database setup
             if (env.IsEnvironment("Testing"))
             {
+                Log.Logger.Information("Setting up SQLite database");
                 services.AddDbContext<RockDbContext>(options =>
                     options.UseSqlite("Data Source=Dika.db"));
+                Log.Logger.Information("Setting up SQLite database done");
             }
             else if (env.IsDevelopment())
             {
+                Log.Logger.Information("Setting up MySQL database");
                 services.AddDbContext<RockDbContext>(options =>
                 {
                     options.UseMySql(configuration.GetSection("ConnectionStrings:DefaultConnection").Value,
                     new MySqlServerVersion(new Version(8, 0, 29)));
                 });
+                Log.Logger.Information("Setting up MySQL database done");
             }
-
+            Log.Logger.Information("Configuring database done");
+            Log.Logger.Information("Configuring authentication");
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -106,7 +121,7 @@ namespace LoyaltyApi
                 options.Scope.Add("profile");
                 options.CallbackPath = new PathString("/signin-google");
             });
-
+            Log.Logger.Information("Configuring authentication done");
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen(options =>
             {
@@ -120,6 +135,7 @@ namespace LoyaltyApi
         }
         public void Configure(WebApplication app, IWebHostEnvironment env, RockDbContext dbContext)
         {
+            Log.Logger.Information("Configuring web application");
             if (env.IsDevelopment() || env.IsEnvironment("Testing"))
             {
                 app.UseDeveloperExceptionPage();
@@ -146,9 +162,11 @@ namespace LoyaltyApi
             app.UseAuthentication();
             app.UseAuthorization();
             app.MapControllers();
+            Log.Logger.Information("Configuring web application done");
         }
         private void AddMigrationsAndUpdateDatabase(RockDbContext dbContext)
         {
+            Log.Logger.Information("Adding migrations and updating database");
             if (File.Exists("Dika.db")) File.Delete("Dika.db");
 
             dbContext.Database.EnsureCreated();
@@ -180,17 +198,18 @@ namespace LoyaltyApi
 
                 if (!string.IsNullOrEmpty(output))
                 {
-                    Debug.WriteLine(output);
+                    Log.Logger.Debug("Process output: {Output}", output);
                 }
 
                 if (!string.IsNullOrEmpty(error))
                 {
-                    Debug.WriteLine(error);
+                    Log.Logger.Error("Process error: {Error}", error);
                 }
             }
 
             // Apply the migration
             dbContext.Database.Migrate();
+            Log.Logger.Information("Adding migrations and updating database done");
         }
     }
 }

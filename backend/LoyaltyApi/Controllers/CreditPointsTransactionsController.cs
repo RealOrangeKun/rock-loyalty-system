@@ -10,7 +10,8 @@ namespace LoyaltyApi.Controllers;
 
 [Route("api")]
 [ApiController]
-public class CreditPointsTransactionController(ICreditPointsTransactionService transactionService) : ControllerBase
+public class CreditPointsTransactionController(ICreditPointsTransactionService transactionService,
+ILogger<CreditPointsTransactionController> logger) : ControllerBase
 {
     // Get transaction by transaction id
     [HttpGet]
@@ -18,6 +19,7 @@ public class CreditPointsTransactionController(ICreditPointsTransactionService t
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetTransactionById(int transactionId)
     {
+        logger.LogInformation("Get transaction by id request for {TransactionId}", transactionId);
         var transaction = await transactionService.GetTransactionByIdAsync(transactionId);
         if (transaction == null)
         {
@@ -33,6 +35,7 @@ public class CreditPointsTransactionController(ICreditPointsTransactionService t
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetTransactionByReceiptId(int receiptId)
     {
+        logger.LogInformation("Get transaction by receipt id request for {ReceiptId}", receiptId);
         var transaction = await transactionService.GetTransactionByReceiptIdAsync(receiptId);
         if (transaction == null)
         {
@@ -48,6 +51,7 @@ public class CreditPointsTransactionController(ICreditPointsTransactionService t
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> AddTransaction(CreateTransactionRequest transactionRequest)
     {
+        logger.LogInformation("Add transaction request for restaurant {RestaurantId}", transactionRequest.RestaurantId);
         await transactionService.AddTransactionAsync(transactionRequest);
         return StatusCode(StatusCodes.Status201Created, "Credit points transaction created");
     }
@@ -58,6 +62,7 @@ public class CreditPointsTransactionController(ICreditPointsTransactionService t
     [Authorize(Roles = "Admin, User")]
     public async Task<IActionResult> GetTransactionsByCustomer(int customerId, int restaurantId)
     {
+        logger.LogInformation("Get transactions for customer {CustomerId} and restaurant {RestaurantId}", customerId, restaurantId);
         var transactions =
             await transactionService.GetTransactionsByCustomerAndRestaurantAsync(customerId, restaurantId);
         if (transactions.IsNullOrEmpty())

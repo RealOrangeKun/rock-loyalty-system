@@ -5,10 +5,12 @@ using LoyaltyApi.Repositories;
 namespace LoyaltyApi.Services
 {
     public class TokenService(ITokenRepository repository,
+    ILogger<TokenService> logger,
     IHttpContextAccessor httpContext) : ITokenService
     {
         public string GenerateAccessToken(int customerId, int restaurantId, Role role)
         {
+            logger.LogInformation("Generating access token for customer {customerId} and restaurant {restaurantId}", customerId, restaurantId);
             Token token = new()
             {
                 CustomerId = customerId,
@@ -21,6 +23,7 @@ namespace LoyaltyApi.Services
 
         public async Task<string> GenerateRefreshTokenAsync(int customerId, int restaurantId, Role role)
         {
+            logger.LogInformation("Generating refresh token for customer {customerId} and restaurant {restaurantId}", customerId, restaurantId);
             Token token = new()
             {
                 CustomerId = customerId,
@@ -33,6 +36,7 @@ namespace LoyaltyApi.Services
 
         public bool ValidateRefreshToken(string? tokenValue)
         {
+            logger.LogInformation("Validating refresh token for token {tokenValue}", tokenValue);
             if (tokenValue == null) throw new ArgumentException("Refresh token cannot be null");
             Token token = new()
             {
@@ -45,7 +49,10 @@ namespace LoyaltyApi.Services
         public async Task<(string accessTokenValue, string refreshTokenValue)> RefreshTokensAsync()
         {
             int customerId = int.Parse(httpContext.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new ArgumentException("customerId not found"));
+            logger.LogTrace("customerId: {customerId}", customerId);
             int restaurantId = int.Parse(httpContext.HttpContext?.User?.FindFirst("restaurantId")?.Value ?? throw new ArgumentException("restaurantId not found"));
+            logger.LogTrace("restaurantId: {restaurantId}", restaurantId);
+            logger.LogInformation("Refreshing tokens for customer {customerId} and restaurant {restaurantId}", customerId, restaurantId);
             Token refreshToken = new()
             {
                 CustomerId = customerId,
@@ -68,6 +75,7 @@ namespace LoyaltyApi.Services
 
         public async Task<string> GenerateForgotPasswordTokenAsync(int customerId, int restaurantId)
         {
+            logger.LogInformation("Generating forgot password token for customer {customerId} and restaurant {restaurantId}", customerId, restaurantId);
             Token token = new()
             {
                 CustomerId = customerId,
@@ -79,6 +87,7 @@ namespace LoyaltyApi.Services
 
         public async Task<string> GenerateConfirmEmailTokenAsync(int customerId, int restaurantId)
         {
+            logger.LogInformation("Generating confirm email token for customer {customerId} and restaurant {restaurantId}", customerId, restaurantId);
             Token token = new()
             {
                 CustomerId = customerId,
@@ -90,6 +99,7 @@ namespace LoyaltyApi.Services
 
         public bool ValidateConfirmEmailToken(string token)
         {
+            logger.LogInformation("Validating confirm email token for token {token}", token);
             Token tokenModel = new()
             {
                 TokenValue = token,
@@ -100,6 +110,7 @@ namespace LoyaltyApi.Services
 
         public bool ValidateForgotPasswordToken(string token)
         {
+            logger.LogInformation("Validating forgot password token for token {token}", token);
             Token tokenModel = new()
             {
                 TokenValue = token,

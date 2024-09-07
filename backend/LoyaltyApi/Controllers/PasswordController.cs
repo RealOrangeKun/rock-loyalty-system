@@ -12,11 +12,13 @@ namespace LoyaltyApi.Controllers
     EmailUtility emailUtility,
     IUserService userService,
     IPasswordService passwordService,
+    ILogger<PasswordController> logger,
     TokenUtility tokenUtility) : ControllerBase
     {
         [HttpPost]
         public async Task<ActionResult> SendForgotPasswordEmail([FromBody] ForgotPasswordRequestBody requestBody)
         {
+            logger.LogInformation("Forgot password request for user {Email} and restaurant {RestaurantId}", requestBody.Email, requestBody.RestaurantId);
             User? user = await userService.GetUserByEmailAsync(requestBody.Email, requestBody.RestaurantId);
             if (user == null) return NotFound();
             var forgotPasswordToken = await tokenService.GenerateForgotPasswordTokenAsync(user.Id, user.RestaurantId);
@@ -27,6 +29,7 @@ namespace LoyaltyApi.Controllers
         [Route("reset/{token}")]
         public ActionResult ResetPassword(string token)
         {
+            logger.LogInformation("Reset password request for token {Token}", token);
             if (token == null) return Unauthorized();
             if (!tokenService.ValidateForgotPasswordToken(token)) return Unauthorized();
             return Ok();
@@ -35,6 +38,7 @@ namespace LoyaltyApi.Controllers
         [Route("{token}")]
         public async Task<ActionResult> UpdatePassword(string? token, [FromBody] UpdatePasswordRequestModel requestBody)
         {
+            logger.LogInformation("Update password request for customer with {Token}", token);
             if (token == null)
             {
                 await passwordService.UpdatePasswordAsync(null, null, requestBody.Password);

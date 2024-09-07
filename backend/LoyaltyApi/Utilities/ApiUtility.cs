@@ -1,4 +1,3 @@
-using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -8,7 +7,8 @@ using Microsoft.Extensions.Options;
 
 namespace LoyaltyApi.Utilities
 {
-    public class ApiUtility(IOptions<API> apiOptions)
+    public class ApiUtility(IOptions<API> apiOptions,
+    ILogger<ApiUtility> logger)
     {
         public async Task<string> GetApiKey(string restaurantId)
         {
@@ -29,6 +29,7 @@ namespace LoyaltyApi.Utilities
             string jsonBody = JsonSerializer.Serialize(body);
             StringContent content = new(jsonBody, Encoding.UTF8, "application/json");
             var result = await client.PostAsync("http://192.168.1.11:5000/api/chkusr", content);
+            logger.LogInformation("Request made to get ApiKey. Response Status Code: {statusCode}", result.StatusCode);
             return await result.Content.ReadAsStringAsync();
         }
         public async Task<string> GenerateVoucher(Voucher voucher, string apiKey)
@@ -56,8 +57,7 @@ namespace LoyaltyApi.Utilities
                 throw new HttpRequestException($"Request to create user failed with message: {message}");
             string responseContent = await result.Content.ReadAsStringAsync();
             var responseObject = JsonSerializer.Deserialize<List<String>>(responseContent) ?? throw new HttpRequestException("Request to create user failed");
-
-
+            logger.LogInformation("Request made to generate voucher. Response Message: {message}", message);
             return responseObject.First();
         }
         public async Task<User?> GetUserAsync(User user, string apiKey)
@@ -77,6 +77,7 @@ namespace LoyaltyApi.Utilities
                 Name = userJson.GetProperty("CNAME").GetString()!,             // Mapping "CNAME" to User.Name
                 RestaurantId = user.RestaurantId,                                   // Use the passed restaurantId
             };
+            logger.LogInformation("Request made to get user. Response Message: {message}", json);
             return createdUser;
         }
         public async Task<User?> CreateUserAsync(User user, string apiKey)
@@ -110,6 +111,7 @@ namespace LoyaltyApi.Utilities
                 throw new HttpRequestException($"Request to create user failed with message: {message}");
             Match match = Regex.Match(message, @"\d+");
             user.Id = int.Parse(match.Value);
+            logger.LogInformation("Request made to create user with id: {Id} . Response Message: {message}", user.Id, message);
             return user;
         }
         public async Task<User> UpdateUserAsync(User user, string apiKey)
@@ -139,6 +141,7 @@ namespace LoyaltyApi.Utilities
             string message = await response.Content.ReadAsStringAsync();
             if (message.Replace(" ", "").Contains("ERR"))
                 throw new HttpRequestException($"Request to create user failed with message: {message}");
+            logger.LogInformation("Request made to update user. Response Message: {message}", message);
             return user;
         }
     }

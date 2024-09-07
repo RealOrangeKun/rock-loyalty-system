@@ -4,24 +4,28 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LoyaltyApi.Repositories;
 
-public class CreditPointsTransactionRepository(RockDbContext dbContext) : ICreditPointsTransactionRepository
+public class CreditPointsTransactionRepository(RockDbContext dbContext,
+ILogger<CreditPointsTransactionRepository> logger) : ICreditPointsTransactionRepository
 {
     public async Task<CreditPointsTransaction?> GetTransactionByIdAsync(int transactionId)
     {
+        logger.LogInformation("Getting transaction {TransactionId}", transactionId);
         return await dbContext.CreditPointsTransactions
-            .Include(t => t.CreditPointsTransactionDetails) 
+            .Include(t => t.CreditPointsTransactionDetails)
             .FirstOrDefaultAsync(t => t.TransactionId == transactionId);
     }
 
     public async Task<CreditPointsTransaction?> GetTransactionByReceiptIdAsync(int receiptId)
     {
+        logger.LogInformation("Getting transaction for receipt {ReceiptId}", receiptId);
         return await dbContext.CreditPointsTransactions
-            .Include(t => t.CreditPointsTransactionDetails) 
+            .Include(t => t.CreditPointsTransactionDetails)
             .FirstOrDefaultAsync(t => t.ReceiptId == receiptId);
     }
 
     public async Task<IEnumerable<CreditPointsTransaction>> GetTransactionsByCustomerAndRestaurantAsync(int customerId, int restaurantId)
     {
+        logger.LogInformation("Getting transactions for customer {CustomerId} and restaurant {RestaurantId}", customerId, restaurantId);
         return await dbContext.CreditPointsTransactions
             .Where(t => t.CustomerId == customerId && t.RestaurantId == restaurantId)
             .ToListAsync();
@@ -29,6 +33,7 @@ public class CreditPointsTransactionRepository(RockDbContext dbContext) : ICredi
 
     public async Task AddTransactionAsync(CreditPointsTransaction transaction)
     {
+        logger.LogInformation("Adding transaction {TransactionId}", transaction.TransactionId);
         await dbContext.CreditPointsTransactions.AddAsync(transaction);
         await dbContext.SaveChangesAsync();
     }
@@ -36,12 +41,14 @@ public class CreditPointsTransactionRepository(RockDbContext dbContext) : ICredi
     {
         await dbContext.CreditPointsTransactions.AddRangeAsync(transactions);
         await dbContext.SaveChangesAsync();
+        logger.LogInformation("Transactions created successfully");
     }
 
     public async Task UpdateTransactionAsync(CreditPointsTransaction transaction)
     {
         dbContext.CreditPointsTransactions.Update(transaction);
         await dbContext.SaveChangesAsync();
+        logger.LogInformation("Transaction {TransactionId} updated successfully", transaction.TransactionId);
     }
 
     public async Task DeleteTransactionAsync(int transactionId)
@@ -51,28 +58,31 @@ public class CreditPointsTransactionRepository(RockDbContext dbContext) : ICredi
         {
             dbContext.CreditPointsTransactions.Remove(transaction);
             await dbContext.SaveChangesAsync();
+
+            logger.LogInformation("Transaction {TransactionId} deleted successfully", transaction.TransactionId);
         }
     }
 
     public async Task<int> GetCustomerPointsAsync(int customerId, int restaurantId)
     {
+        logger.LogInformation("Getting total points for customer {CustomerId} and restaurant {RestaurantId}", customerId, restaurantId);
         return await dbContext.CreditPointsTransactions
             .Where(t => t.CustomerId == customerId && t.RestaurantId == restaurantId)
             .SumAsync(t => t.Points);
     }
-    
+
     public async Task<IEnumerable<CreditPointsTransaction>> GetExpiredTransactionsAsync(Dictionary<int, int> restaurantMap, DateTime currentDate)
     {
         // Use SQL query to get all transactions that have expired based on the restaurant's lifetime
         var query = from transaction in dbContext.CreditPointsTransactions
-            join restaurant in dbContext.Restaurants
-                on transaction.RestaurantId equals restaurant.RestaurantId
-            where transaction.TransactionType == TransactionType.Earn &&
-                  transaction.IsExpired == false &&
-                  transaction.Points > 0 &&
-                  transaction.TransactionDate < currentDate.AddDays(-restaurant.CreditPointsLifeTime)
-            select transaction;
-
+                    join restaurant in dbContext.Restaurants
+                        on transaction.RestaurantId equals restaurant.RestaurantId
+                    where transaction.TransactionType == TransactionType.Earn &&
+                          transaction.IsExpired == false &&
+                          transaction.Points > 0 &&
+                          transaction.TransactionDate < currentDate.AddDays(-restaurant.CreditPointsLifeTime)
+                    select transaction;
+        logger.LogInformation("Getting expired transactions");
         return await query.ToListAsync();
     }
 }

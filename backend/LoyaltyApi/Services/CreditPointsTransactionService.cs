@@ -13,35 +13,42 @@ public class CreditPointsTransactionService(
     IRestaurantRepository restaurantRepository,
     RockDbContext context,
     IHttpContextAccessor httpContext,
-    CreditPointsUtility creditPointsUtility) : ICreditPointsTransactionService
+    CreditPointsUtility creditPointsUtility,
+    ILogger<CreditPointsTransactionService> logger) : ICreditPointsTransactionService
 {
     public async Task<CreditPointsTransaction?> GetTransactionByIdAsync(int transactionId)
     {
+        logger.LogInformation("Getting transaction {TransactionId}", transactionId);
         return await transactionRepository.GetTransactionByIdAsync(transactionId);
     }
 
     public async Task<CreditPointsTransaction?> GetTransactionByReceiptIdAsync(int receiptId)
     {
+        logger.LogInformation("Getting transaction for receipt {ReceiptId}", receiptId);
         return await transactionRepository.GetTransactionByReceiptIdAsync(receiptId);
     }
 
     public async Task<IEnumerable<CreditPointsTransaction>> GetTransactionsByCustomerAndRestaurantAsync(int? customerId,
         int? restaurantId)
     {
+        logger.LogInformation("Getting transactions for customer {CustomerId} and restaurant {RestaurantId}", customerId, restaurantId);
         int customerIdJwt = customerId ??
                             int.Parse(httpContext.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ??
                                       throw new ArgumentException("customerId not found"));
+        logger.LogTrace("customerIdJwt: {customerIdJwt}", customerIdJwt);
         int restaurantIdJwt = restaurantId ??
                               int.Parse(httpContext.HttpContext?.User?.FindFirst("restaurantId")?.Value ??
                                         throw new ArgumentException("restaurantId not found"));
+        logger.LogTrace("restaurantIdJwt: {restaurantIdJwt}", restaurantIdJwt);
         return await transactionRepository.GetTransactionsByCustomerAndRestaurantAsync(customerId ?? customerIdJwt,
             restaurantId ?? restaurantIdJwt);
     }
 
     public async Task AddTransactionAsync(CreateTransactionRequest transactionRequest)
     {
+        logger.LogInformation("Adding transaction for customer {CustomerId} and restaurant {RestaurantId}", transactionRequest.CustomerId, transactionRequest.RestaurantId);
         var restaurant = await restaurantRepository.GetRestaurantById(transactionRequest.RestaurantId) ??
-                         throw new Exception("Invalid restaurant");
+                         throw new ArgumentException("Invalid restaurant");
         var transaction = new CreditPointsTransaction
         {
             CustomerId = transactionRequest.CustomerId,
@@ -72,8 +79,9 @@ public class CreditPointsTransactionService(
     /// </summary>
     public async Task SpendPointsAsync(int customerId, int restaurantId, int points)
     {
+        logger.LogInformation("Spending {Points} points for customer {CustomerId} at restaurant {RestaurantId}", points, customerId, restaurantId);
         var restaurant = await restaurantRepository.GetRestaurantById(restaurantId) ??
-                         throw new Exception("Invalid restaurant");
+                         throw new ArgumentException("Invalid restaurant");
 
         await using var dbTransaction = await context.Database.BeginTransactionAsync(); // Start a database transaction
 
@@ -139,18 +147,22 @@ public class CreditPointsTransactionService(
 
     public async Task<int> GetCustomerPointsAsync(int? customerId, int? restaurantId)
     {
+        logger.LogInformation("Getting customer points for customer {CustomerId} and restaurant {RestaurantId}", customerId, restaurantId);
         int customerIdJwt = customerId ??
                             int.Parse(httpContext.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ??
                                       throw new ArgumentException("customerId not found"));
+        logger.LogTrace("customerIdJwt: {customerIdJwt}", customerIdJwt);
         int restaurantIdJwt = restaurantId ??
                               int.Parse(httpContext.HttpContext?.User?.FindFirst("restaurantId")?.Value ??
                                         throw new ArgumentException("restaurantId not found"));
+        logger.LogTrace("restaurantIdJwt: {restaurantIdJwt}", restaurantIdJwt);
         return await transactionRepository.GetCustomerPointsAsync(customerId ?? customerIdJwt,
             restaurantId ?? restaurantIdJwt);
     }
 
     public async Task<int> ExpirePointsAsync()
     {
+        logger.LogInformation("Expiring points");
         await using var dbTransaction = await context.Database.BeginTransactionAsync(); // Start a database transaction
 
         try

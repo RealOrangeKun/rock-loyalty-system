@@ -12,13 +12,16 @@ namespace LoyaltyApi.Controllers
 {
     [ApiController]
     [Route("api/tokens")]
-    public class TokensController(ITokenService tokenService, IOptions<JwtOptions> jwtOptions) : ControllerBase
+    public class TokensController(ITokenService tokenService,
+    IOptions<JwtOptions> jwtOptions,
+    ILogger<TokensController> logger) : ControllerBase
     {
         [HttpPut]
         [Route("refresh-tokens")]
         [Authorize(Roles = "User")]
         public async Task<ActionResult> RefreshTokens()
         {
+            logger.LogInformation("Refresh tokens request for user {UserId}", User.FindFirst("sub")?.Value);
             try
             {
                 if (!tokenService.ValidateRefreshToken(HttpContext.Request.Cookies["refreshToken"])) return Unauthorized();
@@ -28,10 +31,12 @@ namespace LoyaltyApi.Controllers
             }
             catch (ArgumentException ex)
             {
+                logger.LogError(ex, "Refresh tokens failed for user {UserId}", User.FindFirst("sub")?.Value);
                 return BadRequest(ex.Message);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                logger.LogError(ex, "Refresh tokens failed for user {UserId}", User.FindFirst("sub")?.Value);
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
         }

@@ -16,6 +16,7 @@ namespace LoyaltyApi.Services
     {
         public async Task ConfirmEmail(string token)
         {
+            logger.LogInformation("Confirming email with token {token}", token);
             if (!tokenService.ValidateConfirmEmailToken(token)) throw new SecurityTokenMalformedException("Invalid Confirm Email Token");
             Token tokenData = tokenUtility.ReadToken(token);
             Password passwordModel = new()
@@ -30,6 +31,7 @@ namespace LoyaltyApi.Services
 
         public async Task<Password> CreatePasswordAsync(int customerId, int restaurantId, string password)
         {
+            logger.LogInformation("Creating password for customer {customerId} and restaurant {restaurantId}", customerId, restaurantId);
             if (password is null) throw new ArgumentException("Password cannot be null");
             Password passwordModel = new()
             {
@@ -44,6 +46,7 @@ namespace LoyaltyApi.Services
 
         public async Task<Password?> GetAndValidatePasswordAsync(int customerId, int restaurantId, string inputPassword)
         {
+            logger.LogInformation("Getting and validating password for customer {customerId} and restaurant {restaurantId}", customerId, restaurantId);
             Password passwordModel = new()
             {
                 CustomerId = customerId,
@@ -57,8 +60,11 @@ namespace LoyaltyApi.Services
 
         public async Task<Password> UpdatePasswordAsync(int? customerId, int? restaurantId, string password)
         {
+            logger.LogInformation("Updating password for customer {customerId} and restaurant {restaurantId}", customerId, restaurantId);
             int customerIdJwt = customerId ?? int.Parse(httpContext.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new ArgumentException("customerId not found"));
+            logger.LogTrace("customerIdJwt: {customerIdJwt}", customerIdJwt);
             int restaurantIdJwt = restaurantId ?? int.Parse(httpContext.HttpContext?.User?.FindFirst("restaurantId")?.Value ?? throw new ArgumentException("restaurantId not found"));
+            logger.LogTrace("restaurantIdJwt: {restaurantIdJwt}", restaurantIdJwt);
             Password passwordModel = new()
             {
                 CustomerId = customerId ?? customerIdJwt,
@@ -67,11 +73,13 @@ namespace LoyaltyApi.Services
                 Confirmed = true
             };
             string hashedPassword = passwordHasher.HashPassword(passwordModel, password);
+            logger.LogTrace("hashedPassword: {hashedPassword}", hashedPassword);
             passwordModel.Value = hashedPassword;
             return await repository.UpdatePasswordAsync(passwordModel);
         }
         private bool VerifyPassword(Password password, string providedPassword)
         {
+            logger.LogInformation("Verifying password");
             return passwordHasher.VerifyHashedPassword(password, password.Value, providedPassword) != PasswordVerificationResult.Failed;
         }
     }

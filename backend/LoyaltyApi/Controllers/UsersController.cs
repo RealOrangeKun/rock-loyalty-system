@@ -1,7 +1,9 @@
+using System.Security.Claims;
 using LoyaltyApi.Models;
 using LoyaltyApi.RequestModels;
 using LoyaltyApi.Services;
 using LoyaltyApi.Utilities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 
@@ -11,12 +13,14 @@ namespace LoyaltyApi.Controllers
     [Route("api/users")]
     public class UsersController(IUserService userService,
     ITokenService tokenService,
+    ILogger<UsersController> logger,
     EmailUtility emailUtility) : ControllerBase
     {
         [HttpPost]
         [Route("")]
         public async Task<ActionResult> CreateUser([FromBody] RegisterRequestBody requestBody)
         {
+            logger.LogInformation("Create user request for restaurant with id {id}", requestBody.RestaurantId);
             try
             {
                 User? existingUser = await userService.GetUserByEmailAsync(requestBody.Email, requestBody.RestaurantId) ??
@@ -31,29 +35,35 @@ namespace LoyaltyApi.Controllers
             }
             catch (ArgumentException ex)
             {
+                logger.LogError(ex, "Create user failed for restaurant with id {id}", requestBody.RestaurantId);
                 return BadRequest(ex.Message);
             }
             catch (HttpRequestException ex)
             {
+                logger.LogError(ex, "Create user failed for restaurant with id {id}", requestBody.RestaurantId);
                 return BadRequest(ex.Message);
             }
             catch (Exception)
             {
+                logger.LogError("Create user failed for restaurant with id {id}", requestBody.RestaurantId);
                 return StatusCode(500);
             }
         }
         [HttpGet]
         [Route("")]
+        [Authorize(Roles = "User, Admin")]
         public async Task<ActionResult> GetUserById()
         {
+            logger.LogInformation("Get user request for user with id {id}", User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             try
             {
                 User? user = await userService.GetUserByIdAsync();
                 if (user == null) return NotFound();
                 return Ok(user);
             }
-            catch (ArgumentException)
+            catch (ArgumentException ex)
             {
+                logger.LogError(ex, "Get user failed for user with id {id}", User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
                 return Unauthorized();
             }
             catch (Exception ex)
@@ -63,8 +73,10 @@ namespace LoyaltyApi.Controllers
         }
         [HttpPut]
         [Route("")]
+        [Authorize(Roles = "User, Admin")]
         public async Task<ActionResult> UpdateUser([FromBody] UpdateUserRequestModel requestBody)
         {
+            logger.LogInformation("Update user request for user with id {id}", User.FindFirst("Id")?.Value);
             try
             {
                 User user = await userService.UpdateUserAsync(requestBody);
@@ -73,10 +85,12 @@ namespace LoyaltyApi.Controllers
             }
             catch (ArgumentException ex)
             {
+                logger.LogError(ex, "Update user failed for user with id {id}", User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
                 return BadRequest(ex.Message);
             }
             catch (Exception ex)
             {
+                logger.LogError(ex, "Update user failed for user with id {id}", User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
                 return BadRequest(ex.Message);
             }
         }

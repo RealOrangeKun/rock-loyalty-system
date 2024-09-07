@@ -28,26 +28,17 @@ namespace LoyaltyApi.Utilities
             StringContent content = new(jsonBody, Encoding.UTF8, "application/json");
             client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", emailOptions.Value.Key);
 
-            try
-            {
-                // Send the POST request
-                var result = await client.PostAsync($"{emailOptions.Value.BaseUrl}/api/email", content);
+            // Send the POST request
+            var result = await client.PostAsync($"{emailOptions.Value.BaseUrl}/api/email", content);
 
-                // Log the status code
-                logger.LogInformation($"Response Status Code: {result.StatusCode}");
+            // Log the status code
+            logger.LogInformation("Request made to send email. Response Status Code: {statusCode}", result.StatusCode);
 
-                // Optionally read and log the response content
-                var responseContent = await result.Content.ReadAsStringAsync();
-                logger.LogInformation($"Response Content: {responseContent}");
+            // Optionally read and log the response content
+            var responseContent = await result.Content.ReadAsStringAsync();
 
-                // Ensure the request was successful
-                result.EnsureSuccessStatusCode();
-            }
-            catch (HttpRequestException ex)
-            {
-                // Log exception details
-                logger.LogError($"Request failed: {ex.Message}");
-            }
+            // Ensure the request was successful
+            result.EnsureSuccessStatusCode();
         }
     }
 }

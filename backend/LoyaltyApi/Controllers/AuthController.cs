@@ -14,18 +14,21 @@ namespace LoyaltyApi.Controllers
     public class AuthController(ITokenService tokenService,
     IOptions<JwtOptions> jwtOptions, IUserService userService,
     IOptions<AdminOptions> adminOptions,
-    IPasswordService passwordService) : ControllerBase
+    IPasswordService passwordService,
+    ILogger<AuthController> logger) : ControllerBase
     {
         [HttpPost]
         [Route("login")]
         public async Task<ActionResult> Login([FromBody] LoginRequestBody loginBody)
         {
+            logger.LogInformation("Login request for restaurant {RestaurantId}", loginBody.RestaurantId);
             try
             {
                 if (loginBody.Email == null && loginBody.PhoneNumber == null) return BadRequest("Email or Phone number is required");
                 if (loginBody.Email == adminOptions.Value.Username && loginBody.Password == adminOptions.Value.Password)
                 {
-                    string accessTokenAdmin = tokenService.GenerateAccessToken(0, 0, Role.Admin);
+                    logger.LogInformation("Admin login request for restaurant {RestaurantId}", loginBody.RestaurantId);
+                    string accessTokenAdmin = tokenService.GenerateAccessToken(0, loginBody.RestaurantId, Role.Admin);
                     return Ok(accessTokenAdmin);
                 }
                 User? user = loginBody.Email != null ? await userService.GetUserByEmailAsync(loginBody.Email, loginBody.RestaurantId) :
@@ -41,14 +44,17 @@ namespace LoyaltyApi.Controllers
             }
             catch (ArgumentException ex)
             {
+                logger.LogError(ex, "Login failed for restaurant {RestaurantId}", loginBody.RestaurantId);
                 return BadRequest(ex.Message);
             }
-            catch (HttpRequestException)
+            catch (HttpRequestException ex)
             {
+                logger.LogError(ex, "Login failed for restaurant {RestaurantId}", loginBody.RestaurantId);
                 return Unauthorized();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                logger.LogError(ex, "Login failed for restaurant {RestaurantId}", loginBody.RestaurantId);
                 return StatusCode(500);
             }
         }
@@ -56,9 +62,18 @@ namespace LoyaltyApi.Controllers
         [Route("confirm-email/{token}")]
         public async Task<ActionResult> ConfirmEmail(string token)
         {
-            if (token == null) return Unauthorized();
-            await passwordService.ConfirmEmail(token);
-            return Ok();
+            logger.LogInformation("Confirm email request for token {Token}", token);
+            try
+            {
+                if (token == null) return Unauthorized();
+                await passwordService.ConfirmEmail(token);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Confirm email failed for token {Token}", token);
+                return StatusCode(500);
+            }
         }
     }
 }

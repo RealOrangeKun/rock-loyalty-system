@@ -9,7 +9,10 @@ using Microsoft.Extensions.Options;
 
 namespace LoyaltyApi.Repositories
 {
-    public class VoucherRepository(RockDbContext dbContext, ApiUtility apiUtility, VoucherUtility voucherUtility) : IVoucherRepository
+    public class VoucherRepository(RockDbContext dbContext,
+    ApiUtility apiUtility,
+    VoucherUtility voucherUtility,
+    ILogger<VoucherRepository> logger) : IVoucherRepository
     {
         public async Task<Voucher> CreateVoucherAsync(Voucher voucher)
         {
@@ -25,16 +28,20 @@ namespace LoyaltyApi.Repositories
 
             await dbContext.SaveChangesAsync();
 
+            logger.LogInformation("Voucher {ShortCode} created successfully", voucher.ShortCode);
+
             return voucher;
         }
 
         public async Task<IEnumerable<Voucher>> GetUserVouchersAsync(int customerId, int restaurantId)
         {
+            logger.LogInformation("Getting vouchers for customer {CustomerId} and restaurant {RestaurantId}", customerId, restaurantId);
             return await dbContext.Vouchers.Where(v => v.CustomerId == customerId && v.RestaurantId == restaurantId).ToListAsync();
         }
 
         public async Task<Voucher?> GetVoucherAsync(Voucher voucher)
         {
+            logger.LogInformation("Getting voucher {ShortCode} for customer {CustomerId} and restaurant {RestaurantId}", voucher.ShortCode, voucher.CustomerId, voucher.RestaurantId);
             return await dbContext.Vouchers.Where(v => v.CustomerId == voucher.CustomerId && v.RestaurantId == v.RestaurantId && v.ShortCode == voucher.ShortCode).FirstOrDefaultAsync();
         }
     }
