@@ -40,6 +40,9 @@ public class PasswordController(
     ///         "message": "Forgot password email sent successfully"
     ///     }
     /// </remarks>
+    /// <response code="200">If the forgot password email is sent successfully.</response>
+    /// <response code="404">If the user is not found.</response>
+    /// <response code="500">If any other exception occurs.</response>
     [HttpPost]
     public async Task<ActionResult> SendForgotPasswordEmail([FromBody] ForgotPasswordRequestBody requestBody)
     {
@@ -74,6 +77,9 @@ public class PasswordController(
     ///         "message": "Password reset successful"
     ///     }
     /// </remarks>
+    /// <response code="200">If the password reset is successful.</response>
+    /// <response code="401">If the token is invalid.</response>
+    /// <response code="500">If any other exception occurs.</response>
     [HttpGet]
     [Route("reset/{token}")]
     public ActionResult ResetPassword(string token)
@@ -109,6 +115,8 @@ public class PasswordController(
     ///         "message": "Password updated"
     ///     }
     /// </remarks>
+    /// <response code="200">If the password is updated successfully.</response>
+    /// <response code="500">If any other exception occurs.</response>
     [HttpPut]
     [Route("{token}")]
     public async Task<ActionResult> UpdatePassword(string? token, [FromBody] UpdatePasswordRequestModel requestBody)
