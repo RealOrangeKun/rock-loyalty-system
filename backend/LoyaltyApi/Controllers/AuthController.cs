@@ -71,7 +71,9 @@ public class AuthController(
                 string accessTokenAdmin = tokenService.GenerateAccessToken(0, loginBody.RestaurantId, Role.Admin);
                 return Ok(new
                 {
-                    success = true, message = "Admin login successful", data = new { accessToken = accessTokenAdmin }
+                    success = true,
+                    message = "Admin login successful",
+                    data = new { accessToken = accessTokenAdmin }
                 });
             }
 

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using LoyaltyApi.Config;
 using LoyaltyApi.Services;
@@ -21,7 +22,7 @@ namespace LoyaltyApi.Controllers
         [Authorize(Roles = "User")]
         public async Task<ActionResult> RefreshTokens()
         {
-            logger.LogInformation("Refresh tokens request for user {UserId}", User.FindFirst("sub")?.Value);
+            logger.LogInformation("Refresh tokens request for user {UserId}", User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             try
             {
                 if (!tokenService.ValidateRefreshToken(HttpContext.Request.Cookies["refreshToken"])) return Unauthorized();
@@ -31,12 +32,12 @@ namespace LoyaltyApi.Controllers
             }
             catch (ArgumentException ex)
             {
-                logger.LogError(ex, "Refresh tokens failed for user {UserId}", User.FindFirst("sub")?.Value);
+                logger.LogError(ex, "Refresh tokens failed for user {UserId}", User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
                 return BadRequest(ex.Message);
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Refresh tokens failed for user {UserId}", User.FindFirst("sub")?.Value);
+                logger.LogError(ex, "Refresh tokens failed for user {UserId}", User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
         }

@@ -32,7 +32,7 @@ namespace LoyaltyApi.Utilities
             logger.LogInformation("Request made to get ApiKey. Response Status Code: {statusCode}", result.StatusCode);
             return await result.Content.ReadAsStringAsync();
         }
-        public async Task<string> GenerateVoucher(Voucher voucher, string apiKey)
+        public async Task<string> GenerateVoucher(Voucher voucher, Restaurant restaurant, string apiKey)
         {
             using HttpClient client = new();
             var body = new
@@ -42,22 +42,24 @@ namespace LoyaltyApi.Utilities
                     new
                         {
                             VOCHNO = 1,// This is constant do not change it
-                            VOCHVAL = voucher.Value
+                            VOCHVAL = voucher.Value,
+                            EXPDT = voucher.DateOfCreation.AddMinutes(restaurant.VoucherLifeTime).ToString("yyyy-MM-dd HH:mm:ss"),
                         }
                 },
                 CNO = voucher.CustomerId.ToString(),
                 CCODE = "C"
             };
+            logger.LogCritical(body.DTL.First().EXPDT);
             string jsonBody = JsonSerializer.Serialize(body);
             StringContent content = new(jsonBody, Encoding.UTF8, "application/json");
             client.DefaultRequestHeaders.Add("XApiKey", apiKey);
             var result = await client.PostAsync($"{apiOptions.Value.BaseUrl}/api/HISCMD/ADDVOC", content);
             var message = await result.Content.ReadAsStringAsync();
+            logger.LogInformation("Request made to generate voucher. Response Message: {message}", message);
             if (message.Replace(" ", "").Contains("ERR"))
                 throw new HttpRequestException($"Request to create user failed with message: {message}");
             string responseContent = await result.Content.ReadAsStringAsync();
             var responseObject = JsonSerializer.Deserialize<List<String>>(responseContent) ?? throw new HttpRequestException("Request to create user failed");
-            logger.LogInformation("Request made to generate voucher. Response Message: {message}", message);
             return responseObject.First();
         }
         public async Task<User?> GetUserAsync(User user, string apiKey)

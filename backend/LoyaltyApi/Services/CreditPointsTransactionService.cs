@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using LoyaltyApi.Data;
+using LoyaltyApi.Exceptions;
 using LoyaltyApi.Models;
 using LoyaltyApi.Repositories;
 using LoyaltyApi.RequestModels;
@@ -96,7 +97,7 @@ public class CreditPointsTransactionService(
             var totalAvailablePoints = transactions.Sum(t => t.Points);
             if (totalAvailablePoints < points)
             {
-                throw new Exception("Not enough points");
+                throw new PointsNotEnoughException("Not enough points");
             }
 
             // Create a new spend transaction

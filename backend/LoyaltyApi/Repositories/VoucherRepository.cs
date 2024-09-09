@@ -14,11 +14,11 @@ namespace LoyaltyApi.Repositories
     VoucherUtility voucherUtility,
     ILogger<VoucherRepository> logger) : IVoucherRepository
     {
-        public async Task<Voucher> CreateVoucherAsync(Voucher voucher)
+        public async Task<Voucher> CreateVoucherAsync(Voucher voucher, Restaurant restaurant)
         {
             var apiKey = await apiUtility.GetApiKey(voucher.RestaurantId.ToString());
 
-            string result = await apiUtility.GenerateVoucher(voucher, apiKey);
+            string result = await apiUtility.GenerateVoucher(voucher, restaurant, apiKey);
 
             voucher.LongCode = result;
 

@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using LoyaltyApi.Exceptions;
 using LoyaltyApi.Models;
 using LoyaltyApi.RequestModels;
@@ -19,7 +20,7 @@ namespace LoyaltyApi.Controllers
         [Authorize(Roles = "User")]
         public async Task<ActionResult> CreateVoucher([FromBody] CreateVoucherRequest voucherRequest)
         {
-            logger.LogInformation("Creating voucher for customer {CustomerId} and restaurant {RestaurantId}", User.FindFirst("Id")?.Value, User.FindFirst("RestaurantId")?.Value);
+            logger.LogInformation("Creating voucher for customer {CustomerId} and restaurant {RestaurantId}", User.FindFirst(ClaimTypes.NameIdentifier)?.Value, User.FindFirst("RestaurantId")?.Value);
             try
             {
                 Voucher voucher = await voucherService.CreateVoucherAsync(voucherRequest);
@@ -28,17 +29,17 @@ namespace LoyaltyApi.Controllers
             }
             catch (PointsNotEnoughException ex)
             {
-                logger.LogError(ex, "Points not enough for customer {CustomerId} and restaurant {RestaurantId}", User.FindFirst("Id")?.Value, User.FindFirst("RestaurantId")?.Value);
+                logger.LogError(ex, "Points not enough for customer {CustomerId} and restaurant {RestaurantId}", User.FindFirst(ClaimTypes.NameIdentifier)?.Value, User.FindFirst("RestaurantId")?.Value);
                 return BadRequest(ex.Message);
             }
             catch (MinimumPointsNotReachedException ex)
             {
-                logger.LogError(ex, "Minimum points not reached for customer {CustomerId} and restaurant {RestaurantId}", User.FindFirst("Id")?.Value, User.FindFirst("RestaurantId")?.Value);
+                logger.LogError(ex, "Minimum points not reached for customer {CustomerId} and restaurant {RestaurantId}", User.FindFirst(ClaimTypes.NameIdentifier)?.Value, User.FindFirst("RestaurantId")?.Value);
                 return BadRequest(ex.Message);
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Create voucher failed for customer {CustomerId} and restaurant {RestaurantId}", User.FindFirst("Id")?.Value, User.FindFirst("RestaurantId")?.Value);
+                logger.LogError(ex, "Create voucher failed for customer {CustomerId} and restaurant {RestaurantId}", User.FindFirst(ClaimTypes.NameIdentifier)?.Value, User.FindFirst("RestaurantId")?.Value);
                 return StatusCode(500, ex.Message);
             }
         }
@@ -47,7 +48,7 @@ namespace LoyaltyApi.Controllers
         [Authorize(Roles = "User")]
         public async Task<ActionResult> GetVoucher([FromQuery] string? shortCode)
         {
-            logger.LogInformation("Getting voucher {ShortCode} for customer {CustomerId} and restaurant {RestaurantId}", shortCode, User.FindFirst("Id")?.Value, User.FindFirst("RestaurantId")?.Value);
+            logger.LogInformation("Getting voucher {ShortCode} for customer {CustomerId} and restaurant {RestaurantId}", shortCode, User.FindFirst(ClaimTypes.NameIdentifier)?.Value, User.FindFirst("RestaurantId")?.Value);
             try
             {
                 if (shortCode is null)
@@ -70,7 +71,7 @@ namespace LoyaltyApi.Controllers
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Get voucher failed for customer {CustomerId} and restaurant {RestaurantId}", User.FindFirst("Id")?.Value, User.FindFirst("RestaurantId")?.Value);
+                logger.LogError(ex, "Get voucher failed for customer {CustomerId} and restaurant {RestaurantId}", User.FindFirst(ClaimTypes.NameIdentifier)?.Value, User.FindFirst("RestaurantId")?.Value);
                 return StatusCode(500, ex.Message);
             }
         }

@@ -25,8 +25,9 @@ namespace LoyaltyApi.Services
             var availablePoints = await creditPointsTransactionRepository.GetCustomerPointsAsync(customerId, restaurantId);
             logger.LogTrace("availablePoints: {availablePoints}", availablePoints);
             if (availablePoints < voucherRequest.Points) throw new PointsNotEnoughException("Not enough points");
-            double ratio = (await restaurantRepository.GetRestaurantById(restaurantId) ?? throw new ArgumentException("restaurant not found")).CreditPointsSellingRate;
-            int voucherValue = voucherUtility.CalculateVoucherValue(voucherRequest.Points, ratio);
+            Restaurant? restaurant = await restaurantRepository.GetRestaurantById(restaurantId) ?? throw new ArgumentException("restaurant not found");
+            int voucherValue = voucherUtility.CalculateVoucherValue(voucherRequest.Points, restaurant.CreditPointsSellingRate);
+
             logger.LogTrace("voucherValue: {voucherValue}", voucherValue);
             if (voucherValue == 0) throw new MinimumPointsNotReachedException("Point used too low");
             Voucher voucher = new()
@@ -36,7 +37,7 @@ namespace LoyaltyApi.Services
                 Value = voucherValue,
                 DateOfCreation = DateTime.Now
             };
-            return await voucherRepository.CreateVoucherAsync(voucher);
+            return await voucherRepository.CreateVoucherAsync(voucher, restaurant);
         }
 
         public async Task<IEnumerable<Voucher>> GetUserVouchersAsync(int? customerId, int? restaurantId)
