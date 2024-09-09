@@ -38,6 +38,7 @@ public class UsersController(
     /// 
     /// Sample response:
     ///
+    ///     201 Created
     ///     {
     ///         "success": true,
     ///         "message": "User found",
@@ -54,7 +55,7 @@ public class UsersController(
     ///
     /// Authorization header with JWT Bearer token is required.
     /// </remarks>
-    /// <response code="200">If the user is created successfully.</response>
+    /// <response code="201">If the user is created successfully.</response>
     /// <response code="400">If the request body is invalid.</response>
     /// <response code="500">If any other exception occurs.</response>
     [HttpPost]
@@ -78,7 +79,8 @@ public class UsersController(
                 confirmToken, "Rock Loyalty System");
             // TODO: send correct email confirmation link
             if (user == null) return StatusCode(500, new { success = false, message = "User creation failed" });
-            return Ok(new { success = true, message = "User created", data = user });
+            return StatusCode(StatusCodes.Status201Created,
+                new { success = true, message = "User created", data = new { user } });
         }
         catch (ArgumentException ex)
         {
@@ -109,6 +111,7 @@ public class UsersController(
     /// 
     /// Sample response:
     ///
+    ///     200 OK
     ///     {
     ///         "success": true,
     ///         "message": "User found",
@@ -127,6 +130,7 @@ public class UsersController(
     /// </remarks>
     /// <response code="200">If the user is found successfully.</response>
     /// <response code="404">If the user is not found.</response>
+    /// <response code="401">If the user is not authorized.</response>
     /// <response code="500">If any other exception occurs.</response>
     [HttpGet]
     [Route("")]
@@ -139,7 +143,7 @@ public class UsersController(
         {
             User? user = await userService.GetUserByIdAsync();
             if (user == null) return NotFound(new { success = false, message = "User not found" });
-            return Ok(new { success = true, message = "User found", data = user });
+            return Ok(new { success = true, message = "User found", data = new { user } });
         }
         catch (ArgumentException ex)
         {
@@ -170,6 +174,7 @@ public class UsersController(
     /// 
     /// Sample response:
     ///
+    ///     200 OK
     ///     {
     ///         "success": true,
     ///         "message": "User found",
@@ -187,6 +192,7 @@ public class UsersController(
     /// Authorization header with JWT Bearer token is required.
     /// </remarks>
     /// <response code="200">If the user is found successfully.</response>
+    /// <response code="401">If the user is not authorized.</response>
     /// <response code="404">If the user is not found.</response>
     /// <response code="500">If any other exception occurs.</response>
     [HttpPut]
