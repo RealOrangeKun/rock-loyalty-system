@@ -35,6 +35,7 @@ public class PasswordController(
     ///
     /// Sample response:
     ///
+    ///     200 OK
     ///     {
     ///         "success": true,
     ///         "message": "Forgot password email sent successfully"
@@ -71,7 +72,8 @@ public class PasswordController(
     ///     GET /api/password/reset/{token}
     ///
     /// Sample response:
-    ///
+    /// 
+    ///     200 OK
     ///     {
     ///         "success": true,
     ///         "message": "Password reset successful"
@@ -110,6 +112,7 @@ public class PasswordController(
     ///
     /// Sample response:
     ///
+    ///     200 OK
     ///     {
     ///         "success": true,
     ///         "message": "Password updated"

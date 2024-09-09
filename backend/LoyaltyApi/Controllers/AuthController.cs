@@ -47,10 +47,11 @@ public class AuthController(
     ///
     /// Sample response:
     ///
+    ///     200 OK
     ///     {
     ///        "success": true,
     ///        "message": "Login successful",
-    ///        "data": {
+    ///           "data": {
     ///            "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
     ///        }
     ///     }
@@ -137,9 +138,10 @@ public class AuthController(
     ///
     /// Sample response:
     ///
+    ///     200 OK
     ///     {
     ///         "success": true,
-    ///        "message": "Email confirmed successfully."
+    ///         "message": "Email confirmed successfully."
     ///     }
     /// </remarks>
     [HttpGet]
