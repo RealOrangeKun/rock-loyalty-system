@@ -5,29 +5,101 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace LoyaltyApi.Controllers
 {
-
     [ApiController]
     [Route("api/admin/restaurants")]
     [Authorize(Roles = "Admin")]
-    public class RestaurantController(IRestaurantService restaurantService,
-    ILogger<RestaurantController> logger) : Controller
+    public class RestaurantController(
+        IRestaurantService restaurantService,
+        ILogger<RestaurantController> logger) : Controller
     {
+        /// <summary>
+        /// Creates a new restaurant.
+        /// </summary>
+        ///
+        /// <param name="createRestaurantRequest">The request model containing the restaurant data.</param>
+        /// <response code="201">The restaurant was created successfully.</response>
+        /// <response code="500">If any other exception occurs.</response>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     POST /api/admin/restaurants
+        ///     {
+        ///         "restaurantId": 600,
+        ///         "creditPointsBuyingRate": 0.5,
+        ///         "creditPointsSellingRate": 1.0,
+        ///         "loyaltyPointsBuyingRate": 0,
+        ///         "loyaltyPointsSellingRate": 0,
+        ///         "creditPointsLifeTime": 1000,
+        ///         "loyaltyPointsLifeTime": 0,
+        ///         "voucherLifeTime": 86400000
+        ///     }
+        ///
+        /// Sample response:
+        ///
+        ///     201 Created
+        ///     {
+        ///         "success": true,
+        ///         "message": "Restaurant created"
+        ///     }
+        ///
+        /// **Admin Only Endpoint**
+        /// Authorization header with JWT Bearer token is required.
+        /// </remarks>
+        /// <returns>Action result containing the response.</returns>
         [HttpPost]
         [Route("")]
-
-        public async Task<ActionResult> CreateRestaurant([FromBody] CreateRestaurantRequestModel createRestaurant)
+        public async Task<ActionResult> CreateRestaurant(
+            [FromBody] CreateRestaurantRequestModel createRestaurantRequest)
         {
-            logger.LogInformation("Create restaurant request for restaurant with id {id}", createRestaurant.RestaurantId);
+            logger.LogInformation("Create restaurant request for restaurant with id {id}",
+                createRestaurantRequest.RestaurantId);
             try
             {
-                await restaurantService.CreateRestaurant(createRestaurant);
-                return StatusCode(StatusCodes.Status201Created, "Restaurant created");
+                await restaurantService.CreateRestaurant(createRestaurantRequest);
+                return StatusCode(StatusCodes.Status201Created, new { success = true, message = "Restaurant created" });
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return StatusCode(500, new { success = false, message = ex.Message });
             }
         }
+
+        /// <summary>
+        /// Retrieves a specific restaurant by its ID.
+        /// </summary>
+        /// <param name="id">The ID of the restaurant to retrieve.</param>
+        /// <returns> The restaurant with the specified ID.</returns>
+        /// <response code="200">The restaurant was retrieved successfully.</response>
+        /// <response code="404">If the restaurant is not found.</response>
+        /// <response code="500">If any other exception occurs.</response>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     GET /api/admin/restaurants/1
+        ///
+        /// Sample response:
+        ///
+        ///     200 OK
+        ///     {
+        ///         "success": true,
+        ///         "message": "Restaurant retrieved successfully.",
+        ///         "data": {
+        ///             "restaurant": {
+        ///                 "restaurantId": 1,
+        ///                 "creditPointsBuyingRate": 0.5,
+        ///                 "creditPointsSellingRate": 1.0,
+        ///                 "loyaltyPointsBuyingRate": 0,
+        ///                 "loyaltyPointsSellingRate": 0,
+        ///                 "creditPointsLifeTime": 1000,
+        ///                 "loyaltyPointsLifeTime": 0,
+        ///                 "voucherLifeTime": 86400000
+        ///             }
+        ///         }
+        ///     }
+        /// 
+        /// **Admin Only Endpoint**
+        /// Authorization header with JWT Bearer token is required.
+        /// </remarks>
         [HttpGet]
         [Route("{id}")]
         public async Task<ActionResult> GetRestaurant([FromRoute] int id)
@@ -35,29 +107,68 @@ namespace LoyaltyApi.Controllers
             logger.LogInformation("Get restaurant request for restaurant with id {id}", id);
             try
             {
-                var result = await restaurantService.GetRestaurantInfo(id);
-                if (result == null) return NotFound();
-                return Ok(result);
+                var result = await restaurantService.GetRestaurantById(id);
+                if (result == null) return NotFound(new { success = false, message = "Restaurant not found" });
+                return Ok(new
+                {
+                    success = true,
+                    message = "Restaurant retrieved successfully.",
+                    data = new { restaurant = result }
+                });
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                logger.LogError(ex, "Get restaurant failed for restaurant with id {id}", id);
+                return StatusCode(500, new { success = false, message = ex.Message });
             }
         }
 
+        /// <summary>
+        /// Updates a specific restaurant by its ID.
+        /// </summary>
+        /// <param name="id">The ID of the restaurant to update.</param>
+        /// <param name="updateRestaurant">The updated restaurant data.</param>
+        /// <returns> The updated restaurant.</returns>
+        /// <response code="200">The restaurant was updated successfully.</response>
+        /// <response code="404">If the restaurant is not found.</response>
+        /// <response code="500">If any other exception occurs.</response>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     PUT /api/admin/restaurants/1
+        ///     {
+        ///         "creditPointsBuyingRate": 0.5,
+        ///         "creditPointsSellingRate": 1.0,
+        ///         "creditPointsLifeTime": 1000,
+        ///         "voucherLifeTime": 86400000
+        ///     }
+        ///
+        /// Sample response:
+        ///
+        ///     200 OK
+        ///     {
+        ///         "success": true,
+        ///         "message": "Restaurant updated successfully."
+        ///     }
+        /// 
+        /// **Admin Only Endpoint**
+        /// Authorization header with JWT Bearer token is required.
+        /// </remarks>
         [HttpPut]
         [Route("{id}")]
-        public async Task<ActionResult> UpdateRestaurant([FromRoute] int id, [FromBody] RestaurantCreditPointsRequestModel updateRestaurant)
+        public async Task<ActionResult> UpdateRestaurant([FromRoute] int id,
+            [FromBody] RestaurantCreditPointsRequestModel updateRestaurant)
         {
             logger.LogInformation("Update restaurant request for restaurant with id {id}", id);
             try
             {
                 await restaurantService.UpdateRestaurantInfo(id, updateRestaurant);
-                return Ok("Restaurant Updated");
+                return Ok(new { success = true, message = "Restaurant Updated" });
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                logger.LogError(ex, "Update restaurant failed for restaurant with id {id}", id);
+                return StatusCode(500, new { success = false, message = ex.Message });
             }
         }
     }
