@@ -18,7 +18,7 @@ namespace LoyaltyApi.Services
         {
             logger.LogInformation("Handling callback for {authenticationScheme}", authenticationScheme);
             var result = await context.AuthenticateAsync(authenticationScheme);
-            if (!result.Succeeded) return new UnauthorizedResult();
+            if (!result.Succeeded) return new UnauthorizedObjectResult(new { success = false, message = "Authentication failed" });
 
             var claims = (result.Principal?.Identities.FirstOrDefault()?.Claims) ?? throw new ArgumentException("Claims not found");
             logger.LogTrace("claims: {claims}", claims);
@@ -42,7 +42,7 @@ namespace LoyaltyApi.Services
             var accessToken = tokenService.GenerateAccessToken(user.Id, user.RestaurantId, Role.User);
             var refreshToken = await tokenService.GenerateRefreshTokenAsync(user.Id, user.RestaurantId, Role.User);
             context.Response.Cookies.Append("refreshToken", refreshToken, jwtOptions.Value.JwtCookieOptions);
-            return new OkObjectResult(accessToken);
+            return new OkObjectResult(new { success = true, message = "OAuth2 authentication successful", data = new{user, accessToken}});
         }
     }
 }
