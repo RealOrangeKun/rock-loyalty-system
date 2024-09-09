@@ -6,7 +6,7 @@ namespace LoyaltyApi.Services
     public interface IRestaurantService
     {
         //Get Methods
-        Task<Restaurant?> GetRestaurantInfo(int restaurantId);
+        Task<Restaurant?> GetRestaurantById(int restaurantId);
         Task<double?> GetCreditPointBuyingRate(int restaurantId);
         Task<double?> GetCreditPointSellingRate(int restaurantId);
         Task<double?> GetLoyaltyPointBuyingRate(int restaurantId);

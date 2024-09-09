@@ -7,7 +7,7 @@ namespace LoyaltyApi.Services
     ILogger<RestaurantService> logger) : IRestaurantService
     {
         //Get Methods
-        public Task<Restaurant?> GetRestaurantInfo(int restaurantId)
+        public Task<Restaurant?> GetRestaurantById(int restaurantId)
         {
             logger.LogInformation("Getting restaurant info for restaurant {restaurantId}", restaurantId);
             return repository.GetRestaurantById(restaurantId);
