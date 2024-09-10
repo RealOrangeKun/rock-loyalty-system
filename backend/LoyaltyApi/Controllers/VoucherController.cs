@@ -131,9 +131,9 @@ public class VoucherController(
     /// Authorization header with JWT Bearer token is required.
     /// </remarks>
     [HttpGet]
-    [Route("vouchers")]
+    [Route("vouchers/{shortCode}")]
     [Authorize(Roles = "User")]
-    public async Task<ActionResult> GetVoucher([FromQuery] string? shortCode)
+    public async Task<ActionResult> GetVoucherByShortCode(string shortCode)
     {
         logger.LogInformation("Getting voucher {ShortCode} for customer {CustomerId} and restaurant {RestaurantId}",
             shortCode, User.FindFirst(ClaimTypes.NameIdentifier)?.Value, User.FindFirst("RestaurantId")?.Value);
@@ -143,25 +143,6 @@ public class VoucherController(
             string restaurantClaim = User.FindFirst("restaurantId")?.Value ?? throw new UnauthorizedAccessException();
             _ = int.TryParse(userClaim, out var userId);
             _ = int.TryParse(restaurantClaim, out var restaurantId);
-            if (shortCode is null)
-            {
-                var vouchers = await voucherService.GetUserVouchersAsync(userId, restaurantId);
-                return Ok(new
-                {
-                    success = true,
-                    message = "Vouchers retrieved successfully",
-                    data = new
-                    {
-                        vouchers = vouchers.Select(voucher => new
-                        {
-                            voucher.ShortCode,
-                            voucher.Value,
-                            voucher.IsUsed
-                        })
-                    }
-                });
-            }
-
             var voucher = await voucherService.GetVoucherAsync(userId, restaurantId, shortCode);
             var result = new
             {
@@ -183,8 +164,40 @@ public class VoucherController(
             return StatusCode(500, new { success = false, message = ex.Message });
         }
     }
-
-
+    [HttpGet]
+    [Route("vouchers")]
+    [Authorize(Roles = "User")]
+    public async Task<ActionResult> GetVouchers()
+    {
+        try
+        {
+            string userClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new UnauthorizedAccessException();
+            string restaurantClaim = User.FindFirst("restaurantId")?.Value ?? throw new UnauthorizedAccessException();
+            _ = int.TryParse(userClaim, out var userId);
+            _ = int.TryParse(restaurantClaim, out var restaurantId);
+            var vouchers = await voucherService.GetUserVouchersAsync(userId, restaurantId);
+            return Ok(new
+            {
+                success = true,
+                message = "Vouchers retrieved successfully",
+                data = new
+                {
+                    vouchers = vouchers.Select(voucher => new
+                    {
+                        voucher.ShortCode,
+                        voucher.Value,
+                        voucher.IsUsed
+                    })
+                }
+            });
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Get vouchers failed for customer {CustomerId} and restaurant {RestaurantId}",
+                User.FindFirst(ClaimTypes.NameIdentifier)?.Value, User.FindFirst("RestaurantId")?.Value);
+            return StatusCode(500, new { success = false, message = ex.Message });
+        }
+    }
     /// <summary>
     /// Get a voucher by short code for admin purposes.
     /// </summary>
@@ -229,7 +242,7 @@ public class VoucherController(
             {
                 success = true,
                 message = "Voucher retrieved successfully",
-                data = new { voucher = voucher.LongCode }
+                data = new { longCode = voucher.LongCode }
             });
         }
         catch (Exception ex)
