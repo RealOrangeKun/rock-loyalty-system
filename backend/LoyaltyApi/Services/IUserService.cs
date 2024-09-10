@@ -13,7 +13,7 @@ namespace LoyaltyApi.Services
         Task<User?> CreateUserAsync(RegisterRequestBody registerRequestBody);
         Task<User?> GetUserByEmailAsync(string email, int restaurantId);
 
-        Task<User?> GetUserByIdAsync(int id);
-        Task<User> UpdateUserAsync(UpdateUserRequestModel requestModel);
+        Task<User?> GetUserByIdAsync(int userId, int restaurantId);
+        Task<User> UpdateUserAsync(UpdateUserRequestModel requestModel, int userId, int restaurantId);
     }
 }

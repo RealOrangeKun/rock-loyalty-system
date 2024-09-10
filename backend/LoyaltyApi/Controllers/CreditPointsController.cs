@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using LoyaltyApi.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -45,8 +46,12 @@ public class CreditPointsController(
     {
         try
         {
+            string userClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new UnauthorizedAccessException();
+            string restaurantClaim = User.FindFirst("restaurantId")?.Value ?? throw new UnauthorizedAccessException();
+            _ = int.TryParse(userClaim, out var userId);
+            _ = int.TryParse(restaurantClaim, out var restaurantId);
             logger.LogInformation("Get points request");
-            var points = await pointsTransactionService.GetCustomerPointsAsync(null, null);
+            var points = await pointsTransactionService.GetCustomerPointsAsync(userId, restaurantId);
             return Ok(new { success = true, data = new { points }, message = "Points retrieved successfully" });
         }
         catch (UnauthorizedAccessException ex)

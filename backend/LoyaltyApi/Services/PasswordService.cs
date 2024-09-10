@@ -11,8 +11,7 @@ namespace LoyaltyApi.Services
         IPasswordHasher<Password> passwordHasher,
         ITokenService tokenService,
         TokenUtility tokenUtility,
-        ILogger<PasswordService> logger,
-        IHttpContextAccessor httpContext) : IPasswordService
+        ILogger<PasswordService> logger) : IPasswordService
     {
         public async Task ConfirmEmail(string token)
         {
@@ -58,17 +57,12 @@ namespace LoyaltyApi.Services
             return password;
         }
 
-        public async Task<Password> UpdatePasswordAsync(int? customerId, int? restaurantId, string password)
+        public async Task<Password> UpdatePasswordAsync(int customerId, int restaurantId, string password)
         {
-            logger.LogInformation("Updating password for customer {customerId} and restaurant {restaurantId}", customerId, restaurantId);
-            int customerIdJwt = customerId ?? int.Parse(httpContext.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new ArgumentException("customerId not found"));
-            logger.LogTrace("customerIdJwt: {customerIdJwt}", customerIdJwt);
-            int restaurantIdJwt = restaurantId ?? int.Parse(httpContext.HttpContext?.User?.FindFirst("restaurantId")?.Value ?? throw new ArgumentException("restaurantId not found"));
-            logger.LogTrace("restaurantIdJwt: {restaurantIdJwt}", restaurantIdJwt);
             Password passwordModel = new()
             {
-                CustomerId = customerId ?? customerIdJwt,
-                RestaurantId = restaurantId ?? restaurantIdJwt,
+                CustomerId = customerId,
+                RestaurantId = restaurantId,
                 Value = password,
                 Confirmed = true
             };

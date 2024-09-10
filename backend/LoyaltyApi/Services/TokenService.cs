@@ -5,8 +5,7 @@ using LoyaltyApi.Repositories;
 namespace LoyaltyApi.Services
 {
     public class TokenService(ITokenRepository repository,
-    ILogger<TokenService> logger,
-    IHttpContextAccessor httpContext) : ITokenService
+    ILogger<TokenService> logger) : ITokenService
     {
         public string GenerateAccessToken(int customerId, int restaurantId, Role role)
         {
@@ -34,10 +33,9 @@ namespace LoyaltyApi.Services
             return await repository.GenerateRefreshTokenAsync(token);
         }
 
-        public bool ValidateRefreshToken(string? tokenValue)
+        public bool ValidateRefreshToken(string tokenValue)
         {
             logger.LogInformation("Validating refresh token for token {tokenValue}", tokenValue);
-            if (tokenValue == null) throw new ArgumentException("Refresh token cannot be null");
             Token token = new()
             {
                 TokenType = TokenType.RefreshToken,
@@ -46,12 +44,8 @@ namespace LoyaltyApi.Services
             return repository.ValidateRefreshToken(token);
         }
 
-        public async Task<(string accessTokenValue, string refreshTokenValue)> RefreshTokensAsync()
+        public async Task<(string accessTokenValue, string refreshTokenValue)> RefreshTokensAsync(int customerId, int restaurantId)
         {
-            int customerId = int.Parse(httpContext.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new ArgumentException("customerId not found"));
-            logger.LogTrace("customerId: {customerId}", customerId);
-            int restaurantId = int.Parse(httpContext.HttpContext?.User?.FindFirst("restaurantId")?.Value ?? throw new ArgumentException("restaurantId not found"));
-            logger.LogTrace("restaurantId: {restaurantId}", restaurantId);
             logger.LogInformation("Refreshing tokens for customer {customerId} and restaurant {restaurantId}", customerId, restaurantId);
             Token refreshToken = new()
             {

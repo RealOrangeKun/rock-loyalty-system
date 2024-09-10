@@ -146,7 +146,9 @@ public class UsersController(
             User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
         try
         {
-            User? user = await userService.GetUserByIdAsync(id);
+            string restaurantClaim = User.FindFirst("restaurantId")?.Value ?? throw new UnauthorizedAccessException("Restaurant id not found in token");
+            _ = int.TryParse(restaurantClaim, out var restaurantId);
+            User? user = await userService.GetUserByIdAsync(id, restaurantId);
             if (user == null) return NotFound(new { success = false, message = "User not found" });
             int points = await pointsTransactionService.GetCustomerPointsAsync(user.Id, user.RestaurantId);
             return Ok(new
@@ -178,7 +180,11 @@ public class UsersController(
         logger.LogInformation("Get user request for user with id {id}", User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
         try
         {
-            User? user = await userService.GetUserByIdAsync(int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new Exception("User id not found in token")));
+            string userClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new UnauthorizedAccessException("User id not found in token");
+            string restaurantClaim = User.FindFirst("restaurantId")?.Value ?? throw new UnauthorizedAccessException("Restaurant id not found in token");
+            _ = int.TryParse(userClaim, out var userId);
+            _ = int.TryParse(restaurantClaim, out var restaurantId);
+            User? user = await userService.GetUserByIdAsync(userId, restaurantId);
             if (user == null) return NotFound(new { success = false, message = "User not found" });
             int points = await pointsTransactionService.GetCustomerPointsAsync(user.Id, user.RestaurantId);
             return Ok(new
@@ -191,6 +197,11 @@ public class UsersController(
                     points,
                 }
             });
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            logger.LogError(ex, "Get user failed for user with id {id}", User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            return Unauthorized(new { success = false, message = ex.Message });
         }
         catch (ArgumentException ex)
         {
@@ -249,7 +260,11 @@ public class UsersController(
         logger.LogInformation("Update user request for user with id {id}", User.FindFirst("Id")?.Value);
         try
         {
-            User user = await userService.UpdateUserAsync(requestBody);
+            string userClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new UnauthorizedAccessException("User id not found in token");
+            string restaurantClaim = User.FindFirst("restaurantId")?.Value ?? throw new UnauthorizedAccessException("Restaurant id not found in token");
+            _ = int.TryParse(userClaim, out var userId);
+            _ = int.TryParse(restaurantClaim, out var restaurantId);
+            User user = await userService.UpdateUserAsync(requestBody, userId, restaurantId);
             if (user == null) return NotFound(new { success = false, message = "User not found" });
             return Ok(new { success = true, message = "User updated", data = new { user } });
         }

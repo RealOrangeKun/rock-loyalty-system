@@ -8,8 +8,7 @@ namespace LoyaltyApi.Services
 {
     public class UserService(IUserRepository userRepository,
         IPasswordService passwordService,
-        ILogger<UserService> logger,
-        IHttpContextAccessor httpContext) : IUserService
+        ILogger<UserService> logger) : IUserService
     {
         public async Task<User?> CreateUserAsync(RegisterRequestBody registerRequestBody)
         {
@@ -38,14 +37,12 @@ namespace LoyaltyApi.Services
             return await userRepository.GetUserAsync(user);
         }
 
-        public async Task<User?> GetUserByIdAsync(int id)
+        public async Task<User?> GetUserByIdAsync(int userId, int restaurantId)
         {
             logger.LogInformation("Getting user with id");
-            int restaurantId = int.Parse(httpContext.HttpContext?.User?.FindFirst("restaurantId")?.Value ?? throw new ArgumentException("restaurantId not found"));
-            logger.LogTrace("restaurantId: {restaurantId}", restaurantId);
             User user = new()
             {
-                Id = id,
+                Id = userId,
                 RestaurantId = restaurantId
             };
             return await userRepository.GetUserAsync(user);
@@ -62,13 +59,9 @@ namespace LoyaltyApi.Services
             return await userRepository.GetUserAsync(user);
         }
 
-        public async Task<User> UpdateUserAsync(UpdateUserRequestModel requestModel)
+        public async Task<User> UpdateUserAsync(UpdateUserRequestModel requestModel, int userId, int restaurantId)
         {
             logger.LogInformation("Updating user {Name}", requestModel.Name);
-            int userId = int.Parse(httpContext.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new ArgumentException("userId not found"));
-            logger.LogTrace("userId: {userId}", userId);
-            int restaurantId = int.Parse(httpContext.HttpContext?.User?.FindFirst("restaurantId")?.Value ?? throw new ArgumentException("restaurantId not found"));
-            logger.LogTrace("restaurantId: {restaurantId}", restaurantId);
             User user = new()
             {
                 Name = requestModel.Name,

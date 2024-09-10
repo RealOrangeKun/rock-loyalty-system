@@ -58,7 +58,11 @@ public class VoucherController(
             User.FindFirst(ClaimTypes.NameIdentifier)?.Value, User.FindFirst("RestaurantId")?.Value);
         try
         {
-            Voucher voucher = await voucherService.CreateVoucherAsync(voucherRequest);
+            string userClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new UnauthorizedAccessException("User id not found in token");
+            string restaurantClaim = User.FindFirst("restaurantId")?.Value ?? throw new UnauthorizedAccessException("Restaurant id not found in token");
+            _ = int.TryParse(userClaim, out var userId);
+            _ = int.TryParse(restaurantClaim, out var restaurantId);
+            Voucher voucher = await voucherService.CreateVoucherAsync(voucherRequest, userId, restaurantId);
             await pointsTransactionService.SpendPointsAsync(voucher.CustomerId, voucher.RestaurantId,
                 voucherRequest.Points);
             return StatusCode(StatusCodes.Status201Created,
@@ -135,12 +139,18 @@ public class VoucherController(
             shortCode, User.FindFirst(ClaimTypes.NameIdentifier)?.Value, User.FindFirst("RestaurantId")?.Value);
         try
         {
+            string userClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new UnauthorizedAccessException();
+            string restaurantClaim = User.FindFirst("restaurantId")?.Value ?? throw new UnauthorizedAccessException();
+            _ = int.TryParse(userClaim, out var userId);
+            _ = int.TryParse(restaurantClaim, out var restaurantId);
             if (shortCode is null)
             {
-                var vouchers = await voucherService.GetUserVouchersAsync(null, null);
+                var vouchers = await voucherService.GetUserVouchersAsync(userId, restaurantId);
                 return Ok(new
                 {
-                    success = true, message = "Vouchers retrieved successfully", data = new
+                    success = true,
+                    message = "Vouchers retrieved successfully",
+                    data = new
                     {
                         vouchers = vouchers.Select(voucher => new
                         {
@@ -152,7 +162,7 @@ public class VoucherController(
                 });
             }
 
-            var voucher = await voucherService.GetVoucherAsync(null, null, shortCode);
+            var voucher = await voucherService.GetVoucherAsync(userId, restaurantId, shortCode);
             var result = new
             {
                 voucher.ShortCode,
@@ -217,7 +227,8 @@ public class VoucherController(
             Voucher voucher = await voucherService.GetVoucherAsync(customerId, restaurantId, shortCode);
             return Ok(new
             {
-                success = true, message = "Voucher retrieved successfully",
+                success = true,
+                message = "Voucher retrieved successfully",
                 data = new { voucher = voucher.LongCode }
             });
         }

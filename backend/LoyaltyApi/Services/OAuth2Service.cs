@@ -42,7 +42,7 @@ namespace LoyaltyApi.Services
             var accessToken = tokenService.GenerateAccessToken(user.Id, user.RestaurantId, Role.User);
             var refreshToken = await tokenService.GenerateRefreshTokenAsync(user.Id, user.RestaurantId, Role.User);
             context.Response.Cookies.Append("refreshToken", refreshToken, jwtOptions.Value.JwtCookieOptions);
-            return new OkObjectResult(new { success = true, message = "OAuth2 authentication successful", data = new{user, accessToken}});
+            return new OkObjectResult(new { success = true, message = "OAuth2 authentication successful", data = new { user, accessToken } });
         }
     }
 }

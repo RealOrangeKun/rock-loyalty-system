@@ -55,9 +55,13 @@ public class TokensController(
             User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
         try
         {
+            string userClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new UnauthorizedAccessException();
+            string restaurantClaim = User.FindFirst("restaurantId")?.Value ?? throw new UnauthorizedAccessException();
+            _ = int.TryParse(userClaim, out var userId);
+            _ = int.TryParse(restaurantClaim, out var restaurantId);
             if (!tokenService.ValidateRefreshToken(HttpContext.Request.Cookies["refreshToken"]))
                 return Unauthorized(new { success = false, message = "Invalid refresh token" });
-            var (accessToken, refreshToken) = await tokenService.RefreshTokensAsync();
+            var (accessToken, refreshToken) = await tokenService.RefreshTokensAsync(userId, restaurantId);
             HttpContext.Response.Cookies.Append("refreshToken", refreshToken, jwtOptions.Value.JwtCookieOptions);
             return Ok(new
             {
@@ -77,7 +81,7 @@ public class TokensController(
             logger.LogError(ex, "Refresh tokens failed for user {UserId}",
                 User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             return StatusCode(StatusCodes.Status500InternalServerError, new
-                { success = false, message = ex.Message });
+            { success = false, message = ex.Message });
         }
     }
 }
