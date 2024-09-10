@@ -1,10 +1,13 @@
 using System.Security.Claims;
+using LoyaltyApi.Config;
 using LoyaltyApi.Models;
 using LoyaltyApi.RequestModels;
 using LoyaltyApi.Services;
 using LoyaltyApi.Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using Sprache;
 
 namespace LoyaltyApi.Controllers;
 
@@ -16,7 +19,9 @@ namespace LoyaltyApi.Controllers;
 public class UsersController(
     IUserService userService,
     ITokenService tokenService,
+    CreditPointsTransactionService pointsTransactionService,
     ILogger<UsersController> logger,
+    IOptions<FrontendOptions> frontendOptions,
     EmailUtility emailUtility) : ControllerBase
 {
     /// <summary>
@@ -74,10 +79,10 @@ public class UsersController(
             if (requestBody.Password == null) throw new ArgumentException("Password cannot be null");
             User? user = await userService.CreateUserAsync(requestBody);
             var confirmToken = await tokenService.GenerateConfirmEmailTokenAsync(user.Id, user.RestaurantId);
+            // TODO: Put in actual frontend url
             await emailUtility.SendEmailAsync(user.Email, $"Email Confirmation for Loyalty System",
-                "Welcome to Loyalty System. Please Confirm your email by clicking on the following link: http://localhost:5152/api/auth/confirm-email/" +
+                $"Welcome to Loyalty System. Please Confirm your email by clicking on the following link: {frontendOptions.Value.BaseUrl}/auth/confirm-email/" +
                 confirmToken, "Rock Loyalty System");
-            // TODO: send correct email confirmation link
             if (user == null) return StatusCode(500, new { success = false, message = "User creation failed" });
             return StatusCode(StatusCodes.Status201Created,
                 new { success = true, message = "User created", data = new { user } });
@@ -133,17 +138,27 @@ public class UsersController(
     /// <response code="401">If the user is not authorized.</response>
     /// <response code="500">If any other exception occurs.</response>
     [HttpGet]
-    [Route("")]
-    [Authorize(Roles = "User, Admin")]
-    public async Task<ActionResult> GetUserById()
+    [Route("{id}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult> GetUserById(int id)
     {
         logger.LogInformation("Get user request for user with id {id}",
             User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
         try
         {
-            User? user = await userService.GetUserByIdAsync();
+            User? user = await userService.GetUserByIdAsync(id);
             if (user == null) return NotFound(new { success = false, message = "User not found" });
-            return Ok(new { success = true, message = "User found", data = new { user } });
+            int points = await pointsTransactionService.GetCustomerPointsAsync(user.Id, user.RestaurantId);
+            return Ok(new
+            {
+                success = true,
+                message = "User found",
+                data = new
+                {
+                    user,
+                    points
+                }
+            });
         }
         catch (ArgumentException ex)
         {
@@ -154,6 +169,37 @@ public class UsersController(
         catch (Exception ex)
         {
             return BadRequest(new { success = false, message = ex.Message });
+        }
+    }
+    [HttpGet]
+    [Route("me")]
+    public async Task<ActionResult> GetUserByJwtToken()
+    {
+        logger.LogInformation("Get user request for user with id {id}", User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+        try
+        {
+            User? user = await userService.GetUserByIdAsync(int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new Exception("User id not found in token")));
+            if (user == null) return NotFound(new { success = false, message = "User not found" });
+            int points = await pointsTransactionService.GetCustomerPointsAsync(user.Id, user.RestaurantId);
+            return Ok(new
+            {
+                success = true,
+                message = "User found",
+                data = new
+                {
+                    user,
+                    points,
+                }
+            });
+        }
+        catch (ArgumentException ex)
+        {
+            logger.LogError(ex, "Get user failed for user with id {id}", User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            return Unauthorized(new { success = false, message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { success = false, message = ex.Message });
         }
     }
 

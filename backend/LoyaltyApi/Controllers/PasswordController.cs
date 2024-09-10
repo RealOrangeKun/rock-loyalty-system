@@ -1,8 +1,12 @@
+using System.Security.Claims;
+using LoyaltyApi.Config;
 using LoyaltyApi.Models;
 using LoyaltyApi.RequestModels;
 using LoyaltyApi.Services;
 using LoyaltyApi.Utilities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace LoyaltyApi.Controllers;
 
@@ -17,6 +21,7 @@ public class PasswordController(
     IUserService userService,
     IPasswordService passwordService,
     ILogger<PasswordController> logger,
+    IOptions<FrontendOptions> frontendOptions,
     TokenUtility tokenUtility) : ControllerBase
 {
     /// <summary>
@@ -53,46 +58,12 @@ public class PasswordController(
         if (user == null) return NotFound(new { success = false, message = "User not found" });
         var forgotPasswordToken = await tokenService.GenerateForgotPasswordTokenAsync(user.Id, user.RestaurantId);
         await emailUtility.SendEmailAsync(user.Email, $"Forgot Password for {user.Name} - {user.Email}",
-            $"Your password reset link is http://localhost:5152/api/password/reset/{forgotPasswordToken}",
+            $"Your password reset link is {frontendOptions.Value.BaseUrl}/password/reset/{forgotPasswordToken}",
             "Rock Loyalty System");
-        return Ok(new
-        {
-            success = true, message = "Forgot password email sent successfully"
-        });
-    }
-
-    /// <summary>
-    /// Resets the user's password using the provided token.
-    /// </summary>
-    /// <param name="token">The token used to reset the password.</param>
-    /// <returns>An ActionResult indicating the result of the operation.</returns>
-    /// <remarks>
-    /// Sample request:
-    ///
-    ///     GET /api/password/reset/{token}
-    ///
-    /// Sample response:
-    /// 
-    ///     200 OK
-    ///     {
-    ///         "success": true,
-    ///         "message": "Password reset successful"
-    ///     }
-    /// </remarks>
-    /// <response code="200">If the password reset is successful.</response>
-    /// <response code="401">If the token is invalid.</response>
-    /// <response code="500">If any other exception occurs.</response>
-    [HttpGet]
-    [Route("reset/{token}")]
-    public ActionResult ResetPassword(string token)
-    {
-        logger.LogInformation("Reset password request for token {Token}", token);
-        if (!tokenService.ValidateForgotPasswordToken(token))
-            return Unauthorized(new { success = false, message = "Invalid token" });
-        return Ok(new
+        return StatusCode(201, new
         {
             success = true,
-            message = "Password reset successful"
+            message = "Forgot password email sent successfully"
         });
     }
 
@@ -122,18 +93,35 @@ public class PasswordController(
     /// <response code="500">If any other exception occurs.</response>
     [HttpPut]
     [Route("{token}")]
-    public async Task<ActionResult> UpdatePassword(string? token, [FromBody] UpdatePasswordRequestModel requestBody)
+    public async Task<ActionResult> UpdatePasswordWithForgotPasswordToken(string token, [FromBody] UpdatePasswordRequestModel requestBody)
     {
         logger.LogInformation("Update password request for customer with {Token}", token);
-        if (token == null)
-        {
-            await passwordService.UpdatePasswordAsync(null, null, requestBody.Password);
-            return Ok(new { success = true, message = "Password updated" });
-        }
-
+        if (!tokenService.ValidateForgotPasswordToken(token)) return Unauthorized(new { success = false, message = "Invalid token" });
         Token forgotPasswordToken = tokenUtility.ReadToken(token);
         await passwordService.UpdatePasswordAsync(forgotPasswordToken.CustomerId, forgotPasswordToken.RestaurantId,
             requestBody.Password);
         return Ok(new { success = true, message = "Password updated" });
+    }
+    [HttpPut]
+    [Route("")]
+    [Authorize(Roles = "User")]
+    public async Task<ActionResult> UpdatePassword([FromBody] UpdatePasswordRequestModel requestBody)
+    {
+        logger.LogInformation("Update password request for customer {CustomerId} and restaurant {RestaurantId}",
+                User.FindFirst(ClaimTypes.NameIdentifier)?.Value, User.FindFirst("restaurantId")?.Value);
+        try
+        {
+            int? userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            int? restaurantId = int.Parse(User.FindFirst("restaurantId")?.Value);
+            if (userId == null || restaurantId == null) return Unauthorized(new { success = false, message = "Token parameters could not be read or the token is invalid" });
+            await passwordService.UpdatePasswordAsync(userId, restaurantId, requestBody.Password);
+            return Ok(new { success = true, message = "Password updated" });
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Update password failed for customer {CustomerId} and restaurant {RestaurantId}",
+                User.FindFirst(ClaimTypes.NameIdentifier)?.Value, User.FindFirst("restaurantId")?.Value);
+            return StatusCode(500, new { success = false, message = ex.Message });
+        }
     }
 }

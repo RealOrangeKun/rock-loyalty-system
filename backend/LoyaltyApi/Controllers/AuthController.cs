@@ -144,16 +144,13 @@ public class AuthController(
     ///         "message": "Email confirmed successfully."
     ///     }
     /// </remarks>
-    [HttpGet]
+    [HttpPut]
     [Route("confirm-email/{token}")]
     public async Task<ActionResult> ConfirmEmail(string token)
     {
         logger.LogInformation("Confirm email request for token {Token}", token);
         try
         {
-            if (token == null)
-                return Unauthorized(new { success = false, message = "Token is required." });
-
             await passwordService.ConfirmEmail(token);
             return Ok(new
             {

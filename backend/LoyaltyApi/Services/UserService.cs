@@ -38,16 +38,14 @@ namespace LoyaltyApi.Services
             return await userRepository.GetUserAsync(user);
         }
 
-        public async Task<User?> GetUserByIdAsync()
+        public async Task<User?> GetUserByIdAsync(int id)
         {
             logger.LogInformation("Getting user with id");
-            int userId = int.Parse(httpContext.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new ArgumentException("userId not found"));
-            logger.LogTrace("userId: {userId}", userId);
             int restaurantId = int.Parse(httpContext.HttpContext?.User?.FindFirst("restaurantId")?.Value ?? throw new ArgumentException("restaurantId not found"));
             logger.LogTrace("restaurantId: {restaurantId}", restaurantId);
             User user = new()
             {
-                Id = userId,
+                Id = id,
                 RestaurantId = restaurantId
             };
             return await userRepository.GetUserAsync(user);

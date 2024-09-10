@@ -25,7 +25,7 @@ namespace LoyaltyApi
     {
         public void ConfigureServices(IServiceCollection services)
         {
-            Log.Logger.Information("Configuring services");
+            Log.Logger.Information("Setting configurations");
             services.AddHttpContextAccessor();
             services.Configure<JwtOptions>(configuration.GetSection("JwtOptions"));
             services.Configure<Config.FacebookOptions>(configuration.GetSection("FacebookOptions"));
@@ -34,7 +34,8 @@ namespace LoyaltyApi
             services.Configure<API>(configuration.GetSection("API"));
             services.Configure<EmailOptions>(configuration.GetSection("EmailOptions"));
             services.Configure<AdminOptions>(configuration.GetSection("AdminOptions"));
-            Log.Logger.Information("Configuring services done");
+            services.Configure<FrontendOptions>(configuration.GetSection("FrontendOptions"));
+            Log.Logger.Information("Configuring configurations done");
             Log.Logger.Information("Configuring controllers");
             services.AddControllers();
             Log.Logger.Information("Configuring controllers done");
