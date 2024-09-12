@@ -60,11 +60,23 @@ ILogger<CreditPointsTransactionDetailRepository> logger) : ICreditPointsTransact
     }
     public async Task<int> GetTotalPointsSpentForEarnTransaction(int earnTransactionId)
     {
-        logger.LogInformation("Getting total points spent for earn transaction {EarnTransactionId}", earnTransactionId);
-        // Sum up all points used from the specified earn transaction
-        return await dbContext.CreditPointsTransactionsDetails
-            .Where(detail => detail.EarnTransactionId == earnTransactionId)
-            .SumAsync(detail => detail.PointsUsed);
+            logger.LogInformation("Getting total points spent for earn transaction {EarnTransactionId}", earnTransactionId);
 
+            try
+            {
+                // Retrieve the data from the database
+                var totalPointsSpent = await dbContext.CreditPointsTransactionsDetails
+                    .Where(detail => detail.EarnTransactionId == earnTransactionId)
+                    .SumAsync(detail => detail.PointsUsed);
+
+                logger.LogInformation("Total points spent for earn transaction {EarnTransactionId}: {TotalPointsSpent}", earnTransactionId, totalPointsSpent);
+
+                return totalPointsSpent;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error getting total points spent for earn transaction {EarnTransactionId}", earnTransactionId);
+                throw new Exception("Error getting total points spent for earn transaction", ex);
+            }
     }
 }
