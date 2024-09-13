@@ -100,7 +100,11 @@ public class AuthController(
             {
                 success = true,
                 message = "Login successful",
-                data = new { accessToken }
+                data = new
+                {
+                    accessToken,
+                    user
+                }
             });
         }
         catch (ArgumentException ex)
