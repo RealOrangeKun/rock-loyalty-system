@@ -34,8 +34,7 @@ namespace LoyaltyApi.Services
                 {
                     Email = email,
                     Name = name,
-                    RestaurantId = restaurantId,
-                    PhoneNumber = "123"
+                    RestaurantId = restaurantId
                 };
                 await userRepository.CreateUserAsync(user);
             };
