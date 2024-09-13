@@ -28,7 +28,7 @@ public class UsersController(
     /// Creates a new user.
     /// </summary>
     /// <param name="requestBody">The request body containing user registration details.</param>
-    /// <returns>ActionResult indicating the result of the operation.</returns>
+    /// <returns>The created user.</returns>
     /// <remarks>
     /// Sample request:
     ///
@@ -107,11 +107,11 @@ public class UsersController(
     /// <summary>
     /// Retrieves a user by their ID.
     /// </summary>
-    /// <returns>ActionResult indicating the result of the operation.</returns>
+    /// <returns> The user with the specified ID.</returns>
     /// <remarks>
     /// Sample request:
     /// 
-    ///     GET /api/users
+    ///     GET /api/users/1
     ///
     /// 
     /// Sample response:
@@ -128,6 +128,7 @@ public class UsersController(
     ///                  "restaurantId": "1",
     ///                  "name": "John Doe",
     ///              }
+    ///            "points": 100
     ///         }
     ///     }
     ///
@@ -173,8 +174,44 @@ public class UsersController(
             return BadRequest(new { success = false, message = ex.Message });
         }
     }
+
+    /// <summary>
+    /// Retrieves the details of the current user by their JWT Bearer token.
+    /// </summary>
+    /// <returns> The details of the current user.</returns>
+    /// <remarks>
+    /// Sample request:
+    /// 
+    ///     GET /api/users/me
+    ///
+    /// 
+    /// Sample response:
+    ///
+    ///     200 OK
+    ///     {
+    ///         "success": true,
+    ///         "message": " User retrieved successfully",
+    ///         "data": {
+    ///             "user": {
+    ///                  "id": "1",
+    ///                  "email": "user@example.com",
+    ///                  "phoneNumber": "1234567890",
+    ///                  "restaurantId": "1",
+    ///                  "name": "John Doe",
+    ///              }
+    ///             "points": 100
+    ///         }
+    ///     }
+    ///
+    /// Authorization header with JWT Bearer token is required.
+    /// </remarks>
+    /// <response code="200">If the user is found successfully.</response>
+    /// <response code="404">If the user is not found.</response>
+    /// <response code="401">If the user is not authorized.</response>
+    /// <response code="500">If any other exception occurs.</response>
     [HttpGet]
     [Route("me")]
+    [Authorize(Roles = "User")]
     public async Task<ActionResult> GetUserByJwtToken()
     {
         logger.LogInformation("Get user request for user with id {id}", User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
@@ -190,7 +227,7 @@ public class UsersController(
             return Ok(new
             {
                 success = true,
-                message = "User found",
+                message = "User retrieved successfully",
                 data = new
                 {
                     user,
@@ -215,9 +252,9 @@ public class UsersController(
     }
 
     /// <summary>
-    /// Retrieves a user by their ID.
+    /// Updates a user by their ID.
     /// </summary>
-    /// <returns>ActionResult indicating the result of the operation.</returns>
+    /// <returns> The updated user. </returns>
     /// <remarks>
     ///
     /// Sample request:

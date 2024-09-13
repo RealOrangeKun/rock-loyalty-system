@@ -20,19 +20,36 @@ public class CreditPointsTransactionService(
     public async Task<CreditPointsTransaction?> GetTransactionByIdAsync(int transactionId)
     {
         logger.LogInformation("Getting transaction {TransactionId}", transactionId);
-        return await transactionRepository.GetTransactionByIdAsync(transactionId);
+        try
+        {
+            return await transactionRepository.GetTransactionByIdAsync(transactionId);
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Error retrieving transaction {TransactionId}", transactionId);
+            throw new Exception("Error retrieving transaction");
+        }
     }
 
     public async Task<CreditPointsTransaction?> GetTransactionByReceiptIdAsync(int receiptId)
     {
         logger.LogInformation("Getting transaction for receipt {ReceiptId}", receiptId);
-        return await transactionRepository.GetTransactionByReceiptIdAsync(receiptId);
+        try
+        {
+            return await transactionRepository.GetTransactionByReceiptIdAsync(receiptId);
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Error retrieving transaction for receipt {ReceiptId}", receiptId);
+            throw new Exception("Error retrieving transaction");
+        }
     }
 
     public async Task<IEnumerable<CreditPointsTransaction>> GetTransactionsByCustomerAndRestaurantAsync(int? customerId,
         int? restaurantId)
     {
-        logger.LogInformation("Getting transactions for customer {CustomerId} and restaurant {RestaurantId}", customerId, restaurantId);
+        logger.LogInformation("Getting transactions for customer {CustomerId} and restaurant {RestaurantId}",
+            customerId, restaurantId);
         int customerIdJwt = customerId ??
                             int.Parse(httpContext.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ??
                                       throw new ArgumentException("customerId not found"));
@@ -41,13 +58,24 @@ public class CreditPointsTransactionService(
                               int.Parse(httpContext.HttpContext?.User?.FindFirst("restaurantId")?.Value ??
                                         throw new ArgumentException("restaurantId not found"));
         logger.LogTrace("restaurantIdJwt: {restaurantIdJwt}", restaurantIdJwt);
-        return await transactionRepository.GetTransactionsByCustomerAndRestaurantAsync(customerId ?? customerIdJwt,
-            restaurantId ?? restaurantIdJwt);
+
+        try
+        {
+            return await transactionRepository.GetTransactionsByCustomerAndRestaurantAsync(customerId ?? customerIdJwt,
+                restaurantId ?? restaurantIdJwt);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error retrieving transactions for customer {CustomerId} and restaurant {RestaurantId}",
+                customerId, restaurantId);
+            throw new Exception("Error retrieving transactions");
+        }
     }
 
     public async Task AddTransactionAsync(CreateTransactionRequest transactionRequest)
     {
-        logger.LogInformation("Adding transaction for customer {CustomerId} and restaurant {RestaurantId}", transactionRequest.CustomerId, transactionRequest.RestaurantId);
+        logger.LogInformation("Adding transaction for customer {CustomerId} and restaurant {RestaurantId}",
+            transactionRequest.CustomerId, transactionRequest.RestaurantId);
         var restaurant = await restaurantRepository.GetRestaurantById(transactionRequest.RestaurantId) ??
                          throw new ArgumentException("Invalid restaurant");
         var transaction = new CreditPointsTransaction
@@ -80,7 +108,8 @@ public class CreditPointsTransactionService(
     /// </summary>
     public async Task SpendPointsAsync(int customerId, int restaurantId, int points)
     {
-        logger.LogInformation("Spending {Points} points for customer {CustomerId} at restaurant {RestaurantId}", points, customerId, restaurantId);
+        logger.LogInformation("Spending {Points} points for customer {CustomerId} at restaurant {RestaurantId}", points,
+            customerId, restaurantId);
         var restaurant = await restaurantRepository.GetRestaurantById(restaurantId) ??
                          throw new ArgumentException("Invalid restaurant");
 
@@ -115,12 +144,15 @@ public class CreditPointsTransactionService(
             // Distribute the points to spend across available transactions
             foreach (var transaction in transactions
                          .Where(transaction =>
-                             transaction.TransactionDate > DateTime.UtcNow.AddDays(-restaurant.CreditPointsLifeTime))
+                             transaction.TransactionDate > DateTime.UtcNow.AddDays(-restaurant.CreditPointsLifeTime) &&
+                             transaction.TransactionType == TransactionType.Earn)
                          .OrderBy(t => t.TransactionDate))
             {
                 if (remainingPoints <= 0) break;
 
-                var availablePoints = transaction.Points;
+                var spentPoints =
+                    await transactionDetailRepository.GetTotalPointsSpentForEarnTransaction(transaction.TransactionId);
+                var availablePoints = transaction.Points - spentPoints;
 
                 if (availablePoints <= 0) continue;
 
@@ -148,7 +180,8 @@ public class CreditPointsTransactionService(
 
     public async Task<int> GetCustomerPointsAsync(int? customerId, int? restaurantId)
     {
-        logger.LogInformation("Getting customer points for customer {CustomerId} and restaurant {RestaurantId}", customerId, restaurantId);
+        logger.LogInformation("Getting customer points for customer {CustomerId} and restaurant {RestaurantId}",
+            customerId, restaurantId);
         int customerIdJwt = customerId ??
                             int.Parse(httpContext.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ??
                                       throw new ArgumentException("customerId not found"));
@@ -157,8 +190,16 @@ public class CreditPointsTransactionService(
                               int.Parse(httpContext.HttpContext?.User?.FindFirst("restaurantId")?.Value ??
                                         throw new ArgumentException("restaurantId not found"));
         logger.LogTrace("restaurantIdJwt: {restaurantIdJwt}", restaurantIdJwt);
-        return await transactionRepository.GetCustomerPointsAsync(customerId ?? customerIdJwt,
-            restaurantId ?? restaurantIdJwt);
+        try
+        {
+            return await transactionRepository.GetCustomerPointsAsync(customerId ?? customerIdJwt,
+                restaurantId ?? restaurantIdJwt);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error retrieving customer points");
+            throw new Exception("Error retrieving customer points", ex);
+        }
     }
 
     public async Task<int> ExpirePointsAsync()
@@ -229,7 +270,7 @@ public class CreditPointsTransactionService(
             await context.SaveChangesAsync();
             await dbTransaction.CommitAsync();
 
-            return expirationTransactions.Count();
+            return expirationTransactions.Count;
         }
         catch
         {
