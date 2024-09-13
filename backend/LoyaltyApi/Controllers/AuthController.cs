@@ -2,6 +2,7 @@ using LoyaltyApi.Config;
 using LoyaltyApi.Models;
 using LoyaltyApi.RequestModels;
 using LoyaltyApi.Services;
+using LoyaltyApi.Utilities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -20,7 +21,8 @@ public class AuthController(
     IUserService userService,
     IOptions<AdminOptions> adminOptions,
     IPasswordService passwordService,
-    ILogger<AuthController> logger) : ControllerBase
+    ILogger<AuthController> logger,
+    TokenUtility tokenUtility) : ControllerBase
 {
     /// <summary>
     /// Authenticates a user and generates a JWT token.
@@ -155,12 +157,33 @@ public class AuthController(
         logger.LogInformation("Confirm email request for token {Token}", token);
         try
         {
+            // TODO: check if email is already verified
             await passwordService.ConfirmEmail(token);
+            Token confirmEmailToken = tokenUtility.ReadToken(token);
+            User? user = await userService.GetUserByIdAsync(confirmEmailToken.CustomerId, confirmEmailToken.RestaurantId) ?? throw new NullReferenceException("User not found");
+            string accessToken = tokenService.GenerateAccessToken(user.Id, user.RestaurantId, Role.User);
+            string refreshToken = await tokenService.GenerateRefreshTokenAsync(user.Id, user.RestaurantId, Role.User);
+            HttpContext.Response.Cookies.Append("refreshToken", refreshToken, jwtOptions.Value.JwtCookieOptions);
             return Ok(new
             {
                 success = true,
-                message = "Email confirmed successfully."
+                message = "Email confirmed successfully.",
+                data = new
+                {
+                    user,
+                    accessToken
+                }
             });
+        }
+        catch (NullReferenceException ex)
+        {
+            logger.LogError(ex, "Confirm email failed for token {Token}", token);
+            return NotFound(new { success = false, message = ex.Message });
+        }
+        catch (ArgumentException ex)
+        {
+            logger.LogError(ex, "Confirm email failed for token {Token}", token);
+            return Unauthorized(new { success = false, message = ex.Message });
         }
         catch (Exception ex)
         {

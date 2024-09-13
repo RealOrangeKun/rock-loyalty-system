@@ -294,6 +294,7 @@ public class UsersController(
     [Authorize(Roles = "User, Admin")]
     public async Task<ActionResult> UpdateUser([FromBody] UpdateUserRequestModel requestBody)
     {
+        // TODO: check if email will be changed if yes then confirm it again
         logger.LogInformation("Update user request for user with id {id}", User.FindFirst("Id")?.Value);
         try
         {
