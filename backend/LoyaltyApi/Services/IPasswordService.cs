@@ -12,5 +12,6 @@ namespace LoyaltyApi.Services
         Task<Password> CreatePasswordAsync(int customerId, int restaurantId, string password);
         Task<Password> UpdatePasswordAsync(int customerId, int restaurantId, string password);
         Task ConfirmEmail(string token);
+        Task<Password> UnConfirmEmail(int customerId, int restaurantId);
     }
 }

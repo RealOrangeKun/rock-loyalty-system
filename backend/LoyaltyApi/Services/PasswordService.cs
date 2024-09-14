@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using LoyaltyApi.Exceptions;
 using LoyaltyApi.Models;
 using LoyaltyApi.Repositories;
 using LoyaltyApi.Utilities;
@@ -24,6 +25,7 @@ namespace LoyaltyApi.Services
                 RestaurantId = tokenData.RestaurantId,
             };
             Password? password = await repository.GetPasswordAsync(passwordModel) ?? throw new Exception("Password not found");
+            if (password.Confirmed) throw new EmailAlreadyConfirmedException("Email already confirmed");
             password.Confirmed = true;
             await repository.UpdatePasswordAsync(password);
         }
@@ -55,6 +57,17 @@ namespace LoyaltyApi.Services
             if (password is null) return null;
             if (!VerifyPassword(password, inputPassword)) return null;
             return password;
+        }
+
+        public async Task<Password> UnConfirmEmail(int customerId, int restaurantId)
+        {
+            logger.LogInformation("Unconfirming email for customer {customerId} and restaurant {restaurantId}", customerId, restaurantId);
+            Password passwordModel = new()
+            {
+                CustomerId = customerId,
+                RestaurantId = restaurantId
+            };
+            return await repository.UpdatePasswordAsync(passwordModel);
         }
 
         public async Task<Password> UpdatePasswordAsync(int customerId, int restaurantId, string password)

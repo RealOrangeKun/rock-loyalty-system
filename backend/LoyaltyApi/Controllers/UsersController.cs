@@ -19,9 +19,10 @@ namespace LoyaltyApi.Controllers;
 public class UsersController(
     IUserService userService,
     ITokenService tokenService,
-    CreditPointsTransactionService pointsTransactionService,
+    ICreditPointsTransactionService pointsTransactionService,
     ILogger<UsersController> logger,
     IOptions<FrontendOptions> frontendOptions,
+    IPasswordService passwordService,
     EmailUtility emailUtility) : ControllerBase
 {
     /// <summary>
@@ -294,7 +295,6 @@ public class UsersController(
     [Authorize(Roles = "User, Admin")]
     public async Task<ActionResult> UpdateUser([FromBody] UpdateUserRequestModel requestBody)
     {
-        // TODO: check if email will be changed if yes then confirm it again
         logger.LogInformation("Update user request for user with id {id}", User.FindFirst("Id")?.Value);
         try
         {
@@ -302,6 +302,7 @@ public class UsersController(
             string restaurantClaim = User.FindFirst("restaurantId")?.Value ?? throw new UnauthorizedAccessException("Restaurant id not found in token");
             _ = int.TryParse(userClaim, out var userId);
             _ = int.TryParse(restaurantClaim, out var restaurantId);
+            if (requestBody.Email != null) await passwordService.UnConfirmEmail(userId, restaurantId);
             User user = await userService.UpdateUserAsync(requestBody, userId, restaurantId);
             if (user == null) return NotFound(new { success = false, message = "User not found" });
             return Ok(new { success = true, message = "User updated", data = new { user } });

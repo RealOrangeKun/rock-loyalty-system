@@ -1,4 +1,5 @@
 using LoyaltyApi.Config;
+using LoyaltyApi.Exceptions;
 using LoyaltyApi.Models;
 using LoyaltyApi.RequestModels;
 using LoyaltyApi.Services;
@@ -157,7 +158,6 @@ public class AuthController(
         logger.LogInformation("Confirm email request for token {Token}", token);
         try
         {
-            // TODO: check if email is already verified
             await passwordService.ConfirmEmail(token);
             Token confirmEmailToken = tokenUtility.ReadToken(token);
             User? user = await userService.GetUserByIdAsync(confirmEmailToken.CustomerId, confirmEmailToken.RestaurantId) ?? throw new NullReferenceException("User not found");
@@ -174,6 +174,11 @@ public class AuthController(
                     accessToken
                 }
             });
+        }
+        catch (EmailAlreadyConfirmedException ex)
+        {
+            logger.LogError(ex, "Confirm email failed for token {Token}", token);
+            return BadRequest(new { success = false, message = ex.Message });
         }
         catch (NullReferenceException ex)
         {
