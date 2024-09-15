@@ -211,7 +211,6 @@ public class CreditPointsTransactionController(
     /// <param name="restaurantId">The ID of the restaurant.</param>
     /// <returns>Action result containing a list of transactions.</returns>
     /// <response code="200">The transactions were retrieved successfully.</response>
-    /// <response code="404">No transactions were found for the specified customer and restaurant.</response>
     /// <response code="500">An error occurred while processing the request.</response>
     /// <remarks>
     /// Sample request:
