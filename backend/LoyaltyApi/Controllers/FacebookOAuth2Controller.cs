@@ -37,7 +37,7 @@ IOptions<JwtOptions> jwtOptions) : ControllerBase
     {
         try
         {
-            var user = await oauth2Service.HandleGoogleSignIn(body.AccessToken);
+            var user = await oauth2Service.HandleFacebookSignIn(body.AccessToken);
             var existingUser = await userService.GetUserByEmailAsync(user.Email, restaurantId);
             if (existingUser is null)
             {
