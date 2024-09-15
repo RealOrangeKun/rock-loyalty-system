@@ -74,7 +74,7 @@ public class CreditPointsTransactionController(
                 isExpired = transaction.IsExpired,
                 points = transaction.Points
             };
-            return Ok(new { success = true, data = new { transaction = responseTransaction }, message = "Transaction found" });
+            return Ok(new { success = true, data = new { transaction = responseTransaction }, message = "Transaction retrieved successfully" });
         }
         catch (Exception ex)
         {
@@ -142,7 +142,7 @@ public class CreditPointsTransactionController(
                 isExpired = transaction.IsExpired,
                 points = transaction.Points
             };
-            return Ok(new { success = true, data = new { transaction = responseTransaction }, message = "Transaction found" });
+            return Ok(new { success = true, data = new { transaction = responseTransaction }, message = "Transaction retrieved successfully" });
         }
         catch (Exception ex)
         {
