@@ -214,7 +214,29 @@ public class AuthController(
             return StatusCode(500, new { success = false, message = "Internal server error." });
         }
     }
-    [HttpPut]
+
+    /// <summary>
+    /// Logs out a user.
+    /// </summary>
+    /// <returns>An Ok result if the logout is successful or an Unauthorized result if the user is not authenticated.</returns>
+    /// <response code="200">If the logout is successful.</response>
+    /// <response code="401">If the user is not authenticated.</response>
+    /// <remarks>
+    /// Sample request:
+    ///
+    ///     POST /api/auth/logout
+    ///
+    /// Sample response:
+    ///
+    ///     200 OK
+    ///     {
+    ///         "success": true,
+    ///         "message": "Logout successful"
+    ///     }
+    ///
+    /// Authorization header with JWT Bearer token is required.
+    /// </remarks>
+    [HttpPost]
     [Route("logout")]
     [Authorize(Roles = "User, Admin")]
     public ActionResult Logout()
