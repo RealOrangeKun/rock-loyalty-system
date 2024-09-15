@@ -196,4 +196,15 @@ public class AuthController(
             return StatusCode(500, new { success = false, message = "Internal server error." });
         }
     }
+    [HttpPut]
+    [Route("logout")]
+    public async Task<ActionResult> Logout()
+    {
+        HttpContext.Response.Cookies.Delete("refreshToken");
+        return Ok(new
+        {
+            success = true,
+            message = "Logout successful"
+        });
+    }
 }
