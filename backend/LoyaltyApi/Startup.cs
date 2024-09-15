@@ -8,15 +8,11 @@ using LoyaltyApi.Repositories;
 using LoyaltyApi.Services;
 using LoyaltyApi.Utilities;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.Facebook;
-using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
-using Serilog.Core;
 
 namespace LoyaltyApi
 {
@@ -28,9 +24,8 @@ namespace LoyaltyApi
             Log.Logger.Information("Setting configurations");
             services.AddHttpContextAccessor();
             services.Configure<JwtOptions>(configuration.GetSection("JwtOptions"));
-            services.Configure<Config.FacebookOptions>(configuration.GetSection("FacebookOptions"));
-            services.Configure<Config.GoogleOptions>(configuration.GetSection("GoogleOptions"));
-            // services.Configure<LoyaltyApi.Config.AppleOptions>(configuration.GetSection("AppleOptions"));
+            services.Configure<FacebookOptions>(configuration.GetSection("FacebookOptions"));
+            services.Configure<GoogleOptions>(configuration.GetSection("GoogleOptions"));
             services.Configure<API>(configuration.GetSection("API"));
             services.Configure<EmailOptions>(configuration.GetSection("EmailOptions"));
             services.Configure<AdminOptions>(configuration.GetSection("AdminOptions"));
@@ -50,7 +45,11 @@ namespace LoyaltyApi
             services.AddTransient<IRestaurantRepository, RestaurantRepository>();
             services.AddTransient<IRestaurantService, RestaurantService>();
             services.AddTransient<ICreditPointsTransactionRepository, CreditPointsTransactionRepository>();
-            services.AddScoped<OAuth2Service>();
+            services.AddScoped(provider =>
+            {
+                FacebookOptions? facebookOptions = configuration.GetSection("FacebookOptions").Get<FacebookOptions>() ?? throw new ArgumentException("FacebookOptions is missing");
+                return new OAuth2Service(new HttpClient(), $"{facebookOptions.AppId}|{facebookOptions.AppSecret}");
+            });
             services.AddTransient<ApiUtility>();
             services.AddTransient<VoucherUtility>();
             services.AddTransient<CreditPointsUtility>();
@@ -104,23 +103,6 @@ namespace LoyaltyApi
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions?.SigningKey ?? throw new InvalidOperationException("JWT signing key not found"))),
                 };
-            })
-            .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme)
-            .AddFacebook(FacebookDefaults.AuthenticationScheme, options =>
-            {
-                var facebookOptions = configuration.GetSection("FacebookOptions").Get<LoyaltyApi.Config.FacebookOptions>();
-                options.AppId = facebookOptions?.AppId ?? throw new InvalidOperationException("Facebook app id not found");
-                options.AppSecret = facebookOptions?.AppSecret ?? throw new InvalidOperationException("Facebook app secret not found");
-                options.CallbackPath = new PathString("/signin-facebook");
-            })
-            .AddGoogle(GoogleDefaults.AuthenticationScheme, options =>
-            {
-                var googleOptions = configuration.GetSection("GoogleOptions").Get<LoyaltyApi.Config.GoogleOptions>();
-                options.ClientId = googleOptions?.ClientId ?? throw new InvalidOperationException("Google Client id not found");
-                options.ClientSecret = googleOptions?.ClientSecret ?? throw new InvalidOperationException("Google Client secret not found");
-                options.Scope.Add("email");
-                options.Scope.Add("profile");
-                options.CallbackPath = new PathString("/signin-google");
             });
             Log.Logger.Information("Configuring authentication done");
             services.AddEndpointsApiExplorer();

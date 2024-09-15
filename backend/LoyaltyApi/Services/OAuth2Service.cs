@@ -1,47 +1,39 @@
-﻿using System.Security.Claims;
-using LoyaltyApi.Config;
-using Microsoft.AspNetCore.Authentication;
+﻿using LoyaltyApi.Config;
 using Microsoft.Extensions.Options;
-using Microsoft.AspNetCore.Mvc;
-using LoyaltyApi.Models;
 using LoyaltyApi.Repositories;
+using LoyaltyApi.Models;
+using System.Text.Json;
 
 namespace LoyaltyApi.Services
 {
-    public class OAuth2Service(ITokenService tokenService,
-    IOptions<JwtOptions> jwtOptions,
-    IUserService userService,
-    IUserRepository userRepository,
-    ILogger<OAuth2Service> logger)
+    public class OAuth2Service(HttpClient httpClient,
+    string facebookAppToken)
     {
-        public async Task<IActionResult> HandleCallbackAsync(HttpContext context, string authenticationScheme)
+        public async Task<User> HandleGoogleSignIn(string accessToken)
         {
-            logger.LogInformation("Handling callback for {authenticationScheme}", authenticationScheme);
-            var result = await context.AuthenticateAsync(authenticationScheme);
-            if (!result.Succeeded) return new UnauthorizedObjectResult(new { success = false, message = "Authentication failed" });
-
-            var claims = (result.Principal?.Identities.FirstOrDefault()?.Claims) ?? throw new ArgumentException("Claims not found");
-            logger.LogTrace("claims: {claims}", claims);
-            string? name = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value ?? throw new ArgumentException("Name not found");
-            logger.LogTrace("name: {name}", name);
-            string? email = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value ?? throw new ArgumentException("Email not found");
-            logger.LogTrace("email: {email}", email);
-            var restaurantId = Convert.ToInt32(result.Properties.Items["resId"]);
-            User? user = await userService.GetUserByEmailAsync(email, restaurantId);
-            if (user == null)
+            string url = "https://www.googleapis.com/oauth2/v3/userinfo?access_token=" + accessToken;
+            var response = await httpClient.GetAsync(url);
+            if (!response.IsSuccessStatusCode) throw new HttpRequestException("Failed to get user info from Google.");
+            var json = await response.Content.ReadAsStringAsync();
+            var userJson = JsonSerializer.Deserialize<JsonElement>(json);
+            return new User
             {
-                user = new()
-                {
-                    Email = email,
-                    Name = name,
-                    RestaurantId = restaurantId
-                };
-                await userRepository.CreateUserAsync(user);
+                Email = userJson.GetProperty("email").GetString() ?? throw new ArgumentException("Email is missing"),
+                Name = userJson.GetProperty("name").GetString() ?? throw new ArgumentException("Name is missing"),
             };
-            var accessToken = tokenService.GenerateAccessToken(user.Id, user.RestaurantId, Role.User);
-            var refreshToken = await tokenService.GenerateRefreshTokenAsync(user.Id, user.RestaurantId, Role.User);
-            context.Response.Cookies.Append("refreshToken", refreshToken, jwtOptions.Value.JwtCookieOptions);
-            return new OkObjectResult(new { success = true, message = "OAuth2 authentication successful", data = new { user, accessToken } });
+        }
+        public async Task<User> HandleFacebookSignIn(string accessToken)
+        {
+            string url = "https://graph.facebook.com/me?access_token=" + accessToken;
+            var response = await httpClient.GetAsync(url);
+            if (!response.IsSuccessStatusCode) throw new HttpRequestException("Failed to get user info from Facebook.");
+            var json = await response.Content.ReadAsStringAsync();
+            var userJson = JsonSerializer.Deserialize<JsonElement>(json);
+            return new User
+            {
+                Email = userJson.GetProperty("email").GetString() ?? throw new ArgumentException("Email is missing"),
+                Name = userJson.GetProperty("name").GetString() ?? throw new ArgumentException("Name is missing"),
+            };
         }
     }
 }
