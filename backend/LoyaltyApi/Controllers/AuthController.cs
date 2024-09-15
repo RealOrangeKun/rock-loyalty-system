@@ -57,7 +57,14 @@ public class AuthController(
     ///        "message": "Login successful",
     ///           "data": {
     ///            "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-    ///        }
+    ///             "user": {
+    ///                  "id": "1",
+    ///                  "email": "email@example.com",
+    ///                  "phoneNumber": "9876543210",
+    ///                  "restaurantId": "1",
+    ///                  "name": "John Doe",
+    ///              }
+    ///         }
     ///     }
     /// </remarks>
     [HttpPost]
@@ -150,6 +157,16 @@ public class AuthController(
     ///     {
     ///         "success": true,
     ///         "message": "Email confirmed successfully."
+    ///         "data": {
+    ///             "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    ///             "user": {
+    ///                  "id": "1",
+    ///                  "email": "email@example.com",
+    ///                  "phoneNumber": "9876543210",
+    ///                  "restaurantId": "1",
+    ///                  "name": "John Doe",
+    ///              }
+    ///         }
     ///     }
     /// </remarks>
     [HttpPut]
