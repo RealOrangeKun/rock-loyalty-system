@@ -4,6 +4,7 @@ using LoyaltyApi.Models;
 using LoyaltyApi.RequestModels;
 using LoyaltyApi.Services;
 using LoyaltyApi.Utilities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -198,7 +199,8 @@ public class AuthController(
     }
     [HttpPut]
     [Route("logout")]
-    public async Task<ActionResult> Logout()
+    [Authorize(Roles = "User, Admin")]
+    public ActionResult Logout()
     {
         HttpContext.Response.Cookies.Delete("refreshToken");
         return Ok(new
