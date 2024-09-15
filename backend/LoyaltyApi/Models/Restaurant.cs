@@ -17,6 +17,6 @@ public class Restaurant
     public int CreditPointsLifeTime { get; set; }
     public int LoyaltyPointsLifeTime { get; set; }
 
-    // Lifetime value in Milliseconds for Vouchers
+    // Lifetime value in minutes for Vouchers
     public int VoucherLifeTime { get; set; }
 }
