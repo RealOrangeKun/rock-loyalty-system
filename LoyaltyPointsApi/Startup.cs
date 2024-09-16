@@ -2,7 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using LoyaltyPointsApi.Config;
 using LoyaltyPointsApi.Data;
+using LoyaltyPointsApi.Repositories;
+using LoyaltyPointsApi.Services;
+using LoyaltyPointsApi.Utilities;
 using Microsoft.EntityFrameworkCore;
 
 namespace LoyaltyPointsApi
@@ -12,24 +16,42 @@ namespace LoyaltyPointsApi
     {
         public void ConfigureServices(IServiceCollection services)
         {
+            // Adding configurations
+            services.Configure<AdminOptions>(configuration.GetSection("AdminOptions"));
+
+            // Adding db context
+            services.AddDbContext<LoyaltyDbContext>(options =>
+            {
+                options.UseSqlite("Data Source=Zura.db");
+            });
+
+            // Adding services
+            services.AddScoped<IApiKeyRepository, ApiKeyRepository>();
+            services.AddScoped<IApiKeyService, ApiKeyService>();
+            services.AddScoped<ApiKeyUtility>();
+
+
+
+            // Adding controllers and swagger
             services.AddControllers();
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
-            services.AddDbContext<LoyaltyDbContext>(options=>{
-                options.UseSqlite("Data Source=Zura.db");
-            });
+
         }
         public void Configure(WebApplication app)
         {
 
-            if (app.Environment.IsDevelopment())
+            if (environment.IsDevelopment())
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
 
             app.UseHttpsRedirection();
-
+            app.UseRouting();
+            app.UseAuthentication();
+            app.UseAuthorization();
+            app.MapControllers();
 
         }
 
