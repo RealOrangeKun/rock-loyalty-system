@@ -5,6 +5,7 @@ using LoyaltyApi.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
+
 namespace LoyaltyApi.Controllers;
 
 /// <summary>
@@ -32,20 +33,20 @@ IOptions<JwtOptions> jwtOptions) : ControllerBase
     ///     GET /api/oauth2/signin-google?restaurantId=1
     ///
     /// </remarks>
-    [HttpGet("signin-google")]
-    public async Task<ActionResult> SignInWithGoogle([FromQuery] int restaurantId, [FromBody] OAuth2Body body)
+    [HttpPost("signin-google")]
+    public async Task<ActionResult> SignInWithGoogle([FromBody] OAuth2Body body)
     {
         try
         {
             var user = await oauth2Service.HandleGoogleSignIn(body.AccessToken);
-            var existingUser = await userService.GetUserByEmailAsync(user.Email, restaurantId);
+            var existingUser = await userService.GetUserByEmailAsync(user.Email, body.RestaurantId);
             if (existingUser is null)
             {
                 var registerBody = new RegisterRequestBody()
                 {
                     Email = user.Email,
                     Name = user.Name,
-                    RestaurantId = restaurantId
+                    RestaurantId = body.RestaurantId
                 };
                 existingUser = await userService.CreateUserAsync(registerBody) ?? throw new HttpRequestException("Failed to create user.");
             }
@@ -59,25 +60,24 @@ IOptions<JwtOptions> jwtOptions) : ControllerBase
                 data = new
                 {
                     accessToken,
-                    existingUser
+                    user = existingUser
                 }
             });
         }
         catch (ArgumentException ex)
         {
-            logger.LogError(ex, "Login failed for restaurant {RestaurantId}", restaurantId);
+            logger.LogError(ex, "Login failed for restaurant {RestaurantId}", body.RestaurantId);
             return StatusCode(500, new { success = false, message = ex.Message });
         }
         catch (HttpRequestException ex)
         {
-            logger.LogError(ex, "Login failed for restaurant {RestaurantId}", restaurantId);
+            logger.LogError(ex, "Login failed for restaurant {RestaurantId}", body.RestaurantId);
             return StatusCode(500, new { success = false, message = ex.Message });
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Login failed for restaurant {RestaurantId}", restaurantId);
+            logger.LogError(ex, "Login failed for restaurant {RestaurantId}", body.RestaurantId);
             return StatusCode(500, new { success = false, message = ex.Message });
         }
     }
-
 }
