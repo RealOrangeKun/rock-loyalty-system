@@ -9,7 +9,7 @@ namespace LoyaltyPointsApi.Models
     {
         public required string Key { get; set; }
 
-        public required int RestaurantId { get; set; }
+        public int RestaurantId { get; set; }
 
 
     }

@@ -8,13 +8,13 @@ namespace LoyaltyPointsApi.Data
 {
     public class LoyaltyDbContext(DbContextOptions<LoyaltyDbContext> options) : DbContext(options)
     {
-        DbSet<ResturantSettings> ResturantSettings { get; set; }
+        public DbSet<ResturantSettings> ResturantSettings { get; set; }
 
-        DbSet<Threshold> Thresholds { get; set; }
+        public DbSet<Threshold> Thresholds { get; set; }
 
-        DbSet<Transaction> Transactions { get; set; }
+        public DbSet<Transaction> Transactions { get; set; }
 
-        DbSet<ApiKey> ApiKeys { get; set; }
+        public DbSet<ApiKey> ApiKeys { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -35,6 +35,10 @@ namespace LoyaltyPointsApi.Data
 
             modelBuilder.Entity<ApiKey>()
                 .HasKey(r => r.Key);
+
+            modelBuilder.Entity<ApiKey>()
+                .HasIndex(r => r.RestaurantId)
+                .IsUnique();
 
             base.OnModelCreating(modelBuilder);
         }
