@@ -1,0 +1,146 @@
+@if ( errorMsg ) {
+<app-alert [message]="errorMsg" (closeMsg)="errorMsg = ''"> </app-alert>
+}
+<div class="container">
+  <div class="row vh-100 align-items-center">
+    <form
+      ngForm
+      #registerForm="ngForm"
+      class="col-lg-6 col-md-8 col-sm-10 col-12 offset-sm-1 offset-md-2 offset-lg-3"
+      (ngSubmit)="onSubmit()"
+    >
+      <h1 class="text-center mb-3" style="font-weight: 800">Register</h1>
+      <div class="input-group mb-3">
+        <span class="input-group-text" id="basic-addon1">+20</span>
+        <input
+          type="email"
+          class="form-control"
+          name="phone"
+          id="emailInput"
+          #phoneInput="ngModel"
+          ngModel
+          required
+          aria-describedby="emailHelpId"
+          placeholder="Enter your phone number"
+          [maxlength]="10"
+          [pattern]="'^(10|11|12|15)\\d{8}$'"
+          [ngClass]="{
+            'is-invalid': !phoneInput.valid && phoneInput.touched
+          }"
+        />
+        <div
+          *ngIf="phoneInput.invalid && phoneInput.touched"
+          class="invalid-feedback"
+        >
+          @if (phoneInput.errors?.required) {
+          <div>phone number is required</div>
+          } @if (phoneInput.errors?.pattern) {
+          <div>Please enter a valid phone number</div>
+          }
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <input
+          type="password"
+          class="form-control"
+          #passwordInput="ngModel"
+          ngModel
+          placeholder="Enter your password"
+          name="password"
+          required
+          minlength="8"
+          pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$"
+          [ngClass]="{
+            'is-invalid': !passwordInput.valid && passwordInput.touched
+          }"
+        />
+        <div
+          *ngIf="confirmPasswordInput.errors?.required"
+          class="invalid-feedback"
+        >
+          password is required
+        </div>
+        <ul
+          *ngIf="passwordInput.invalid && passwordInput.touched"
+          class="invalid-feedback"
+        >
+          <li *ngIf="passwordInput.errors?.minlength">
+            Password must be at least 8 characters long.
+          </li>
+          <li *ngIf="passwordInput.errors?.pattern">
+            Password must contain at least one uppercase letter, one lowercase
+            letter, one digit, and one special character.
+          </li>
+        </ul>
+      </div>
+
+      <div class="mb-3">
+        <input
+          type="password"
+          class="form-control"
+          #confirmPasswordInput="ngModel"
+          ngModel
+          placeholder="Confirm your password"
+          name="confirmPassword"
+          required
+          [ngClass]="{
+            'is-invalid':
+              (!confirmPasswordInput.valid && confirmPasswordInput.touched) ||
+              (confirmPasswordInput.touched &&
+                passwordInput.value !== confirmPasswordInput.value)
+          }"
+        />
+        <div
+          *ngIf="
+            confirmPasswordInput.touched &&
+            passwordInput.value !== confirmPasswordInput.value
+          "
+          class="invalid-feedback"
+        >
+          Passwords do not match.
+        </div>
+
+        <div
+          *ngIf="confirmPasswordInput.errors?.required"
+          class="invalid-feedback"
+        >
+          confirm password is required
+        </div>
+      </div>
+
+      <button
+        class="btn btn-primary w-100 mb-1"
+        [disabled]="!registerForm.valid"
+      >
+        submit
+      </button>
+
+      <div class="or-divider">
+        <hr class="line" />
+        <span class="or-text">or</span>
+        <hr class="line" />
+      </div>
+
+      <div class="d-flex gap-2">
+        <button
+          class="btn btn-outline-primary"
+          style="width: 50px; height: 50px"
+        >
+          <i class="bi bi-facebook"></i>
+        </button>
+        <button
+          class="btn btn-outline-danger"
+          style="width: 50px; height: 50px"
+        >
+          <i class="bi bi-google"></i>
+        </button>
+      </div>
+      <div class="d-flex flex-column align-items-end justify-content-end">
+        <a class="icon-link icon-link-hover" [routerLink]="['/auth', 'login']">
+          alreay registered ?
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
