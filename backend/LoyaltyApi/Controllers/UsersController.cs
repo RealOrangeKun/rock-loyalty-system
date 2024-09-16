@@ -141,18 +141,15 @@ public class UsersController(
     /// <response code="404">If the user is not found.</response>
     /// <response code="500">If any other exception occurs.</response>
     [HttpGet]
-    [Route("{id}")]
+    [Route("{customerId}/restaurants/{restaurantId}")]
     [Authorize(Roles = "Admin")]
-    public async Task<ActionResult> GetUserById(int id)
+    public async Task<ActionResult> GetUserById(int customerId, int restaurantId)
     {
         logger.LogInformation("Get user request for user with id {id}",
             User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
         try
         {
-            string restaurantClaim = User.FindFirst("restaurantId")?.Value ??
-                                     throw new UnauthorizedAccessException("Restaurant id not found in token");
-            _ = int.TryParse(restaurantClaim, out var restaurantId);
-            User? user = await userService.GetUserByIdAsync(id, restaurantId);
+            User? user = await userService.GetUserByIdAsync(customerId, restaurantId);
             if (user == null) return NotFound(new { success = false, message = "User not found" });
             int points = await pointsTransactionService.GetCustomerPointsAsync(user.Id, user.RestaurantId);
             return Ok(new
