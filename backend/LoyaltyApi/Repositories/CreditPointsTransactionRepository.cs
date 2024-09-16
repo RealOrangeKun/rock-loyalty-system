@@ -4,8 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LoyaltyApi.Repositories;
 
-public class CreditPointsTransactionRepository(RockDbContext dbContext,
-ILogger<CreditPointsTransactionRepository> logger) : ICreditPointsTransactionRepository
+public class CreditPointsTransactionRepository(
+    RockDbContext dbContext,
+    ILogger<CreditPointsTransactionRepository> logger) : ICreditPointsTransactionRepository
 {
     public async Task<CreditPointsTransaction?> GetTransactionByIdAsync(int transactionId)
     {
@@ -23,12 +24,43 @@ ILogger<CreditPointsTransactionRepository> logger) : ICreditPointsTransactionRep
             .FirstOrDefaultAsync(t => t.ReceiptId == receiptId);
     }
 
-    public async Task<IEnumerable<CreditPointsTransaction>> GetTransactionsByCustomerAndRestaurantAsync(int customerId, int restaurantId)
+    public async Task<IEnumerable<CreditPointsTransaction>> GetAllTransactionsByCustomerAndRestaurantAsync(
+        int customerId, int restaurantId)
     {
-        logger.LogInformation("Getting transactions for customer {CustomerId} and restaurant {RestaurantId}", customerId, restaurantId);
+        logger.LogInformation("Getting transactions for customer {CustomerId} and restaurant {RestaurantId}",
+            customerId, restaurantId);
         return await dbContext.CreditPointsTransactions
             .Where(t => t.CustomerId == customerId && t.RestaurantId == restaurantId)
             .ToListAsync();
+    }
+
+    public async Task<PagedTransactionsResponse> GetTransactionsByCustomerAndRestaurantAsync(int customerId,
+        int restaurantId, int pageNumber = 1, int pageSize = 10)
+    {
+        logger.LogInformation("Getting transactions for customer {CustomerId} and restaurant {RestaurantId}",
+            customerId, restaurantId);
+        var query = dbContext.CreditPointsTransactions
+            .Where(t => t.CustomerId == customerId && t.RestaurantId == restaurantId)
+            .AsQueryable();
+        var totalCount = await query.CountAsync();
+        var paginatedQuery = query
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize);
+        var transactions = await paginatedQuery.ToListAsync();
+
+        var response = new PagedTransactionsResponse
+        {
+            Transactions = transactions,
+            PaginationMetadata = new PaginationMetadata
+            {
+                TotalCount = totalCount,
+                TotalPages = (int)Math.Ceiling((double)totalCount / pageSize),
+                PageSize = pageSize,
+                PageNumber = pageNumber
+            }
+        };
+
+        return response;
     }
 
     public async Task AddTransactionAsync(CreditPointsTransaction transaction)
@@ -37,6 +69,7 @@ ILogger<CreditPointsTransactionRepository> logger) : ICreditPointsTransactionRep
         await dbContext.CreditPointsTransactions.AddAsync(transaction);
         await dbContext.SaveChangesAsync();
     }
+
     public async Task AddTransactionsAsync(List<CreditPointsTransaction> transactions)
     {
         await dbContext.CreditPointsTransactions.AddRangeAsync(transactions);
@@ -65,23 +98,25 @@ ILogger<CreditPointsTransactionRepository> logger) : ICreditPointsTransactionRep
 
     public async Task<int> GetCustomerPointsAsync(int customerId, int restaurantId)
     {
-        logger.LogInformation("Getting total points for customer {CustomerId} and restaurant {RestaurantId}", customerId, restaurantId);
+        logger.LogInformation("Getting total points for customer {CustomerId} and restaurant {RestaurantId}",
+            customerId, restaurantId);
         return await dbContext.CreditPointsTransactions
             .Where(t => t.CustomerId == customerId && t.RestaurantId == restaurantId)
             .SumAsync(t => t.Points);
     }
 
-    public async Task<IEnumerable<CreditPointsTransaction>> GetExpiredTransactionsAsync(Dictionary<int, int> restaurantMap, DateTime currentDate)
+    public async Task<IEnumerable<CreditPointsTransaction>> GetExpiredTransactionsAsync(
+        Dictionary<int, int> restaurantMap, DateTime currentDate)
     {
         // Use SQL query to get all transactions that have expired based on the restaurant's lifetime
         var query = from transaction in dbContext.CreditPointsTransactions
-                    join restaurant in dbContext.Restaurants
-                        on transaction.RestaurantId equals restaurant.RestaurantId
-                    where transaction.TransactionType == TransactionType.Earn &&
-                          transaction.IsExpired == false &&
-                          transaction.Points > 0 &&
-                          transaction.TransactionDate < currentDate.AddDays(-restaurant.CreditPointsLifeTime)
-                    select transaction;
+            join restaurant in dbContext.Restaurants
+                on transaction.RestaurantId equals restaurant.RestaurantId
+            where transaction.TransactionType == TransactionType.Earn &&
+                  transaction.IsExpired == false &&
+                  transaction.Points > 0 &&
+                  transaction.TransactionDate < currentDate.AddDays(-restaurant.CreditPointsLifeTime)
+            select transaction;
         logger.LogInformation("Getting expired transactions");
         return await query.ToListAsync();
     }

@@ -8,8 +8,10 @@ public interface ICreditPointsTransactionRepository
 
     public Task<CreditPointsTransaction?> GetTransactionByReceiptIdAsync(int receiptId);
 
-    public Task<IEnumerable<CreditPointsTransaction>> GetTransactionsByCustomerAndRestaurantAsync(int customerId,
-        int restaurantId);
+    Task<IEnumerable<CreditPointsTransaction>> GetAllTransactionsByCustomerAndRestaurantAsync(int customerId, int restaurantId);
+
+    public Task<PagedTransactionsResponse> GetTransactionsByCustomerAndRestaurantAsync(int customerId,
+        int restaurantId, int pageNumber = 1, int pageSize = 10);
 
     public Task AddTransactionAsync(CreditPointsTransaction transaction);
 

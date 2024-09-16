@@ -65,7 +65,9 @@ public class CreditPointsTransactionController(
             {
                 return NotFound(new { success = false, message = "Transaction not found" });
             }
-            var responseTransaction = new {
+
+            var responseTransaction = new
+            {
                 transactionId = transaction.TransactionId,
                 customerId = transaction.CustomerId,
                 receiptId = transaction.ReceiptId,
@@ -74,7 +76,11 @@ public class CreditPointsTransactionController(
                 isExpired = transaction.IsExpired,
                 points = transaction.Points
             };
-            return Ok(new { success = true, data = new { transaction = responseTransaction }, message = "Transaction retrieved successfully" });
+            return Ok(new
+            {
+                success = true, data = new { transaction = responseTransaction },
+                message = "Transaction retrieved successfully"
+            });
         }
         catch (Exception ex)
         {
@@ -132,8 +138,9 @@ public class CreditPointsTransactionController(
             {
                 return NotFound(new { success = false, message = "Transaction not found" });
             }
-            
-            var responseTransaction = new {
+
+            var responseTransaction = new
+            {
                 transactionId = transaction.TransactionId,
                 customerId = transaction.CustomerId,
                 receiptId = transaction.ReceiptId,
@@ -142,7 +149,11 @@ public class CreditPointsTransactionController(
                 isExpired = transaction.IsExpired,
                 points = transaction.Points
             };
-            return Ok(new { success = true, data = new { transaction = responseTransaction }, message = "Transaction retrieved successfully" });
+            return Ok(new
+            {
+                success = true, data = new { transaction = responseTransaction },
+                message = "Transaction retrieved successfully"
+            });
         }
         catch (Exception ex)
         {
@@ -209,6 +220,8 @@ public class CreditPointsTransactionController(
     /// </summary>
     /// <param name="customerId">The ID of the customer.</param>
     /// <param name="restaurantId">The ID of the restaurant.</param>
+    /// <param name="pageNumber"> The page number.</param>
+    /// <param name="pageSize"> The page size.</param>
     /// <returns>Action result containing a list of transactions.</returns>
     /// <response code="200">The transactions were retrieved successfully.</response>
     /// <response code="500">An error occurred while processing the request.</response>
@@ -236,33 +249,41 @@ public class CreditPointsTransactionController(
     ///         ]},
     ///         "message": "Transactions retrieved successfully"
     ///     }
-    ///
+    /// 
     /// Authorization header with JWT Bearer token is required.
     /// </remarks>
     [HttpGet]
     [Route("customers/{customerId}/restaurants/{restaurantId}/credit-points-transactions")]
     [Authorize(Roles = "Admin, User")]
-    public async Task<IActionResult> GetTransactionsByCustomer(int customerId, int restaurantId)
+    public async Task<IActionResult> GetTransactionsByCustomer(int customerId, int restaurantId,
+        [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
     {
         try
         {
             logger.LogInformation("Get transactions for customer {CustomerId} and restaurant {RestaurantId}",
                 customerId, restaurantId);
-            var transactions =
+            var paginationResult =
                 await transactionService.GetTransactionsByCustomerAndRestaurantAsync(customerId, restaurantId);
-            transactions = transactions.Select(t => new CreditPointsTransaction
+            var transactions = paginationResult.Transactions;
+            var transactionsResponse = transactions.Select(t => new
             {
-                TransactionId = t.TransactionId,
-                RestaurantId = t.RestaurantId,
-                ReceiptId = t.ReceiptId,
-                CustomerId = t.CustomerId,
-                TransactionType = t.TransactionType,
-                TransactionDate = t.TransactionDate,
-                IsExpired = t.IsExpired,
-                Points = t.Points,
+                transactionId = t.TransactionId,
+                customerId = t.CustomerId,
+                restaurantId = t.RestaurantId,
+                receiptId = t.ReceiptId,
+                transactionType = t.TransactionType,
+                transactionDate = t.TransactionDate,
+                points = t.Points,
+                isExpired = t.IsExpired,
             });
+            var paginationMetadata = paginationResult.PaginationMetadata;
             return Ok(new
-                { success = true, data = new { transactions }, message = "Transactions retrieved successfully" });
+            {
+                success = true,
+                data = new { transactionsResponse },
+                message = "Transactions retrieved successfully",
+                metadata = paginationMetadata
+            });
         }
         catch (Exception ex)
         {

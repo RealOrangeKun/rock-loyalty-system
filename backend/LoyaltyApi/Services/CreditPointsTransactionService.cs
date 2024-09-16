@@ -45,9 +45,8 @@ public class CreditPointsTransactionService(
         }
     }
 
-    public async Task<IEnumerable<CreditPointsTransaction>> GetTransactionsByCustomerAndRestaurantAsync(int? customerId,
-        int? restaurantId)
-    {
+    public async Task<PagedTransactionsResponse> GetTransactionsByCustomerAndRestaurantAsync 
+    (int? customerId, int? restaurantId, int pageNumber = 1, int pageSize = 10)    {
         logger.LogInformation("Getting transactions for customer {CustomerId} and restaurant {RestaurantId}",
             customerId, restaurantId);
         int customerIdJwt = customerId ??
@@ -62,7 +61,7 @@ public class CreditPointsTransactionService(
         try
         {
             return await transactionRepository.GetTransactionsByCustomerAndRestaurantAsync(customerId ?? customerIdJwt,
-                restaurantId ?? restaurantIdJwt);
+                restaurantId ?? restaurantIdJwt, pageNumber, pageSize);
         }
         catch (Exception ex)
         {
@@ -119,7 +118,7 @@ public class CreditPointsTransactionService(
         {
             // Retrieve customer transactions and spend the points
             var transactions =
-                await transactionRepository.GetTransactionsByCustomerAndRestaurantAsync(customerId, restaurantId);
+                await transactionRepository.GetAllTransactionsByCustomerAndRestaurantAsync(customerId, restaurantId);
             var remainingPoints = points;
 
             // Check if there are enough points before proceeding
