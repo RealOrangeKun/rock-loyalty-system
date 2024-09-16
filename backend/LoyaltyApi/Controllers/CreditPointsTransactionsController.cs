@@ -42,6 +42,7 @@ public class CreditPointsTransactionController(
     ///                     "customerId": 1,
     ///                     "transactionType": "0",
     ///                     "transactionDate": "2022-01-01T00:00:00.000Z",
+    ///                     "transactionValue": 100.00,
     ///                     "isExpired": false,
     ///                     "points": 100
     ///            }
@@ -74,7 +75,8 @@ public class CreditPointsTransactionController(
                 transactionType = transaction.TransactionType,
                 transactionDate = transaction.TransactionDate,
                 isExpired = transaction.IsExpired,
-                points = transaction.Points
+                points = transaction.Points,
+                transactionValue = transaction.TransactionValue
             };
             return Ok(new
             {
@@ -115,6 +117,7 @@ public class CreditPointsTransactionController(
     ///                     "customerId": 1,
     ///                     "transactionType": "0",
     ///                     "transactionDate": "2022-01-01T00:00:00.000Z",
+    ///                     "transactionValue": 100.00,
     ///                     "isExpired": false,
     ///                     "points": 100
     ///              }
@@ -147,7 +150,8 @@ public class CreditPointsTransactionController(
                 transactionType = transaction.TransactionType,
                 transactionDate = transaction.TransactionDate,
                 isExpired = transaction.IsExpired,
-                points = transaction.Points
+                points = transaction.Points,
+                transactionValue = transaction.TransactionValue
             };
             return Ok(new
             {
@@ -218,7 +222,7 @@ public class CreditPointsTransactionController(
     /// <summary>
     /// Retrieves all credit points transactions made by a customer and restaurant.
     /// </summary>
-    /// <param name="customerId">The ID of the customer.</param>
+    /// <param name="userId">The ID of the customer.</param>
     /// <param name="restaurantId">The ID of the restaurant.</param>
     /// <param name="pageNumber"> The page number.</param>
     /// <param name="pageSize"> The page size.</param>
@@ -243,6 +247,7 @@ public class CreditPointsTransactionController(
     ///                 "customerId": 1,
     ///                 "transactionType": "0",
     ///                 "transactionDate": "2022-01-01T00:00:00.000Z",
+    ///                 "transactionValue": 100.00,
     ///                 "isExpired": false,
     ///                 "points": 100
     ///             }
@@ -253,17 +258,17 @@ public class CreditPointsTransactionController(
     /// Authorization header with JWT Bearer token is required.
     /// </remarks>
     [HttpGet]
-    [Route("customers/{customerId}/restaurants/{restaurantId}/credit-points-transactions")]
+    [Route("users/{userId}/restaurants/{restaurantId}/credit-points-transactions")]
     [Authorize(Roles = "Admin, User")]
-    public async Task<IActionResult> GetTransactionsByCustomer(int customerId, int restaurantId,
+    public async Task<IActionResult> GetTransactionsByCustomer(int userId, int restaurantId,
         [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
     {
         try
         {
             logger.LogInformation("Get transactions for customer {CustomerId} and restaurant {RestaurantId}",
-                customerId, restaurantId);
+                userId, restaurantId);
             var paginationResult =
-                await transactionService.GetTransactionsByCustomerAndRestaurantAsync(customerId, restaurantId);
+                await transactionService.GetTransactionsByCustomerAndRestaurantAsync(userId, restaurantId);
             var transactions = paginationResult.Transactions;
             var transactionsResponse = transactions.Select(t => new
             {
@@ -274,6 +279,7 @@ public class CreditPointsTransactionController(
                 transactionType = t.TransactionType,
                 transactionDate = t.TransactionDate,
                 points = t.Points,
+                transactionValue = t.TransactionValue,
                 isExpired = t.IsExpired,
             });
             var paginationMetadata = paginationResult.PaginationMetadata;

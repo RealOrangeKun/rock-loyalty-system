@@ -45,8 +45,9 @@ public class CreditPointsTransactionService(
         }
     }
 
-    public async Task<PagedTransactionsResponse> GetTransactionsByCustomerAndRestaurantAsync 
-    (int? customerId, int? restaurantId, int pageNumber = 1, int pageSize = 10)    {
+    public async Task<PagedTransactionsResponse> GetTransactionsByCustomerAndRestaurantAsync
+        (int? customerId, int? restaurantId, int pageNumber = 1, int pageSize = 10)
+    {
         logger.LogInformation("Getting transactions for customer {CustomerId} and restaurant {RestaurantId}",
             customerId, restaurantId);
         int customerIdJwt = customerId ??
@@ -84,7 +85,10 @@ public class CreditPointsTransactionService(
             ReceiptId = transactionRequest.ReceiptId,
             TransactionType = transactionRequest.TransactionType,
             Points = creditPointsUtility.CalculateCreditPoints(transactionRequest.Amount,
-                restaurant.CreditPointsSellingRate),
+                transactionRequest.TransactionType == TransactionType.Earn
+                    ? restaurant.CreditPointsBuyingRate
+                    : restaurant.CreditPointsSellingRate),
+            TransactionValue = transactionRequest.Amount,
             TransactionDate = transactionRequest.TransactionDate ?? DateTime.Now
         };
         await transactionRepository.AddTransactionAsync(transaction);
@@ -135,7 +139,8 @@ public class CreditPointsTransactionService(
                 RestaurantId = restaurantId,
                 Points = -points,
                 TransactionType = TransactionType.Spend,
-                TransactionDate = DateTime.UtcNow
+                TransactionDate = DateTime.UtcNow,
+                TransactionValue = points / restaurant.CreditPointsBuyingRate
             };
 
             await transactionRepository.AddTransactionAsync(spendTransaction);
@@ -210,7 +215,8 @@ public class CreditPointsTransactionService(
         {
             // Load all restaurant data into memory (ID and CreditPointsLifeTime)
             var restaurants = await restaurantRepository.GetAllRestaurantsAsync();
-            var restaurantMap = restaurants.ToDictionary(r => r.RestaurantId, r => r.CreditPointsLifeTime);
+            var restaurantMap = restaurants.ToDictionary(
+                r => r.RestaurantId, restaurant => restaurant);
             var currentDateTime = DateTime.UtcNow;
             // Fetch all transactions that have expired based on the restaurant's lifetime
             var expiredTransactions =
@@ -242,9 +248,10 @@ public class CreditPointsTransactionService(
                     {
                         CustomerId = transaction.CustomerId,
                         RestaurantId = transaction.RestaurantId,
-                        Points = -remainingPoints,
+                        Points =   -remainingPoints,
                         TransactionType = TransactionType.Expire,
-                        TransactionDate = currentDateTime
+                        TransactionDate = currentDateTime,
+                        TransactionValue = remainingPoints * restaurantMap[transaction.RestaurantId].CreditPointsSellingRate
                     };
                     expirationTransactions.Add(expireTransaction);
 

@@ -106,7 +106,7 @@ public class CreditPointsTransactionRepository(
     }
 
     public async Task<IEnumerable<CreditPointsTransaction>> GetExpiredTransactionsAsync(
-        Dictionary<int, int> restaurantMap, DateTime currentDate)
+        Dictionary<int, Restaurant> restaurantMap, DateTime currentDate)
     {
         // Use SQL query to get all transactions that have expired based on the restaurant's lifetime
         var query = from transaction in dbContext.CreditPointsTransactions

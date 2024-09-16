@@ -12,11 +12,14 @@ namespace LoyaltyApi.Models
 
         public required int Points { get; set; }
 
+        public required double  TransactionValue { get; set; }
+        
+        public bool IsExpired { get; set; } = false;
+        
         public required TransactionType TransactionType { get; set; }
 
         public DateTime TransactionDate { get; set; } = DateTime.UtcNow;
 
-        public bool IsExpired { get; set; } = false;
 
         // Navigation properties
         public Restaurant Restaurant { get; set; }

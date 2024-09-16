@@ -23,6 +23,6 @@ public interface ICreditPointsTransactionRepository
 
     public Task<int> GetCustomerPointsAsync(int customerId, int restaurantId);
 
-    public Task<IEnumerable<CreditPointsTransaction>> GetExpiredTransactionsAsync(Dictionary<int, int> restaurantMap,
+    public Task<IEnumerable<CreditPointsTransaction>> GetExpiredTransactionsAsync(Dictionary<int, Restaurant> restaurantMap,
         DateTime currentDate);
 }
