@@ -1,3 +1,4 @@
+using System.Numerics;
 using LoyaltyApi.Models;
 using Microsoft.AspNetCore.Mvc;
 using LoyaltyApi.RequestModels;
@@ -131,7 +132,7 @@ public class CreditPointsTransactionController(
     [HttpGet]
     [Route("admin/credit-points-transactions/receipt/{receiptId}")]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> GetTransactionByReceiptId(int receiptId)
+    public async Task<IActionResult> GetTransactionByReceiptId(BigInteger receiptId)
     {
         try
         {

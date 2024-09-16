@@ -1,10 +1,12 @@
+using System.Numerics;
+
 namespace LoyaltyApi.Models
 {
     public class CreditPointsTransaction
     {
         public int TransactionId { get; set; }
 
-        public int ReceiptId { get; set; }
+        public BigInteger ReceiptId { get; set; }
 
         public required int CustomerId { get; set; }
 

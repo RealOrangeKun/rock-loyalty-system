@@ -1,4 +1,5 @@
-﻿using LoyaltyApi.Data;
+﻿using System.Numerics;
+using LoyaltyApi.Data;
 using LoyaltyApi.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,7 +17,7 @@ public class CreditPointsTransactionRepository(
             .FirstOrDefaultAsync(t => t.TransactionId == transactionId);
     }
 
-    public async Task<CreditPointsTransaction?> GetTransactionByReceiptIdAsync(int receiptId)
+    public async Task<CreditPointsTransaction?> GetTransactionByReceiptIdAsync(BigInteger receiptId)
     {
         logger.LogInformation("Getting transaction for receipt {ReceiptId}", receiptId);
         return await dbContext.CreditPointsTransactions

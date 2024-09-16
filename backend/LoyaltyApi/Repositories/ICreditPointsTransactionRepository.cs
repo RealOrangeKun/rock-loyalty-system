@@ -1,4 +1,5 @@
-﻿using LoyaltyApi.Models;
+﻿using System.Numerics;
+using LoyaltyApi.Models;
 
 namespace LoyaltyApi.Repositories;
 
@@ -6,7 +7,7 @@ public interface ICreditPointsTransactionRepository
 {
     public Task<CreditPointsTransaction?> GetTransactionByIdAsync(int transactionId);
 
-    public Task<CreditPointsTransaction?> GetTransactionByReceiptIdAsync(int receiptId);
+    public Task<CreditPointsTransaction?> GetTransactionByReceiptIdAsync(BigInteger receiptId);
 
     Task<IEnumerable<CreditPointsTransaction>> GetAllTransactionsByCustomerAndRestaurantAsync(int customerId, int restaurantId);
 

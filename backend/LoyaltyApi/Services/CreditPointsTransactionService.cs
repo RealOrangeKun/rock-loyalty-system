@@ -1,3 +1,4 @@
+using System.Numerics;
 using System.Security.Claims;
 using LoyaltyApi.Data;
 using LoyaltyApi.Exceptions;
@@ -31,7 +32,7 @@ public class CreditPointsTransactionService(
         }
     }
 
-    public async Task<CreditPointsTransaction?> GetTransactionByReceiptIdAsync(int receiptId)
+    public async Task<CreditPointsTransaction?> GetTransactionByReceiptIdAsync(BigInteger receiptId)
     {
         logger.LogInformation("Getting transaction for receipt {ReceiptId}", receiptId);
         try
