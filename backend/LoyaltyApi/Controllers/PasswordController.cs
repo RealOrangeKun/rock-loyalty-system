@@ -59,7 +59,7 @@ public class PasswordController(
         if (user == null) return NotFound(new { success = false, message = "User not found" });
         var forgotPasswordToken = await tokenService.GenerateForgotPasswordTokenAsync(user.Id, user.RestaurantId);
         await emailUtility.SendEmailAsync(user.Email, $"Forgot Password for {user.Name} - {user.Email}",
-            $"Your password reset link is {frontendOptions.Value.BaseUrl}/password/reset/{forgotPasswordToken}",
+            $"Your password reset link is {frontendOptions.Value.BaseUrl}/auth/forget-password/{forgotPasswordToken}",
             "Rock Loyalty System");
         return StatusCode(201, new
         {
@@ -103,6 +103,7 @@ public class PasswordController(
             requestBody.Password);
         return Ok(new { success = true, message = "Password updated" });
     }
+    
     [HttpPut]
     [Route("")]
     [Authorize(Roles = "User")]
