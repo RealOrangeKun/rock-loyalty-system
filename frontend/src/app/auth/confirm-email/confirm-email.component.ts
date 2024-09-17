@@ -13,11 +13,12 @@ export class ConfirmEmailComponent {
   token: string;
   loading: boolean;
   displayMessage: string;
-  router: Router;
+
   constructor(
     private route: ActivatedRoute,
     private authService: AuthService
-  ) {}
+    , private router: Router
+  ) { }
 
   ngOnInit() {
     this.token = this.route.snapshot.paramMap.get('token') || '';

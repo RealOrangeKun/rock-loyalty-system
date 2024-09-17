@@ -21,9 +21,8 @@ export class LoginComponent implements OnInit {
     private authService: AuthService,
     private facebookAuth: FacebookAuthService,
     private googleAuth: GoogleAuthService,
-    private router: Router,
-    private ngZone: NgZone
-  ) {}
+    private router: Router
+  ) { }
   onSubmit() {
     const phoneEmailField: string = this.form.value.phone;
     const password: string = this.form.value.password;
@@ -33,7 +32,7 @@ export class LoginComponent implements OnInit {
     } else {
       loginObs = this.authService.logIn(phoneEmailField, null, password);
     }
-    loginObs.pipe(finalize(() => {})).subscribe({
+    loginObs.pipe(finalize(() => { })).subscribe({
       next: (response) => {
         this.router.navigate(['/main']);
       },
@@ -50,32 +49,18 @@ export class LoginComponent implements OnInit {
     }, 5000);
   }
 
-  ngOnInit(): void {}
-
-  onFacebokLogin() {
-    this.loading = true;
-    this.loadingMessage = 'waiting for facebook signin';
-    this.facebookAuth
-      .login()
-      .then((response: any) => {
-        console.log('Facebook login successful', response);
-      })
-      .catch((error) => {
-        console.log('Facebook login failed', error);
-      })
-      .finally(() => {
-        this.loading = false;
-      });
-  }
+  ngOnInit(): void { }
 
   onGoogleLogin() {
-    console.log('start');
     this.loading = true;
     this.loadingMessage = 'waiting for google signin';
     this.googleAuth
       .login()
       .then((response) => {
         console.log('sucssesfully logged', response);
+        const token = response.authentication.accessToken;
+        this.loginGoogle(token);
+
       })
       .catch((error) => {
         console.log('error', error);
@@ -83,6 +68,57 @@ export class LoginComponent implements OnInit {
       .finally(() => {
         this.loading = false;
       });
+  }
+
+  onFacebokLogin() {
+    this.loading = true;
+    this.loadingMessage = 'waiting for facebook signin';
+    this.facebookAuth
+      .login()
+      .then((response: any) => {
+        const token = response.authResponse.accessToken;
+        this.loginFacebook(token);
+      })
+      .catch((error) => {
+        console.log(error);
+        this.passErrorMessage(error.message);
+        this.loading = false;
+      });
+  }
+
+  private loginFacebook(token: string) {
+    this.loadingMessage = 'signing in';
+    this.authService.loginFaceBook(token).pipe().subscribe({
+      next: () => {
+        this.loadingMessage = 'log in sucssessful redirecting 5 seconds';
+        setTimeout(() => {
+          this.router.navigate(['/main']);
+        }, 5000);
+      },
+      error: (error: Error) => {
+        console.log(error);
+        this.passErrorMessage(error.message);
+        this.loading = false;
+      }
+    })
+  }
+
+  private loginGoogle(token: string) {
+    this.loading = true;
+    this.loadingMessage = 'signing in';
+    this.authService.loginGoogle(token)
+      .subscribe({
+        next: () => {
+          this.loadingMessage = 'log in sucssessful redirecting 5 seconds';
+          setTimeout(() => {
+            this.router.navigate(['/main']);
+          }, 5000);
+        },
+        error: (error: Error) => {
+          this.loading = false;
+          this.passErrorMessage(error.message);
+        }
+      })
   }
 
   private passErrorMessage(error: string) {

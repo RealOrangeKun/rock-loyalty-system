@@ -298,7 +298,7 @@ public class UsersController(
     [Authorize(Roles = "User, Admin")]
     public async Task<ActionResult> UpdateUser([FromBody] UpdateUserRequestModel requestBody)
     {
-        logger.LogInformation("Update user request for user with id {id}", User.FindFirst("Id")?.Value);
+        logger.LogInformation("Update user request for user with id {id}", User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
         try
         {
             string userClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ??
@@ -307,7 +307,8 @@ public class UsersController(
                                      throw new UnauthorizedAccessException("Restaurant id not found in token");
             _ = int.TryParse(userClaim, out var userId);
             _ = int.TryParse(restaurantClaim, out var restaurantId);
-            if (requestBody.Email != null) await passwordService.UnConfirmEmail(userId, restaurantId);
+            User? existingUser = await userService.GetUserByIdAsync(userId, restaurantId) ?? throw new Exception("User is not found");
+            if (existingUser.Email != requestBody.Email) await passwordService.UnConfirmEmail(userId, restaurantId);
             User user = await userService.UpdateUserAsync(requestBody, userId, restaurantId);
             if (user == null) return NotFound(new { success = false, message = "User not found" });
             return Ok(new { success = true, message = "User updated", data = new { user } });

@@ -22,6 +22,7 @@ namespace LoyaltyApi.Services
             };
             user = await userRepository.CreateUserAsync(user);
             if (user == null) return null;
+            if(registerRequestBody.Password is not null)
             await passwordService.CreatePasswordAsync(user.Id, user.RestaurantId, registerRequestBody.Password);
             return user;
         }

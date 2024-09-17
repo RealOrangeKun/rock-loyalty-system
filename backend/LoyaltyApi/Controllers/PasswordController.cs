@@ -53,19 +53,32 @@ public class PasswordController(
     [Route("forgot-password-email")]
     public async Task<ActionResult> SendForgotPasswordEmail([FromBody] ForgotPasswordRequestBody requestBody)
     {
-        logger.LogInformation("Forgot password request for user {Email} and restaurant {RestaurantId}",
-            requestBody.Email, requestBody.RestaurantId);
-        User? user = await userService.GetUserByEmailAsync(requestBody.Email, requestBody.RestaurantId);
-        if (user == null) return NotFound(new { success = false, message = "User not found" });
-        var forgotPasswordToken = await tokenService.GenerateForgotPasswordTokenAsync(user.Id, user.RestaurantId);
-        await emailUtility.SendEmailAsync(user.Email, $"Forgot Password for {user.Name} - {user.Email}",
-            $"Your password reset link is {frontendOptions.Value.BaseUrl}/auth/forget-password/{forgotPasswordToken}",
-            "Rock Loyalty System");
-        return StatusCode(201, new
+        try
         {
-            success = true,
-            message = "Forgot password email sent successfully"
-        });
+            logger.LogInformation("Forgot password request for user {Email} and restaurant {RestaurantId}",
+            requestBody.Email, requestBody.RestaurantId);
+            User? user = await userService.GetUserByEmailAsync(requestBody.Email, requestBody.RestaurantId);
+            _ = await passwordService.GetPasswordByCustomerIdAsync(user.Id, user.RestaurantId) ?? throw new ArgumentException("Password doesn't exist");
+            if (user == null) return NotFound(new { success = false, message = "User not found" });
+            var forgotPasswordToken = await tokenService.GenerateForgotPasswordTokenAsync(user.Id, user.RestaurantId);
+            await emailUtility.SendEmailAsync(user.Email, $"Forgot Password for {user.Name} - {user.Email}",
+                $"Your password reset link is {frontendOptions.Value.BaseUrl}/auth/forget-password/{forgotPasswordToken}",
+                "Rock Loyalty System");
+            return StatusCode(201, new
+            {
+                success = true,
+                message = "Forgot password email sent successfully"
+            });
+        }
+        catch(ArgumentException ex)
+        {
+            return BadRequest();
+        }
+        catch(Exception ex)
+        {
+            return StatusCode(500);
+        }
+        
     }
 
     /// <summary>

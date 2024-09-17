@@ -6,7 +6,7 @@ namespace LoyaltyApi.Models
     {
         public int TransactionId { get; set; }
 
-        public BigInteger ReceiptId { get; set; }
+        public long ReceiptId { get; set; }
 
         public required int CustomerId { get; set; }
 

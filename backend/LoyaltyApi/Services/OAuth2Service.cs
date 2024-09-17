@@ -6,8 +6,7 @@ using System.Text.Json;
 
 namespace LoyaltyApi.Services
 {
-    public class OAuth2Service(HttpClient httpClient,
-    string facebookAppToken)
+    public class OAuth2Service(HttpClient httpClient)
     {
         public async Task<User> HandleGoogleSignIn(string accessToken)
         {
@@ -24,7 +23,7 @@ namespace LoyaltyApi.Services
         }
         public async Task<User> HandleFacebookSignIn(string accessToken)
         {
-            string url = "https://graph.facebook.com/me?access_token=" + accessToken;
+            string url = "https://graph.facebook.com/me?fields=name,email&access_token=" + accessToken;
             var response = await httpClient.GetAsync(url);
             if (!response.IsSuccessStatusCode) throw new HttpRequestException("Failed to get user info from Facebook.");
             var json = await response.Content.ReadAsStringAsync();

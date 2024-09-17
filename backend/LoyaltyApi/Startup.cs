@@ -46,10 +46,9 @@ namespace LoyaltyApi
             services.AddTransient<IRestaurantService, RestaurantService>();
             services.AddTransient<ICreditPointsTransactionRepository, CreditPointsTransactionRepository>();
             services.AddScoped(provider =>
-            {
-                FacebookOptions? facebookOptions = configuration.GetSection("FacebookOptions").Get<FacebookOptions>() ?? throw new ArgumentException("FacebookOptions is missing");
-                return new OAuth2Service(new HttpClient(), $"{facebookOptions.AppId}|{facebookOptions.AppSecret}");
-            });
+            
+              new OAuth2Service(new HttpClient())
+            );
             services.AddTransient<ApiUtility>();
             services.AddTransient<VoucherUtility>();
             services.AddTransient<CreditPointsUtility>();
@@ -115,6 +114,17 @@ namespace LoyaltyApi
                 // Include the XML documentation in Swagger
                 options.IncludeXmlComments(xmlPath);
             });
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAngularClient", builder =>
+                {
+                    var frontendOptions = configuration.GetSection("FrontendOptions").Get<FrontendOptions>() ?? throw new ArgumentException("Frontend options missing");
+                    builder.WithOrigins(frontendOptions.BaseUrl)
+                    .AllowAnyHeader()
+                    .AllowCredentials()
+                    .AllowAnyMethod();
+                });
+            });
         }
         public void Configure(WebApplication app, IWebHostEnvironment env, RockDbContext dbContext)
         {
@@ -142,6 +152,7 @@ namespace LoyaltyApi
             });
             app.UseRouting();
             app.UseHttpsRedirection();
+            app.UseCors("AllowAngularClient");
             app.UseAuthentication();
             app.UseAuthorization();
             app.MapControllers();

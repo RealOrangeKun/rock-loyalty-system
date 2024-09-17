@@ -69,6 +69,7 @@ namespace LoyaltyApi.Utilities
             string url = $"{apiOptions.Value.BaseUrl}/api/concmd/GETCON/C/{user.PhoneNumber ?? user.Email ?? user.Id.ToString() ?? throw new ArgumentException("Phone number or email is missing")}";
             var result = await client.GetAsync(url);
             var json = await result.Content.ReadAsStringAsync();
+            logger.LogInformation("Request made to get user. Response Message: {message}", json);
             if (json.ToString().Replace(" ", "").Contains("ERR")) return null;
             var userJson = JsonSerializer.Deserialize<JsonElement>(json);
             User? createdUser = new()
@@ -79,7 +80,6 @@ namespace LoyaltyApi.Utilities
                 Name = userJson.GetProperty("CNAME").GetString()!,             // Mapping "CNAME" to User.Name
                 RestaurantId = user.RestaurantId,                                   // Use the passed restaurantId
             };
-            logger.LogInformation("Request made to get user. Response Message: {message}", json);
             return createdUser;
         }
         public async Task<User?> CreateUserAsync(User user, string apiKey)
@@ -91,7 +91,7 @@ namespace LoyaltyApi.Utilities
                 CNO = "0", // 0 if New Customer else Check The Cno if Exist Update Else Insert
                 CNAME = user.Name,
                 FORDES = user.Name, // foreign desc
-                TEL1 = user.PhoneNumber,
+                TEL1 = user.PhoneNumber??"",
                 TEL2 = "",
                 EMAIL = user.Email,
                 EMAIL1 = "",

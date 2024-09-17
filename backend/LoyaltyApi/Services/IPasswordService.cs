@@ -8,6 +8,7 @@ namespace LoyaltyApi.Services
 {
     public interface IPasswordService
     {
+        Task<Password?> GetPasswordByCustomerIdAsync(int customerId, int restaurantId);
         Task<Password?> GetAndValidatePasswordAsync(int customerId, int restaurantId, string inputPassword);
         Task<Password> CreatePasswordAsync(int customerId, int restaurantId, string password);
         Task<Password> UpdatePasswordAsync(int customerId, int restaurantId, string password);

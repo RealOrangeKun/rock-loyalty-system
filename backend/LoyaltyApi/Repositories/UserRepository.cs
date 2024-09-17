@@ -17,7 +17,7 @@ namespace LoyaltyApi.Repositories
         public async Task<User?> GetUserAsync(User user)
         {
             var apiKey = await apiUtility.GetApiKey(user.RestaurantId.ToString());
-            logger.LogInformation("Getting user {Email} for restaurant {RestaurantId}", user.Email, user.RestaurantId);
+            logger.LogInformation("Getting user {Email} for restaurant {RestaurantId}", user.Email ?? user.Id.ToString() ?? "", user.RestaurantId);
             return await apiUtility.GetUserAsync(user, apiKey);
 
         }

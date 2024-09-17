@@ -14,6 +14,15 @@ namespace LoyaltyApi.Services
         TokenUtility tokenUtility,
         ILogger<PasswordService> logger) : IPasswordService
     {
+        public async Task<Password?> GetPasswordByCustomerIdAsync(int customerId, int restaurantId)
+        {
+            Password password = new()
+            {
+                CustomerId = customerId,
+                RestaurantId = restaurantId
+            };
+            return await repository.GetPasswordAsync(password);
+        }
         public async Task ConfirmEmail(string token)
         {
             logger.LogInformation("Confirming email with token {token}", token);
@@ -79,6 +88,7 @@ namespace LoyaltyApi.Services
                 Value = password,
                 Confirmed = true
             };
+            _ = await repository.GetPasswordAsync(passwordModel) ?? throw new ArgumentException("Password doesn't exist");
             string hashedPassword = passwordHasher.HashPassword(passwordModel, password);
             logger.LogTrace("hashedPassword: {hashedPassword}", hashedPassword);
             passwordModel.Value = hashedPassword;

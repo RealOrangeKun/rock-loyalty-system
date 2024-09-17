@@ -12,7 +12,7 @@ import { finalize } from 'rxjs';
 })
 export class PhoneComponent {
   @ViewChild('loginForm') form: NgForm;
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(private authService: AuthService, private router: Router) { }
   loading: boolean = false;
   onSubmit() {
     const phone: string = this.form.value.phone;
@@ -30,7 +30,7 @@ export class PhoneComponent {
         next: () => {
           this.router.navigate(['/main']);
         },
-        error: () => {},
+        error: () => { },
       });
   }
 }

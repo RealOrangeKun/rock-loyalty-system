@@ -59,7 +59,7 @@ IOptions<JwtOptions> jwtOptions) : ControllerBase
                 data = new
                 {
                     accessToken,
-                    existingUser
+                    user = existingUser
                 }
             });
         }

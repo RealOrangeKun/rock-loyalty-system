@@ -4,7 +4,7 @@ export interface UserInterface {
   data: {
     accessToken: string;
     user: {
-      id: string;
+      id: number;
       email: string;
       phoneNumber: string;
       restaurantId: string;

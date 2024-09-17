@@ -9,7 +9,7 @@ export const phoneGuardGuard: CanActivateFn = (route, state) => {
   if (user.phonenumber) {
     return true;
   } else {
-    router.navigate(['/phone']);
+    router.navigate(['/auth', 'phone']);
     return false;
   }
 };

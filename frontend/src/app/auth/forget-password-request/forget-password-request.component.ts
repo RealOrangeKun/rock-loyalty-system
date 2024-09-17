@@ -13,7 +13,7 @@ export class ForgetPasswordRequestComponent {
   errorMsg: string;
   loading: boolean;
   @ViewChild('emailInput') emailInput: NgModel;
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(private authService: AuthService, private router: Router) { }
   onUpdate() {
     this.loading = true;
     this.authService

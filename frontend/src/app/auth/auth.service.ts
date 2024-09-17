@@ -21,15 +21,9 @@ export class AuthService {
   currentUser: User;
   user: BehaviorSubject<User> = new BehaviorSubject<User>(null);
   constructor(private http: HttpClient, private router: Router) {
-    const test = new User('pwiodrjgpwejfgp');
-    test.email = 'omarosos912@gmail.com';
-    test.phonenumber = '01003081640';
-    test.name = 'omar';
-    test.id = '12135135';
     this.user.subscribe((user) => {
       this.currentUser = user;
     });
-    this.user.next(test);
   }
 
   isAuth() {
@@ -122,13 +116,18 @@ export class AuthService {
           user.id = userInfo.data.user.id;
           this.user.next(user);
           localStorage.setItem('userInfo', JSON.stringify(this.user));
+        }),
+        catchError((errorResponse) => {
+          console.log('http error here');
+          console.log(errorResponse);
+          return throwError(() => { return new Error('kjwnrgoiwg') });
         })
       );
   }
 
   confirmEmail(token: string) {
     return this.http
-      .post(`${enviroment.apiUrl}/api/auth/confirm-email/${token}`, {})
+      .put(`${enviroment.apiUrl}/api/auth/confirm-email/${token}`, {})
       .pipe(
         catchError((errorResponse: HttpErrorResponse) => {
           let error: string = 'unkown error';
@@ -151,12 +150,13 @@ export class AuthService {
 
   UpdatePassword(token: string, password: string) {
     return this.http
-      .post(`${enviroment.apiUrl}/api/auth/confirm-email/${token}`, {
+      .put(`${enviroment.apiUrl}/api/password/${token}`, {
         password: password,
       })
       .pipe(
         catchError((errorResponse: HttpErrorResponse) => {
           let error: string = 'unkown error';
+          console.log(errorResponse);
           console.log('caught error');
           switch (errorResponse.status) {
             case 500:
@@ -177,29 +177,26 @@ export class AuthService {
       })
       .pipe(
         tap((userInfo) => {
-          const user: User = new User(
-            this.currentUser.token,
-            this.currentUser.expirationDate
-          );
-          user.email = userInfo.data.user.email;
-          user.name = userInfo.data.user.name;
-          user.phonenumber = userInfo.data.user.phoneNumber;
-          user.id = userInfo.data.user.id;
-          this.user.next(user);
-          localStorage.setItem('userInfo', JSON.stringify(this.user));
+          const email = userInfo.data.user.email;
+          const name = userInfo.data.user.name;
+          const id = userInfo.data.user.id;
+          const token = userInfo.data.accessToken;
+          const phonenumber = userInfo.data.user.phoneNumber;
+          this.authenticationHandler(email, name, phonenumber, id, token);
         })
       );
   }
-
+  // to do :
   forgotPassword(email: string): Observable<any> {
     return this.http
-      .post(`${enviroment.apiUrl}/api/password/forgot`, {
+      .post(`${enviroment.apiUrl}/api/password/forgot-password-email`, {
         email: email,
         restaurantId: enviroment.restaurantId,
       })
       .pipe(
         catchError((response: HttpErrorResponse) => {
           let errorMsg = 'unkown error';
+          console.log(response);
           switch (response.status) {
             case 404:
               errorMsg = 'this email is not linked to any account';
@@ -223,16 +220,12 @@ export class AuthService {
       })
       .pipe(
         tap((userInfo) => {
-          const user: User = new User(
-            this.currentUser.token,
-            this.currentUser.expirationDate
-          );
-          user.email = userInfo.data.user.email;
-          user.name = userInfo.data.user.name;
-          user.phonenumber = userInfo.data.user.phoneNumber;
-          user.id = userInfo.data.user.id;
-          this.user.next(user);
-          localStorage.setItem('userInfo', JSON.stringify(this.user));
+          const email = userInfo.data.user.email;
+          const name = userInfo.data.user.name;
+          const id = userInfo.data.user.id;
+          const token = userInfo.data.accessToken;
+          const phonenumber = userInfo.data.user.phoneNumber;
+          this.authenticationHandler(email, name, phonenumber, id, token);
         })
       );
   }
@@ -241,7 +234,7 @@ export class AuthService {
     email: string,
     name: string,
     phoneNumber: string,
-    userId: string,
+    userId: number,
     token: string
   ) {
     const user: User = new User(token);
@@ -250,6 +243,6 @@ export class AuthService {
     user.phonenumber = phoneNumber;
     user.id = userId;
     this.user.next(user);
-    localStorage.setItem('userInfo', JSON.stringify(this.user));
+    localStorage.setItem('userInfo', JSON.stringify(user));
   }
 }
