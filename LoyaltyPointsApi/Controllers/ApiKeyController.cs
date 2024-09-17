@@ -24,5 +24,6 @@ namespace LoyaltyPointsApi.Controllers
             ApiKey apiKey = await service.CreateApiKey(requestBody.RestaurantId);
             return Ok(apiKey.Key);
         }
+        
     }
 }

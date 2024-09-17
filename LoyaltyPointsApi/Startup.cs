@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using LoyaltyPointsApi.Config;
 using LoyaltyPointsApi.Data;
+using LoyaltyPointsApi.Middlewares;
 using LoyaltyPointsApi.Repositories;
 using LoyaltyPointsApi.Services;
 using LoyaltyPointsApi.Utilities;
@@ -46,12 +47,12 @@ namespace LoyaltyPointsApi
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
-
-            app.UseHttpsRedirection();
             app.UseRouting();
+            app.UseHttpsRedirection();
             app.UseAuthentication();
             app.UseAuthorization();
             app.MapControllers();
+            app.UseMiddleware<ApiKeyValidatorMiddleware>();
 
         }
 

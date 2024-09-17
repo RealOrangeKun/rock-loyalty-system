@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 
 namespace LoyaltyPointsApi.Models
 {
-    public class ResturantSettings
+    public class RestaurantSettings
     {
-        public int ResturantId { get; set; }
+        public int RestaurantId { get; set; }
 
         public double PointsRate { get; set; }
 

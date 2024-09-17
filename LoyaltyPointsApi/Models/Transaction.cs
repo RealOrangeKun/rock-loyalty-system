@@ -13,7 +13,7 @@ namespace LoyaltyPointsApi.Models
 
         public required int CustomerId { get; set; }
 
-        public required int ResturantId { get; set; }
+        public required int RestaurantId { get; set; }
 
         public DateTime TransactionDate { get; set; }
                
