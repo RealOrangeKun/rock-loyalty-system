@@ -30,17 +30,23 @@ namespace LoyaltyPointsApi.Services
 
         public async Task<RestaurantSettings?> GetRestaurant(int ResturantId)
         {
-            var restaurant = await restaurantRepository.GetRestaurant(ResturantId);
-            return restaurant;
+            RestaurantSettings restaurant = new (){
+                RestaurantId = ResturantId
+            };
+            return await restaurantRepository.GetRestaurant(restaurant);
         }
 
-        public async Task UpdateRestaurant(int restaurantId, UpdateRestaurantRequestModel updateRestaurantRequestModel)
+        public async Task<RestaurantSettings?> UpdateRestaurant(int restaurantId, UpdateRestaurantRequestModel updateRestaurantRequestModel)
         {
-            var restaurant = await restaurantRepository.GetRestaurant(restaurantId);
-            restaurant.PointsRate = updateRestaurantRequestModel.PointsRate;
-            restaurant.PointsLifeTime = updateRestaurantRequestModel.PointsLifeTime;
-            restaurant.ThresholdsNumber = updateRestaurantRequestModel.ThresholdsNumber;
-            await restaurantRepository.UpdateRestaurant(restaurant);
+            RestaurantSettings restaurant = new(){
+                RestaurantId = restaurantId
+            };
+            var result = await restaurantRepository.GetRestaurant(restaurant);
+            result.PointsRate = updateRestaurantRequestModel.PointsRate;
+            result.PointsLifeTime = updateRestaurantRequestModel.PointsLifeTime;
+            result.ThresholdsNumber = updateRestaurantRequestModel.ThresholdsNumber;
+            await restaurantRepository.UpdateRestaurant(result);
+            return result;
         }
     }
 }

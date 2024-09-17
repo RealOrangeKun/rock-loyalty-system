@@ -10,24 +10,25 @@ namespace LoyaltyPointsApi.Repositories
 {
     public class RestaurantRepository(LoyaltyDbContext dbContext) : IRestaurantRepository
     {
-        public async Task  <RestaurantSettings?> GetRestaurant(int RestaurantId)
+        public async Task  <RestaurantSettings?> GetRestaurant(RestaurantSettings restaurant)
         {
-            RestaurantSettings restaurant = await dbContext.ResturantSettings.FirstOrDefaultAsync(id => id.RestaurantId == RestaurantId); 
+            return await dbContext.ResturantSettings.FirstOrDefaultAsync(id => id.RestaurantId == restaurant.RestaurantId); 
 
-            return restaurant;
         }
 
 
-        public async Task AddRestaurantSettings(RestaurantSettings restaurant)
+        public async Task<RestaurantSettings> AddRestaurantSettings(RestaurantSettings restaurant)
         {
             await dbContext.ResturantSettings.AddAsync(restaurant);
             await dbContext.SaveChangesAsync();
+            return restaurant;
         }
 
-        public async Task UpdateRestaurant(RestaurantSettings restaurant)
+        public async Task<RestaurantSettings> UpdateRestaurant(RestaurantSettings restaurant)
         {
             dbContext.ResturantSettings.Update(restaurant);
             await dbContext.SaveChangesAsync();
+            return restaurant;
         }
     }
 }

@@ -10,8 +10,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace LoyaltyPointsApi.Controllers
 {
     [ApiController]
-    [Route("api/Restaurant")]
-    public class Restaurantcontroller(IRestaurantService restaurantService) : ControllerBase
+    [Route("api/restaurant")]
+    public class RestaurantController(IRestaurantService restaurantService) : ControllerBase
     {
         [HttpPost]
         public async Task<ActionResult> AddRestaurantSettings([FromBody] RestaurantRequestModel restaurantRequestModel)
@@ -37,7 +37,7 @@ namespace LoyaltyPointsApi.Controllers
 
                 await restaurantService.UpdateRestaurant(restaurantId, updateRestaurantRequestModel);
 
-                return Ok(new { success = true, message = "RestaurantSettings updated" });
+                return Ok(new { success = true, message = "RestaurantSettings updated"});
             }
             catch (Exception ex)
             {
@@ -46,7 +46,8 @@ namespace LoyaltyPointsApi.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult> GetRestaurant(int restaurantId)
+        [Route("{restaurantId}")]
+        public async Task<ActionResult> GetRestaurant([FromRoute] int restaurantId)
         {
             try
             {

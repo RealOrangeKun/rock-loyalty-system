@@ -30,6 +30,10 @@ namespace LoyaltyPointsApi
             services.AddScoped<IApiKeyRepository, ApiKeyRepository>();
             services.AddScoped<IApiKeyService, ApiKeyService>();
             services.AddScoped<ApiKeyUtility>();
+            services.AddScoped<IRestaurantRepository, RestaurantRepository>();
+            services.AddScoped<IRestaurantService, RestaurantService>();
+            services.AddScoped<IThresholdRepository, ThresholdRepository>();
+            services.AddScoped<IThresholdService, ThresholdService>();
 
 
 

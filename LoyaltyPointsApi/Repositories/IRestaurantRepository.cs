@@ -8,9 +8,9 @@ namespace LoyaltyPointsApi.Repositories
 {
     public interface IRestaurantRepository
     {
-        Task AddRestaurantSettings(RestaurantSettings restaurant);
-        Task<RestaurantSettings?> GetRestaurant(int ResturantId);
-        Task UpdateRestaurant(RestaurantSettings restaurant);
+        Task<RestaurantSettings> AddRestaurantSettings(RestaurantSettings restaurant);
+        Task<RestaurantSettings?> GetRestaurant(RestaurantSettings restaurant);
+        Task<RestaurantSettings> UpdateRestaurant(RestaurantSettings restaurant);
     }
 
     

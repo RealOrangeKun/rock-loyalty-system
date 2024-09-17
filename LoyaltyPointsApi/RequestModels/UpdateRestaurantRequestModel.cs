@@ -7,10 +7,10 @@ namespace LoyaltyPointsApi.Models
 {
     public class UpdateRestaurantRequestModel
     {
-        public required double PointsRate { get; set; }
+        public  double PointsRate { get; set; }
 
-        public required int ThresholdsNumber { get; set; }
+        public  int ThresholdsNumber { get; set; }
 
-        public required  int PointsLifeTime { get; set; }
+        public   int PointsLifeTime { get; set; }
     }
 }

@@ -10,7 +10,7 @@ namespace LoyaltyPointsApi.Services
     public interface IRestaurantService
     {
         Task <RestaurantSettings?> GetRestaurant(int ResturantId);
-        Task UpdateRestaurant(int restaurantId , UpdateRestaurantRequestModel updateRestaurantRequestModel);
+        Task<RestaurantSettings?> UpdateRestaurant(int restaurantId , UpdateRestaurantRequestModel updateRestaurantRequestModel);
 
         Task AddRestaurantSettings(RestaurantRequestModel restaurantRequestModel);
     }
