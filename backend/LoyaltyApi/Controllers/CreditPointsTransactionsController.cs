@@ -233,7 +233,7 @@ public class CreditPointsTransactionController(
     /// <remarks>
     /// Sample request:
     /// 
-    ///     GET /api/customers/1/restaurants/1/credit-points-transactions
+    ///     GET /api/users/1/restaurants/1/credit-points-transactions
     /// 
     /// Sample response:
     /// 
