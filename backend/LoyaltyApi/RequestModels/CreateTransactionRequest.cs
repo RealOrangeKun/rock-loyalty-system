@@ -8,6 +8,5 @@ public class CreateTransactionRequest
     public int RestaurantId { get; set; }
     public int ReceiptId { get; set; }
     public double Amount { get; set; }
-    public TransactionType TransactionType { get; set; }
     public DateTime? TransactionDate { get; set; }
 }

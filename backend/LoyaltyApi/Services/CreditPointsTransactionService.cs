@@ -84,11 +84,9 @@ public class CreditPointsTransactionService(
             CustomerId = transactionRequest.CustomerId,
             RestaurantId = transactionRequest.RestaurantId,
             ReceiptId = transactionRequest.ReceiptId,
-            TransactionType = transactionRequest.TransactionType,
+            TransactionType = TransactionType.Earn,
             Points = creditPointsUtility.CalculateCreditPoints(transactionRequest.Amount,
-                transactionRequest.TransactionType == TransactionType.Earn
-                    ? restaurant.CreditPointsBuyingRate
-                    : restaurant.CreditPointsSellingRate),
+                restaurant.CreditPointsBuyingRate),
             TransactionValue = transactionRequest.Amount,
             TransactionDate = transactionRequest.TransactionDate ?? DateTime.Now
         };
