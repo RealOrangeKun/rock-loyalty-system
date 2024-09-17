@@ -36,7 +36,7 @@ public class CreditPointsTransactionRepository(
     }
 
     public async Task<PagedTransactionsResponse> GetTransactionsByCustomerAndRestaurantAsync(int customerId,
-        int restaurantId, int pageNumber = 1, int pageSize = 10)
+        int restaurantId, int pageNumber, int pageSize)
     {
         logger.LogInformation("Getting transactions for customer {CustomerId} and restaurant {RestaurantId}",
             customerId, restaurantId);

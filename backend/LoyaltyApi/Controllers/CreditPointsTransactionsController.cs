@@ -269,7 +269,7 @@ public class CreditPointsTransactionController(
             logger.LogInformation("Get transactions for customer {CustomerId} and restaurant {RestaurantId}",
                 userId, restaurantId);
             var paginationResult =
-                await transactionService.GetTransactionsByCustomerAndRestaurantAsync(userId, restaurantId);
+                await transactionService.GetTransactionsByCustomerAndRestaurantAsync(userId, restaurantId, pageNumber, pageSize);
             var transactions = paginationResult.Transactions;
             var transactionsResponse = transactions.Select(t => new
             {
