@@ -58,8 +58,10 @@ public class VoucherController(
             User.FindFirst(ClaimTypes.NameIdentifier)?.Value, User.FindFirst("RestaurantId")?.Value);
         try
         {
-            string userClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new UnauthorizedAccessException("User id not found in token");
-            string restaurantClaim = User.FindFirst("restaurantId")?.Value ?? throw new UnauthorizedAccessException("Restaurant id not found in token");
+            string userClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ??
+                               throw new UnauthorizedAccessException("User id not found in token");
+            string restaurantClaim = User.FindFirst("restaurantId")?.Value ??
+                                     throw new UnauthorizedAccessException("Restaurant id not found in token");
             _ = int.TryParse(userClaim, out var userId);
             _ = int.TryParse(restaurantClaim, out var restaurantId);
             Voucher voucher = await voucherService.CreateVoucherAsync(voucherRequest, userId, restaurantId);
@@ -139,7 +141,8 @@ public class VoucherController(
             shortCode, User.FindFirst(ClaimTypes.NameIdentifier)?.Value, User.FindFirst("RestaurantId")?.Value);
         try
         {
-            string userClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new UnauthorizedAccessException();
+            string userClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ??
+                               throw new UnauthorizedAccessException();
             string restaurantClaim = User.FindFirst("restaurantId")?.Value ?? throw new UnauthorizedAccessException();
             _ = int.TryParse(userClaim, out var userId);
             _ = int.TryParse(restaurantClaim, out var restaurantId);
@@ -164,31 +167,35 @@ public class VoucherController(
             return StatusCode(500, new { success = false, message = ex.Message });
         }
     }
+
     [HttpGet]
     [Route("vouchers")]
     [Authorize(Roles = "User")]
-    public async Task<ActionResult> GetVouchers()
+    public async Task<ActionResult> GetVouchers([FromQuery] int pageNumber, [FromQuery] int pageSize)
     {
         try
         {
-            string userClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new UnauthorizedAccessException();
+            string userClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ??
+                               throw new UnauthorizedAccessException();
             string restaurantClaim = User.FindFirst("restaurantId")?.Value ?? throw new UnauthorizedAccessException();
             _ = int.TryParse(userClaim, out var userId);
             _ = int.TryParse(restaurantClaim, out var restaurantId);
-            var vouchers = await voucherService.GetUserVouchersAsync(userId, restaurantId);
+            var paginationResult =
+                await voucherService.GetUserVouchersAsync(userId, restaurantId, pageNumber, pageSize);
+            var vouchers = paginationResult.Vouchers;
+            var vouchersResult = vouchers.Select(voucher => new
+            {
+                voucher.ShortCode,
+                voucher.Value,
+                voucher.IsUsed
+            });
+            var paginationMetadata = paginationResult.PaginationMetadata;
             return Ok(new
             {
                 success = true,
                 message = "Vouchers retrieved successfully",
-                data = new
-                {
-                    vouchers = vouchers.Select(voucher => new
-                    {
-                        voucher.ShortCode,
-                        voucher.Value,
-                        voucher.IsUsed
-                    })
-                }
+                data = new { vouchersResult },
+                metadata = paginationMetadata
             });
         }
         catch (Exception ex)
@@ -198,6 +205,7 @@ public class VoucherController(
             return StatusCode(500, new { success = false, message = ex.Message });
         }
     }
+
     /// <summary>
     /// Get a voucher by short code for admin purposes.
     /// </summary>

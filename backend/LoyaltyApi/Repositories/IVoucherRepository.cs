@@ -8,7 +8,7 @@ namespace LoyaltyApi.Repositories
 
         Task<Voucher?> GetVoucherAsync(Voucher voucher);
 
-        Task<IEnumerable<Voucher>> GetUserVouchersAsync(int customerId, int restaurantId);
+        Task<PagedVouchersResponse> GetUserVouchersAsync(int customerId, int restaurantId, int pageNumber, int pageSize);
 
     }
 }
