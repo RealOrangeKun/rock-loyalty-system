@@ -198,6 +198,13 @@ public class VoucherController(
                 metadata = paginationMetadata
             });
         }
+        catch (UnauthorizedAccessException ex)
+        {
+            logger.LogError(ex, "Get vouchers failed for customer {CustomerId} and restaurant {RestaurantId}",
+                User.FindFirst(ClaimTypes.NameIdentifier)?.Value, User.FindFirst("RestaurantId")?.Value);
+            return StatusCode(401, new { success = false, message = ex.Message });
+        }
+
         catch (Exception ex)
         {
             logger.LogError(ex, "Get vouchers failed for customer {CustomerId} and restaurant {RestaurantId}",
