@@ -81,7 +81,6 @@ public class UsersController(
             if (requestBody.Password == null) throw new ArgumentException("Password cannot be null");
             User? user = await userService.CreateUserAsync(requestBody);
             var confirmToken = await tokenService.GenerateConfirmEmailTokenAsync(user.Id, user.RestaurantId);
-            // TODO: Put in actual frontend url
             await emailUtility.SendEmailAsync(user.Email, $"Email Confirmation for Loyalty System",
                 $"Welcome to Loyalty System. Please Confirm your email by clicking on the following link: {frontendOptions.Value.BaseUrl}/auth/confirm-email/" +
                 confirmToken, "Rock Loyalty System");
@@ -141,15 +140,15 @@ public class UsersController(
     /// <response code="404">If the user is not found.</response>
     /// <response code="500">If any other exception occurs.</response>
     [HttpGet]
-    [Route("{customerId}/restaurants/{restaurantId}")]
+    [Route("{userId}/restaurants/{restaurantId}")]
     [Authorize(Roles = "Admin")]
-    public async Task<ActionResult> GetUserById(int customerId, int restaurantId)
+    public async Task<ActionResult> GetUserById(int userId, int restaurantId)
     {
         logger.LogInformation("Get user request for user with id {id}",
             User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
         try
         {
-            User? user = await userService.GetUserByIdAsync(customerId, restaurantId);
+            User? user = await userService.GetUserByIdAsync(userId, restaurantId);
             if (user == null) return NotFound(new { success = false, message = "User not found" });
             int points = await pointsTransactionService.GetCustomerPointsAsync(user.Id, user.RestaurantId);
             return Ok(new
