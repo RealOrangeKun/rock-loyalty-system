@@ -58,8 +58,8 @@ public class PasswordController(
             logger.LogInformation("Forgot password request for user {Email} and restaurant {RestaurantId}",
             requestBody.Email, requestBody.RestaurantId);
             User? user = await userService.GetUserByEmailAsync(requestBody.Email, requestBody.RestaurantId);
+            if (user is null) return NotFound(new { success = false, message = "User not found" });
             _ = await passwordService.GetPasswordByCustomerIdAsync(user.Id, user.RestaurantId) ?? throw new ArgumentException("Password doesn't exist");
-            if (user == null) return NotFound(new { success = false, message = "User not found" });
             var forgotPasswordToken = await tokenService.GenerateForgotPasswordTokenAsync(user.Id, user.RestaurantId);
             await emailUtility.SendEmailAsync(user.Email, $"Forgot Password for {user.Name} - {user.Email}",
                 $"Your password reset link is {frontendOptions.Value.BaseUrl}/auth/forget-password/{forgotPasswordToken}",
@@ -70,15 +70,17 @@ public class PasswordController(
                 message = "Forgot password email sent successfully"
             });
         }
-        catch(ArgumentException ex)
+        catch (ArgumentException ex)
         {
-            return BadRequest();
+            logger.LogError(ex, "Send forgot password email failed with error {Message}", ex.Message);
+            return BadRequest(new { success = false, message = ex.Message });
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
-            return StatusCode(500);
+            logger.LogError(ex, "Send forgot password email failed with error {Message}", ex.Message);
+            return StatusCode(500, new { success = false, message = "Internal server error" });
         }
-        
+
     }
 
     /// <summary>
@@ -109,14 +111,23 @@ public class PasswordController(
     [Route("{token}")]
     public async Task<ActionResult> UpdatePasswordWithForgotPasswordToken(string token, [FromBody] UpdatePasswordRequestModel requestBody)
     {
-        logger.LogInformation("Update password request for customer with {Token}", token);
-        if (!tokenService.ValidateForgotPasswordToken(token)) return Unauthorized(new { success = false, message = "Invalid token" });
-        Token forgotPasswordToken = tokenUtility.ReadToken(token);
-        await passwordService.UpdatePasswordAsync(forgotPasswordToken.CustomerId, forgotPasswordToken.RestaurantId,
-            requestBody.Password);
-        return Ok(new { success = true, message = "Password updated" });
+        try
+        {
+            logger.LogInformation("Update password request for customer with {Token}", token);
+            if (!tokenService.ValidateForgotPasswordToken(token)) return Unauthorized(new { success = false, message = "Invalid token" });
+            Token forgotPasswordToken = tokenUtility.ReadToken(token);
+            await passwordService.UpdatePasswordAsync(forgotPasswordToken.CustomerId, forgotPasswordToken.RestaurantId,
+                requestBody.Password);
+            return Ok(new { success = true, message = "Password updated" });
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Update password failed with error {Message}", ex.Message);
+            return StatusCode(500, new { success = false, message = "Internal server error" });
+        }
+
     }
-    
+
     [HttpPut]
     [Route("")]
     [Authorize(Roles = "User")]
@@ -130,7 +141,6 @@ public class PasswordController(
             string restaurantClaim = User.FindFirst("restaurantId")?.Value ?? throw new UnauthorizedAccessException();
             _ = int.TryParse(userClaim, out var userId);
             _ = int.TryParse(restaurantClaim, out var restaurantId);
-            if (userId == null || restaurantId == null) return Unauthorized(new { success = false, message = "Token parameters could not be read or the token is invalid" });
             await passwordService.UpdatePasswordAsync(userId, restaurantId, requestBody.Password);
             return Ok(new { success = true, message = "Password updated" });
         }

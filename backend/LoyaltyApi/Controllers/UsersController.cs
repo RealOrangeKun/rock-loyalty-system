@@ -66,7 +66,6 @@ public class UsersController(
     /// <response code="500">If any other exception occurs.</response>
     [HttpPost]
     [Route("")]
-    [Authorize(Roles = "Admin")]
     public async Task<ActionResult> CreateUser([FromBody] RegisterRequestBody requestBody)
     {
         logger.LogInformation("Create user request for restaurant with id {id}", requestBody.RestaurantId);
@@ -112,7 +111,7 @@ public class UsersController(
     /// <remarks>
     /// Sample request:
     /// 
-    ///     GET /api/users/1
+    ///     GET /api/users/1/restaurants/600
     /// 
     /// 
     /// Sample response:
@@ -144,8 +143,8 @@ public class UsersController(
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult> GetUserById(int userId, int restaurantId)
     {
-        logger.LogInformation("Get user request for user with id {id}",
-            User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+        logger.LogInformation("Get user request for user with id {id} for restaurant with id {restaurantId}",
+            userId, restaurantId);
         try
         {
             User? user = await userService.GetUserByIdAsync(userId, restaurantId);
@@ -164,12 +163,14 @@ public class UsersController(
         }
         catch (ArgumentException ex)
         {
-            logger.LogError(ex, "Get user failed for user with id {id}",
-                User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            logger.LogError(ex, "Get user failed for user with id {id} for restaurant with id {restaurantId}",
+                userId, restaurantId);
             return Unauthorized(new { success = false, message = ex.Message });
         }
         catch (Exception ex)
         {
+            logger.LogError(ex, "Get user failed for user with id {id} for restaurant with id {restaurantId}",
+                userId, restaurantId);
             return StatusCode(500, new { success = false, message = ex.Message });
         }
     }
@@ -263,7 +264,7 @@ public class UsersController(
     ///
     /// Sample request:
     ///
-    ///     PUT /api/users
+    ///     PUT /api/users/1/restaurant/600
     ///     {
     ///         "phoneNumber": "9876543210",
     ///         "email": "newemail@example.com",
@@ -275,13 +276,13 @@ public class UsersController(
     ///     200 OK
     ///     {
     ///         "success": true,
-    ///         "message": "User found",
+    ///         "message": "User updated",
     ///         "data": {
     ///             "user": {
     ///                  "id": "1",
     ///                  "email": "newemail@example.com",
     ///                  "phoneNumber": "9876543210",
-    ///                  "restaurantId": "1",
+    ///                  "restaurantId": "600",
     ///                  "name": "Jane Doe",
     ///              }
     ///         }
@@ -294,35 +295,68 @@ public class UsersController(
     /// <response code="404">If the user is not found.</response>
     /// <response code="500">If any other exception occurs.</response>
     [HttpPut]
-    [Route("")]
-    [Authorize(Roles = "User, Admin")]
-    public async Task<ActionResult> UpdateUser([FromBody] UpdateUserRequestModel requestBody)
+    [Route("{userId}/restaurant/{restaurantId}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult> UpdateUserById(int userId, int restaurantId, [FromBody] UpdateUserRequestModel requestBody)
     {
-        logger.LogInformation("Update user request for user with id {id}", User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+        logger.LogInformation("Update user request for user with id {id} and restaurant {restaurantId}", userId, restaurantId);
         try
         {
-            string userClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ??
-                               throw new UnauthorizedAccessException("User id not found in token");
-            string restaurantClaim = User.FindFirst("restaurantId")?.Value ??
-                                     throw new UnauthorizedAccessException("Restaurant id not found in token");
+            User? existingUser = await userService.GetUserByIdAsync(userId, restaurantId) ?? throw new Exception("User is not found");
+            if (existingUser.Email != requestBody.Email) await passwordService.UnConfirmEmail(userId, restaurantId);
+            User user = await userService.UpdateUserAsync(requestBody, userId, restaurantId);
+            if (user == null) return NotFound(new { success = false, message = "User not found" });
+            return Ok(new
+            {
+                success = true,
+                message = "User updated",
+                data = new { user }
+            });
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Update user failed for user with id {id} and restaurant {restaurantId}",
+                userId, restaurantId);
+            return StatusCode(500, new { success = false, message = ex.Message });
+        }
+    }
+    [HttpPut]
+    [Route("")]
+    [Authorize(Roles = "User")]
+    public async Task<ActionResult> UpdateUserByJwt([FromBody] UpdateUserRequestModel requestBody)
+    {
+        logger.LogInformation("Update user request for user with id {id} and restaurant {restaurantId}",
+            User.FindFirst(ClaimTypes.NameIdentifier)?.Value,
+            User.FindFirst("restaurantId")?.Value);
+        try
+        {
+            string userClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new UnauthorizedAccessException("User id not found in token");
+            string restaurantClaim = User.FindFirst("restaurantId")?.Value ?? throw new UnauthorizedAccessException("Restaurant id not found in token");
             _ = int.TryParse(userClaim, out var userId);
             _ = int.TryParse(restaurantClaim, out var restaurantId);
             User? existingUser = await userService.GetUserByIdAsync(userId, restaurantId) ?? throw new Exception("User is not found");
             if (existingUser.Email != requestBody.Email) await passwordService.UnConfirmEmail(userId, restaurantId);
             User user = await userService.UpdateUserAsync(requestBody, userId, restaurantId);
             if (user == null) return NotFound(new { success = false, message = "User not found" });
-            return Ok(new { success = true, message = "User updated", data = new { user } });
+            return Ok(new
+            {
+                success = true,
+                message = "User updated",
+                data = new { user }
+            });
         }
         catch (UnauthorizedAccessException ex)
         {
-            logger.LogError(ex, "Update user failed for user with id {id}",
-                User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            logger.LogError(ex, "Update user failed for user with id {id} and restaurant {restaurantId}",
+                User.FindFirst(ClaimTypes.NameIdentifier)?.Value,
+                User.FindFirst("restaurantId")?.Value);
             return Unauthorized(new { success = false, message = ex.Message });
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Update user failed for user with id {id}",
-                User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            logger.LogError(ex, "Update user failed for user with id {id} and restaurant {restaurantId}",
+                User.FindFirst(ClaimTypes.NameIdentifier)?.Value,
+                User.FindFirst("restaurantId")?.Value);
             return StatusCode(500, new { success = false, message = ex.Message });
         }
     }

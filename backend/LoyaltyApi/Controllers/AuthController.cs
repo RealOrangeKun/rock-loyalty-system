@@ -238,7 +238,7 @@ public class AuthController(
     /// </remarks>
     [HttpPost]
     [Route("logout")]
-    [Authorize(Roles = "User, Admin")]
+    [Authorize(Roles = "User")]
     public ActionResult Logout()
     {
         HttpContext.Response.Cookies.Delete("refreshToken");

@@ -81,7 +81,8 @@ public class CreditPointsTransactionController(
             };
             return Ok(new
             {
-                success = true, data = new { transaction = responseTransaction },
+                success = true,
+                data = new { transaction = responseTransaction },
                 message = "Transaction retrieved successfully"
             });
         }
@@ -156,7 +157,8 @@ public class CreditPointsTransactionController(
             };
             return Ok(new
             {
-                success = true, data = new { transaction = responseTransaction },
+                success = true,
+                data = new { transaction = responseTransaction },
                 message = "Transaction retrieved successfully"
             });
         }
@@ -219,7 +221,7 @@ public class CreditPointsTransactionController(
         }
     }
 
-// Get all transactions made by customerId and restaurantId
+    // Get all transactions made by customerId and restaurantId
     /// <summary>
     /// Retrieves all credit points transactions made by a customer and restaurant.
     /// </summary>
@@ -237,23 +239,42 @@ public class CreditPointsTransactionController(
     /// 
     /// Sample response:
     /// 
+    ///     200 OK
     ///     {
     ///         "success": true,
-    ///         "data":{
+    ///         "message": "Transactions retrieved successfully",
+    ///         "data": {
     ///             "transactions": [
-    ///             {
-    ///                 "transactionId": 1,
-    ///                 "receiptId": 1,
-    ///                 "restaurantId": 1,
-    ///                 "customerId": 1,
-    ///                 "transactionType": "0",
-    ///                 "transactionDate": "2022-01-01T00:00:00.000Z",
-    ///                 "transactionValue": 100.00,
-    ///                 "isExpired": false,
-    ///                 "points": 100
+    ///                 {
+    ///                     "transactionId": 1,
+    ///                     "customerId": 1,
+    ///                     "restaurantId": 1,
+    ///                     "receiptId": 1,
+    ///                     "transactionType": "0",
+    ///                     "transactionDate": "2022-01-01T00:00:00.000Z",
+    ///                     "transactionValue": 100.00,
+    ///                     "isExpired": false,
+    ///                     "points": 100
+    ///                 },
+    ///                 {
+    ///                     "transactionId": 2,
+    ///                     "customerId": 1,
+    ///                     "restaurantId": 1,
+    ///                     "receiptId": 2,
+    ///                     "transactionType": "1",
+    ///                     "transactionDate": "2022-01-01T00:00:00.000Z",
+    ///                     "transactionValue": 50.00,
+    ///                     "isExpired": false,
+    ///                     "points": 50
+    ///                 }
+    ///             ],
+    ///             "metadata": {
+    ///                 "totalPages": 1,
+    ///                 "totalItems": 2,
+    ///                 "pageNumber": 1,
+    ///                 "pageSize": 10
     ///             }
-    ///         ]},
-    ///         "message": "Transactions retrieved successfully"
+    ///         }
     ///     }
     /// 
     /// Authorization header with JWT Bearer token is required.

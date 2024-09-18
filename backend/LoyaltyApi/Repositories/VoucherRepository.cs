@@ -70,5 +70,14 @@ namespace LoyaltyApi.Repositories
                 v.CustomerId == voucher.CustomerId && v.RestaurantId == v.RestaurantId &&
                 v.ShortCode == voucher.ShortCode).FirstOrDefaultAsync();
         }
+
+        public async Task<Voucher> UpdateVoucherAsync(Voucher voucher)
+        {
+            logger.LogInformation("Updating voucher {ShortCode} for customer {CustomerId} and restaurant {RestaurantId}",
+                voucher.ShortCode, voucher.CustomerId, voucher.RestaurantId);
+            dbContext.Update(voucher);
+            await dbContext.SaveChangesAsync();
+            return voucher;
+        }
     }
 }

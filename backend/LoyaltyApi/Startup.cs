@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Reflection;
 using System.Text;
+using AspNetCoreRateLimit;
 using LoyaltyApi.Config;
 using LoyaltyApi.Data;
 using LoyaltyApi.Models;
@@ -22,6 +23,7 @@ namespace LoyaltyApi
         public void ConfigureServices(IServiceCollection services)
         {
             Log.Logger.Information("Setting configurations");
+
             services.AddHttpContextAccessor();
             services.Configure<JwtOptions>(configuration.GetSection("JwtOptions"));
             services.Configure<FacebookOptions>(configuration.GetSection("FacebookOptions"));
@@ -30,10 +32,18 @@ namespace LoyaltyApi
             services.Configure<EmailOptions>(configuration.GetSection("EmailOptions"));
             services.Configure<AdminOptions>(configuration.GetSection("AdminOptions"));
             services.Configure<FrontendOptions>(configuration.GetSection("FrontendOptions"));
+            services.AddMemoryCache();
+            services.Configure<IpRateLimitOptions>(configuration.GetSection("IpRateLimiting"));
+            services.AddInMemoryRateLimiting();
+            services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
+
             Log.Logger.Information("Configuring configurations done");
+
             Log.Logger.Information("Configuring controllers");
             services.AddControllers();
+
             Log.Logger.Information("Configuring controllers done");
+
             Log.Logger.Information("Configuring services in container");
 
             services.AddTransient<ITokenRepository, TokenRepository>();
@@ -46,7 +56,7 @@ namespace LoyaltyApi
             services.AddTransient<IRestaurantService, RestaurantService>();
             services.AddTransient<ICreditPointsTransactionRepository, CreditPointsTransactionRepository>();
             services.AddScoped(provider =>
-            
+
               new OAuth2Service(new HttpClient())
             );
             services.AddTransient<ApiUtility>();
@@ -60,6 +70,7 @@ namespace LoyaltyApi
             services.AddTransient<IPasswordHasher<Password>, PasswordHasher<Password>>();
             services.AddTransient<IPasswordRepository, PasswordRepository>();
             services.AddTransient<IPasswordService, PasswordService>();
+
             Log.Logger.Information("Configuring services in container done");
 
 
@@ -74,7 +85,9 @@ namespace LoyaltyApi
             }
             else if (env.IsDevelopment())
             {
+
                 Log.Logger.Information("Setting up MySQL database");
+
                 services.AddDbContext<RockDbContext>(options =>
                 {
                     options.UseMySql(configuration.GetSection("ConnectionStrings:DefaultConnection").Value,
@@ -82,8 +95,11 @@ namespace LoyaltyApi
                 });
                 Log.Logger.Information("Setting up MySQL database done");
             }
+
             Log.Logger.Information("Configuring database done");
+
             Log.Logger.Information("Configuring authentication");
+
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -104,6 +120,7 @@ namespace LoyaltyApi
                 };
             });
             Log.Logger.Information("Configuring authentication done");
+
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen(options =>
             {
@@ -129,6 +146,9 @@ namespace LoyaltyApi
         public void Configure(WebApplication app, IWebHostEnvironment env, RockDbContext dbContext)
         {
             Log.Logger.Information("Configuring web application");
+
+            app.UseIpRateLimiting();
+
             if (env.IsDevelopment() || env.IsEnvironment("Testing"))
             {
                 app.UseDeveloperExceptionPage();
@@ -156,6 +176,7 @@ namespace LoyaltyApi
             app.UseAuthentication();
             app.UseAuthorization();
             app.MapControllers();
+
             Log.Logger.Information("Configuring web application done");
         }
         private void AddMigrationsAndUpdateDatabase(RockDbContext dbContext)

@@ -33,11 +33,11 @@ namespace LoyaltyApi.Services
             return await voucherRepository.CreateVoucherAsync(voucher, restaurant);
         }
 
-        public async Task<PagedVouchersResponse> GetUserVouchersAsync(int customerId, int restaurantId, int pageNumber  = 1, int pageSize = 10)
+        public async Task<PagedVouchersResponse> GetUserVouchersAsync(int customerId, int restaurantId, int pageNumber = 1, int pageSize = 10)
         {
             return await voucherRepository.GetUserVouchersAsync(customerId, restaurantId, pageSize, pageNumber);
         }
-        
+
 
         public async Task<Voucher> GetVoucherAsync(int customerId, int restaurantId, string shortCode)
         {
@@ -48,6 +48,19 @@ namespace LoyaltyApi.Services
                 CustomerId = customerId
             };
             return await voucherRepository.GetVoucherAsync(voucher) ?? throw new Exception("Voucher not found");
+        }
+
+        public async Task<Voucher> SetIsUsedAsync(string shortCode, SetIsUsedRequestModel requestModel)
+        {
+            logger.LogTrace("Setting isUsed to {isUsed} for voucher {ShortCode}", requestModel.IsUsed, shortCode);
+            Voucher voucher = new()
+            {
+                ShortCode = shortCode,
+                IsUsed = requestModel.IsUsed,
+                RestaurantId = requestModel.RestaurantId,
+                CustomerId = requestModel.CustomerId
+            };
+            return await voucherRepository.UpdateVoucherAsync(voucher);
         }
     }
 }

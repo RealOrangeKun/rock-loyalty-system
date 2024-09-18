@@ -107,26 +107,23 @@ public class VoucherController(
     /// <remarks>
     /// Sample request:
     /// 
-    ///     POST /api/vouchers
+    ///     GET /api/vouchers/ABC123
     ///     
     /// Sample response:
     ///
     ///     200 OK
     ///     {
     ///         "success": true,
-    ///         "message": "Voucher created",
-    ///         "data": [
+    ///         "message": "Voucher retrieved successfully",
+    ///         "data": 
+    ///         {
+    ///             "voucher": 
     ///             {
     ///                 "shortCode": "ABC123",
-    ///                 "isUsed": false,
     ///                 "value": 100
-    ///             },
-    ///             {
-    ///                 "shortCode": "DEF456",
-    ///                 "isUsed": true,
-    ///                 "value": 200
+    ///                 "isUsed": false
     ///             }
-    ///         ] 
+    ///         }
     ///     }
     ///
     /// shortCode can be provided as query parameter for getting a specific voucher.
@@ -135,7 +132,7 @@ public class VoucherController(
     [HttpGet]
     [Route("vouchers/{shortCode}")]
     [Authorize(Roles = "User")]
-    public async Task<ActionResult> GetVoucherByShortCode(string shortCode)
+    public async Task<ActionResult> GetUserVoucherByShortCode(string shortCode)
     {
         logger.LogInformation("Getting voucher {ShortCode} for customer {CustomerId} and restaurant {RestaurantId}",
             shortCode, User.FindFirst(ClaimTypes.NameIdentifier)?.Value, User.FindFirst("RestaurantId")?.Value);
@@ -168,10 +165,54 @@ public class VoucherController(
         }
     }
 
+    /// <summary>
+    /// Gets all vouchers for the current user.
+    /// </summary>
+    /// <param name="pageNumber">The page number.</param>
+    /// <param name="pageSize">The page size.</param>
+    /// <returns>The vouchers.</returns>
+    /// <response code="200">Vouchers retrieved successfully.</response>
+    /// <response code="401">Unauthorized access.</response>
+    /// <response code="500">Server error.</response>
+    /// <remarks>
+    /// Sample request:
+    ///
+    ///     GET /vouchers?pageNumber=1&pageSize=10
+    ///
+    /// Sample response:
+    ///
+    ///     200 OK
+    ///     {
+    ///         "success": true,
+    ///         "message": "Vouchers retrieved successfully",
+    ///         "data": {
+    ///             "vouchers": [
+    ///                 {
+    ///                     "shortCode": "ABCD",
+    ///                     "value": 100,
+    ///                     "isUsed": false
+    ///                 },
+    ///                 {
+    ///                     "shortCode": "EFGH",
+    ///                     "value": 200,
+    ///                     "isUsed": true
+    ///                 }
+    ///             ],
+    ///             "metadata": {
+    ///                 "totalCount": 10,
+    ///                 "totalPages": 1,
+    ///                 "pageSize": 10,
+    ///                 "pageNumber": 1
+    ///             }
+    ///         }
+    ///     }
+    ///
+    /// Authorization header with JWT Bearer token is required.
+    /// </remarks>
     [HttpGet]
     [Route("vouchers")]
     [Authorize(Roles = "User")]
-    public async Task<ActionResult> GetVouchers([FromQuery] int pageNumber, [FromQuery] int pageSize)
+    public async Task<ActionResult> GetVouchersByJwtToken([FromQuery] int pageNumber, [FromQuery] int pageSize)
     {
         try
         {
@@ -226,7 +267,7 @@ public class VoucherController(
     /// <remarks>
     /// Sample request:
     ///
-    ///     GET /api/admin/vouchers?shortCode=ABC123&customerId=1&restaurantId=1
+    ///     GET admin/restaurants/600/users/7/vouchers/ABCDE
     ///
     /// Sample response:
     ///
@@ -235,7 +276,13 @@ public class VoucherController(
     ///         "success": true,
     ///         "message": "Voucher retrieved successfully",
     ///         "data": {
-    ///             "voucher": "ABCDEFGHIJK1234567890"
+    ///             "voucher":
+    ///             {
+    ///                 "shortCode": "ABCDE",
+    ///                 "longCode": "1234567890",
+    ///                 "value": 100,
+    ///                 "isUsed": false
+    ///             }
     ///         }
     ///     }
     ///
@@ -243,10 +290,9 @@ public class VoucherController(
     /// Authorization header with JWT Bearer token is required.
     /// </remarks>
     [HttpGet]
-    [Route("admin/vouchers")]
+    [Route("admin/vouchers/{shortCode}/restaurants/{restaurantId}/users/{customerId}")]
     [Authorize(Roles = "Admin")]
-    public async Task<ActionResult> GetVoucherLongCode([FromQuery] string shortCode, [FromQuery] int customerId,
-        [FromQuery] int restaurantId)
+    public async Task<ActionResult> GetVoucherLongCode(int restaurantId, int customerId, string shortCode)
     {
         logger.LogInformation("Getting voucher {ShortCode} for customer {CustomerId} and restaurant {RestaurantId}",
             shortCode, customerId, restaurantId);
@@ -257,7 +303,16 @@ public class VoucherController(
             {
                 success = true,
                 message = "Voucher retrieved successfully",
-                data = new { longCode = voucher.LongCode }
+                data = new
+                {
+                    voucher = new
+                    {
+                        voucher.ShortCode,
+                        voucher.LongCode,
+                        voucher.Value,
+                        voucher.IsUsed
+                    }
+                }
             });
         }
         catch (Exception ex)
@@ -268,4 +323,157 @@ public class VoucherController(
             return StatusCode(500, new { success = false, message = ex.Message });
         }
     }
+    /// <summary>
+    /// Sets a voucher iUsed.
+    /// </summary>
+    /// <param name="shortCode">The short code of the voucher.</param>
+    /// <param name="requestModel">The request model containing the value to set the voucher to used to.</param>
+    /// <returns>An ActionResult indicating the result of the operation.</returns>
+    /// <response code="200">If the voucher is set to used successfully.</response>
+    /// <response code="401">If the user is not authorized.</response>
+    /// <response code="500">If any other exception occurs.</response>
+    /// <remarks>
+    /// Sample request:
+    ///
+    ///     PUT /api/vouchers/ABCDE
+    ///     {
+    ///         "isUsed": true
+    ///     }
+    ///
+    /// Sample response:
+    ///     200 OK
+    ///     {
+    ///         "success": true,
+    ///         "message": "Voucher isUsed set to true",
+    ///         "data": {
+    ///             "voucher": {
+    ///                 "shortCode": "ABCDE",
+    ///                 "longCode": "1234567890",
+    ///                 "value": 100,
+    ///                 "isUsed": true
+    ///             }
+    ///         }
+    ///     }
+    ///
+    /// </remarks>
+    [HttpPut]
+    [Route("admin/vouchers/{shortCode}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult> SetIsUsed([FromRoute] string shortCode, [FromBody] SetIsUsedRequestModel requestModel)
+    {
+        logger.LogInformation("Setting voucher {ShortCode} to used", shortCode);
+        try
+        {
+
+            Voucher voucher = await voucherService.SetIsUsedAsync(shortCode, requestModel);
+            return Ok(new
+            {
+                success = true,
+                message = $"Voucher isUsed set to {requestModel.IsUsed}",
+                data = new
+                {
+                    voucher = new
+                    {
+                        voucher.ShortCode,
+                        voucher.LongCode,
+                        voucher.Value,
+                        voucher.IsUsed
+                    }
+                }
+            });
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Setting voucher {ShortCode} to used failed", shortCode);
+            return StatusCode(500, new
+            {
+                success = false,
+                message = ex.Message
+            });
+        }
+    }
+    /// <summary>
+    /// Gets all vouchers for a customer with a specific restaurant ID.
+    /// </summary>
+    /// <param name="restaurantId">The restaurant ID.</param>
+    /// <param name="customerId">The customer ID.</param>
+    /// <param name="pageNumber">The page number.</param>
+    /// <param name="pageSize">The page size.</param>
+    /// <returns>The vouchers.</returns>
+    /// <response code="200">Vouchers retrieved successfully.</response>
+    /// <response code="401">Unauthorized access.</response>
+    /// <response code="500">Server error.</response>
+    /// <remarks>
+    /// Sample request:
+    ///
+    ///     GET /api/vouchers/admin/vouchers/restaurants/1/users/2?pageNumber=1&pageSize=10
+    ///
+    /// Sample response:
+    ///
+    ///     200 OK
+    ///     {
+    ///         "success": true,
+    ///         "message": "Vouchers retrieved successfully",
+    ///         "data": {
+    ///             "vouchers": [
+    ///                 {
+    ///                     "shortCode": "ABCD",
+    ///                     "value": 100,
+    ///                     "isUsed": false
+    ///                 },
+    ///                 {
+    ///                     "shortCode": "EFGH",
+    ///                     "value": 200,
+    ///                     "isUsed": true
+    ///                 }
+    ///             ],
+    ///             "metadata": {
+    ///                 "totalCount": 25,
+    ///                 "totalPages": 3,
+    ///                 "pageSize": 2,
+    ///                 "pageNumber": 1
+    ///             }
+    ///         }
+    ///     }
+    ///
+    /// </remarks>
+    [HttpGet]
+    [Route("admin/vouchers/restaurants/{restaurantId}/users/{customerId}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult> GetUserVouchersByRestaurantIdAndCustomerId([FromRoute] int restaurantId, [FromRoute] int customerId, [FromQuery] int pageNumber, [FromQuery] int pageSize)
+    {
+        logger.LogInformation("Getting vouchers for customer {CustomerId}", customerId);
+        try
+        {
+            PagedVouchersResponse paginationResult = await voucherService.GetUserVouchersAsync(customerId, restaurantId, pageNumber, pageSize);
+            var vouchers = paginationResult.Vouchers.Select(v => new
+            {
+                v.ShortCode,
+                v.LongCode,
+                v.Value,
+                v.IsUsed
+            }).ToList();
+            var metadata = paginationResult.PaginationMetadata;
+            return Ok(new
+            {
+                success = true,
+                message = "Vouchers retrieved successfully",
+                data = new
+                {
+                    vouchers
+                },
+                metadata
+            });
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Getting vouchers for customer {CustomerId} failed", customerId);
+            return StatusCode(500, new
+            {
+                success = false,
+                message = ex.Message
+            });
+        }
+    }
+
 }
