@@ -15,6 +15,7 @@ namespace LoyaltyApi.Repositories
         public async Task<User?> CreateUserAsync(User user)
         {
             logger.LogInformation("Creating user {id} for restaurant {RestaurantId}", user.Id, user.RestaurantId);
+            if (user.PhoneNumber is null) user.PhoneNumber = "";
             await dbContext.AddAsync(user);
             await dbContext.SaveChangesAsync();
             return user;
