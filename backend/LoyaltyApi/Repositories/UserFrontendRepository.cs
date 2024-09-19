@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using LoyaltyApi.Data;
 using LoyaltyApi.Models;
 using Microsoft.EntityFrameworkCore;
@@ -43,13 +39,7 @@ namespace LoyaltyApi.Repositories
         public async Task<User> UpdateUserAsync(User user)
         {
             logger.LogInformation("Updating user {id} for restaurant {RestaurantId}", user.Id, user.RestaurantId);
-            var existingUser = await dbContext.Users.FindAsync(user.Id);
-
-            if (existingUser == null)
-            {
-                throw new KeyNotFoundException($"User with id {user.Id} not found.");
-            }
-
+            var existingUser = await dbContext.Users.FindAsync(user.Id) ?? throw new KeyNotFoundException($"User with id {user.Id} not found.");
             existingUser.Name = user.Name;
             existingUser.Email = user.Email;
             existingUser.PhoneNumber = user.PhoneNumber;
