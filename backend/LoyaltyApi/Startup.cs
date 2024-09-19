@@ -4,6 +4,7 @@ using System.Text;
 using AspNetCoreRateLimit;
 using LoyaltyApi.Config;
 using LoyaltyApi.Data;
+using LoyaltyApi.Middlewares;
 using LoyaltyApi.Models;
 using LoyaltyApi.Repositories;
 using LoyaltyApi.Services;
@@ -29,6 +30,7 @@ namespace LoyaltyApi
             services.Configure<FacebookOptions>(configuration.GetSection("FacebookOptions"));
             services.Configure<GoogleOptions>(configuration.GetSection("GoogleOptions"));
             services.Configure<API>(configuration.GetSection("API"));
+            services.Configure<ApiKey>(configuration.GetSection("ApiKey"));
             services.Configure<EmailOptions>(configuration.GetSection("EmailOptions"));
             services.Configure<AdminOptions>(configuration.GetSection("AdminOptions"));
             services.Configure<FrontendOptions>(configuration.GetSection("FrontendOptions"));
@@ -48,9 +50,17 @@ namespace LoyaltyApi
 
             services.AddTransient<ITokenRepository, TokenRepository>();
             services.AddTransient<ITokenService, TokenService>();
-            services.AddTransient<IUserRepository, UserRepository>();
             services.AddTransient<IUserService, UserService>();
-            services.AddTransient<IVoucherRepository, VoucherRepository>();
+            if (!env.IsEnvironment("Frontend"))
+            {
+                services.AddTransient<IUserRepository, UserRepository>();
+                services.AddTransient<IVoucherRepository, VoucherRepository>();
+            }
+            else
+            {
+                services.AddTransient<IUserRepository, UserFrontendRepository>();
+                services.AddTransient<IVoucherRepository, VoucherFrontendRepository>();
+            }
             services.AddTransient<IVoucherService, VoucherService>();
             services.AddTransient<IRestaurantRepository, RestaurantRepository>();
             services.AddTransient<IRestaurantService, RestaurantService>();
@@ -80,6 +90,17 @@ namespace LoyaltyApi
             {
                 Log.Logger.Information("Setting up SQLite database");
                 services.AddDbContext<RockDbContext>(options =>
+                    options.UseSqlite("Data Source=Dika.db"));
+                Log.Logger.Information("Setting up SQLite database done");
+            }
+            else if (env.IsEnvironment("Frontend"))
+            {
+                Log.Logger.Information("Setting up SQLite database");
+                services.AddDbContext<RockDbContext>(options =>
+                {
+                    options.UseSqlite("Data Source=Dika.db");
+                });
+                services.AddDbContext<FrontendDbContext>(options =>
                     options.UseSqlite("Data Source=Dika.db"));
                 Log.Logger.Information("Setting up SQLite database done");
             }
@@ -143,21 +164,23 @@ namespace LoyaltyApi
                 });
             });
         }
-        public void Configure(WebApplication app, IWebHostEnvironment env, RockDbContext dbContext)
+        public void Configure(WebApplication app, IWebHostEnvironment env, DbContext dbContext)
         {
             Log.Logger.Information("Configuring web application");
 
             app.UseIpRateLimiting();
+            if (env.IsProduction())
+                app.UseMiddleware<UserAgentBlockerMiddleware>();
+            app.UseMiddleware<ApiKeyValidatorMiddleware>();
 
-            if (env.IsDevelopment() || env.IsEnvironment("Testing"))
+            if (env.IsDevelopment() || env.IsEnvironment("Frontend") || env.IsEnvironment("Testing"))
             {
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
-            if (env.IsEnvironment("Testing"))
+            if (env.IsEnvironment("Testing") || env.IsEnvironment("Frontend"))
             {
-
                 AddMigrationsAndUpdateDatabase(dbContext);
             }
 
@@ -179,7 +202,7 @@ namespace LoyaltyApi
 
             Log.Logger.Information("Configuring web application done");
         }
-        private void AddMigrationsAndUpdateDatabase(RockDbContext dbContext)
+        private void AddMigrationsAndUpdateDatabase(DbContext dbContext)
         {
             Log.Logger.Information("Adding migrations and updating database");
             if (File.Exists("Dika.db")) File.Delete("Dika.db");

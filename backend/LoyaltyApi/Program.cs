@@ -27,10 +27,19 @@ var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
-    var dbContext = scope.ServiceProvider.GetRequiredService<RockDbContext>();
+    var frontend = app.Environment.IsEnvironment("Frontend");
+    if (frontend)
+    {
+        var frontendDbContext = scope.ServiceProvider.GetRequiredService<FrontendDbContext>();
+        startup.Configure(app, app.Environment, frontendDbContext);
+    }
+    else
+    {
+        var rockdDbContext = scope.ServiceProvider.GetRequiredService<RockDbContext>();
+        startup.Configure(app, app.Environment, rockdDbContext);
+    }
 
     // Pass the DbContext to Startup's Configure method
-    startup.Configure(app, app.Environment, dbContext);
 }
 
 app.Run();

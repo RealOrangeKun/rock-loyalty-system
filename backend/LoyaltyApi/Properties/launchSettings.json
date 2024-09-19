@@ -45,6 +45,15 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Testing"
       }
+    },
+    "Frontend":{
+      "commandName": "Project",
+      "launchBrowser": true,
+      "launchUrl": "swagger",
+      "applicationUrl": "http://localhost:5152",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Frontend"
+      }
     }
   }
 }
