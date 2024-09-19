@@ -51,7 +51,7 @@ namespace LoyaltyApi.Repositories
 
             existingUser.Name = user.Name;
             existingUser.Email = user.Email;
-            existingUser.RestaurantId = user.RestaurantId;
+            existingUser.PhoneNumber = user.PhoneNumber;
 
             logger.LogInformation("Updating user {id} for restaurant {RestaurantId}", user.Id, user.RestaurantId);
 
