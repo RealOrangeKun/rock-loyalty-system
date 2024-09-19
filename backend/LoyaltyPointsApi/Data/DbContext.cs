@@ -15,7 +15,8 @@ namespace LoyaltyPointsApi.Data
         public DbSet<Threshold> Thresholds { get; set; }
 
         public DbSet<ApiKey> ApiKeys { get; set; }
-        public DbSet<User> Users {get; set;}
+        public DbSet<User> Users { get; set; }
+        public DbSet<Promotion> Promotions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -39,17 +40,22 @@ namespace LoyaltyPointsApi.Data
                 .IsUnique();
 
             modelBuilder.Entity<User>()
-                .HasKey(r=> r.CustomerId);
+                .HasKey(r => r.CustomerId);
             modelBuilder.Entity<User>()
                 .HasIndex().IsUnique();
 
             modelBuilder.Entity<LoyaltyPoints>()
-            .HasKey(r => new {r.TransactionId});
+                .HasKey(r => new { r.TransactionId });
             modelBuilder.Entity<LoyaltyPoints>()
-            .Property(r=> r.TransactionId).ValueGeneratedOnAdd();
+                .Property(r => r.TransactionId).ValueGeneratedOnAdd();
             modelBuilder.Entity<LoyaltyPoints>()
-            .HasIndex(r => new { r.RestaurantId, r.CustomerId });
-
+                .HasIndex(r => new { r.RestaurantId, r.CustomerId });
+            modelBuilder.Entity<Promotion>()
+                .HasKey(r => r.Id);
+            modelBuilder.Entity<Promotion>()
+                .HasOne<Threshold>()
+                .WithMany()
+                .HasForeignKey(r => r.ThresholdId);
             base.OnModelCreating(modelBuilder);
         }
     }
