@@ -10,11 +10,12 @@ using Microsoft.AspNetCore.Mvc;
 namespace LoyaltyPointsApi.Controllers
 {
     [ApiController]
-    [Route("api/transaction")]
+    [Route("api")]
     public class LoyaltyPointsTransactionController(ILoyaltyPointsTransactionService service) : ControllerBase
     {
         [HttpGet]
-        public async Task<ActionResult> GetCustomerTransactions([FromQuery] int transactionId)
+        [Route("transaction/{transactionId}")]
+        public async Task<ActionResult> GetCustomerTransactions([FromRoute] int transactionId)
         {
            try{
             var result = await service.GetLoyaltyPointsTransaction(transactionId);
@@ -33,7 +34,8 @@ namespace LoyaltyPointsApi.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult> GetCustomerTransactions([FromQuery] int customerId, [FromQuery] int restaurantId)
+        [Route("customer/{customerId}/restuaurant/{restaurantId}")]
+        public async Task<ActionResult> GetCustomerTransactions([FromRoute] int customerId, [FromRoute] int restaurantId)
         {
             try
             {
@@ -55,11 +57,12 @@ namespace LoyaltyPointsApi.Controllers
             }
         }
         [HttpGet]
-        public async Task<ActionResult> GetTotalPoints([FromBody] LoyaltyPointsTransactionRequestModel loyaltyPointsRequestModel)
+        [Route("cus/{customerId}/res/{restaurantId}")]
+        public async Task<ActionResult> GetTotalPoints([FromRoute] int customerId , [FromRoute] int restaurantId)
         {
             try
             {
-                var result = await service.GetTotalPoints(loyaltyPointsRequestModel);
+                var result = await service.GetTotalPoints(customerId , restaurantId);
                 return Ok(new
                 {
                     Status = "Success",

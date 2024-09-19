@@ -44,7 +44,7 @@ namespace LoyaltyPointsApi.Controllers
             }
         }
         [HttpGet]
-        [Route ("get/{RestaurantId}")]
+        [Route ("restaurant/{RestaurantId}")]
         public async Task<ActionResult> GetRestaurantThreshold([FromRoute] int RestaurantId, [FromQuery] int ThresholdId)
         {
             try
@@ -64,8 +64,8 @@ namespace LoyaltyPointsApi.Controllers
             }
         }
         [HttpPut]
-        [Route ("{RestaurantId}")]
-        public async Task<ActionResult> UpdateThreshold([FromBody]ThresholdRequestModel thresholdRequestModel, [FromRoute] int RestaurantId, [FromQuery] int thresholdId)
+        [Route ("restaurant/{RestaurantId}/id/{thresholdId}")]
+        public async Task<ActionResult> UpdateThreshold([FromBody]ThresholdRequestModel thresholdRequestModel, [FromRoute] int RestaurantId, [FromRoute] int thresholdId)
         {
             try
             {
