@@ -10,9 +10,9 @@ using Microsoft.AspNetCore.RateLimiting;
 
 namespace LoyaltyPointsApi.Services
 {
-    public class LoyaltyPointsTransactionService(LoyaltyPointsTransactionRepositroy loyaltyPointsTransactionRepositroy) : ILoyaltyPointsTransactionService
+    public class LoyaltyPointsTransactionService(LoyaltyPointsTransactionRepository loyaltyPointsTransactionRepositroy) : ILoyaltyPointsTransactionService
     {
-        public Task AddLoyaltyPointsTransaction(LoyaltyPointsTransactionRequestModel loyaltyPointsRequestModel)
+        public async Task<LoyaltyPoints> AddLoyaltyPointsTransaction(LoyaltyPointsTransactionRequestModel loyaltyPointsRequestModel)
         {
             LoyaltyPoints loyaltyPoints = new(){
                 CustomerId = loyaltyPointsRequestModel.CustomerId,
@@ -25,33 +25,26 @@ namespace LoyaltyPointsApi.Services
                 ReceiptId = loyaltyPointsRequestModel.ReceiptId,
             };
 
-            return loyaltyPointsTransactionRepositroy.AddLoyaltyPointsTransaction(loyaltyPoints);
+            return await loyaltyPointsTransactionRepositroy.AddLoyaltyPointsTransaction(loyaltyPoints);
         }
 
-        public Task<LoyaltyPoints?> GetLoyaltyPointsTransaction(LoyaltyPointsTransactionRequestModel loyaltyPointsRequestModel)
+        public async Task<LoyaltyPoints?> GetLoyaltyPointsTransaction(int transactionId)
         {
             LoyaltyPoints loyaltyPoints = new(){
-                TransactionId = loyaltyPointsRequestModel.TransactionId,
-                CustomerId = loyaltyPointsRequestModel.CustomerId,
-                RestaurantId = loyaltyPointsRequestModel.RestaurantId,
-                ReceiptId = loyaltyPointsRequestModel.ReceiptId,
-                Points = loyaltyPointsRequestModel.Points,
+                TransactionId = transactionId,
             };
 
-            return loyaltyPointsTransactionRepositroy.GetLoyaltyPointsTransaction(loyaltyPoints);
+            return await loyaltyPointsTransactionRepositroy.GetLoyaltyPointsTransaction(loyaltyPoints);
         }
 
-        public Task<List<LoyaltyPoints>> GetLoyaltyPointsTransactions(LoyaltyPointsTransactionRequestModel loyaltyPointsRequestModel)
+        public async Task<List<LoyaltyPoints>> GetLoyaltyPointsTransactions(int customerId , int restaurantId)
         {
             LoyaltyPoints loyaltyPoints = new(){
-                TransactionId = loyaltyPointsRequestModel.TransactionId,
-                CustomerId = loyaltyPointsRequestModel.CustomerId,
-                RestaurantId = loyaltyPointsRequestModel.RestaurantId,
-                ReceiptId = loyaltyPointsRequestModel.ReceiptId,
-                Points = loyaltyPointsRequestModel.Points,
+                CustomerId = customerId,
+                RestaurantId = restaurantId,
             };
 
-            return loyaltyPointsTransactionRepositroy.GetLoyaltyPointsTransactions(loyaltyPoints);
+            return await loyaltyPointsTransactionRepositroy.GetLoyaltyPointsTransactions(loyaltyPoints);
         }
 
         public async Task<int> GetTotalPoints(LoyaltyPointsTransactionRequestModel loyaltyPointsRequestModel)

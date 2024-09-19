@@ -15,7 +15,6 @@ namespace LoyaltyPointsApi.Data
         public DbSet<Threshold> Thresholds { get; set; }
 
         public DbSet<ApiKey> ApiKeys { get; set; }
-        public DbSet<User> Users {get; set;}
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -38,10 +37,7 @@ namespace LoyaltyPointsApi.Data
                 .HasIndex(r => r.RestaurantId)
                 .IsUnique();
 
-            modelBuilder.Entity<User>()
-                .HasKey(r=> r.CustomerId);
-            modelBuilder.Entity<User>()
-                .HasIndex().IsUnique();
+          
 
             modelBuilder.Entity<LoyaltyPoints>()
             .HasKey(r => new {r.TransactionId});

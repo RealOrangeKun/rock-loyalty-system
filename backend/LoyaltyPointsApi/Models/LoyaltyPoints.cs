@@ -11,11 +11,11 @@ namespace LoyaltyPointsApi.Models
 
         public int ReceiptId { get; set; }
 
-        public required int CustomerId { get; set; }
+        public  int CustomerId { get; set; }
 
-        public required int RestaurantId { get; set; }
+        public  int RestaurantId { get; set; }
 
-        public required int Points { get; set; }
+        public  int Points { get; set; }
 
         public DateTime TransactionDate { get; set; } = DateTime.UtcNow;
 

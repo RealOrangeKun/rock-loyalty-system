@@ -10,11 +10,11 @@ namespace LoyaltyPointsApi.Services
 {
     public interface ILoyaltyPointsTransactionService
     {
-        public Task<LoyaltyPoints?> GetLoyaltyPointsTransaction(LoyaltyPointsTransactionRequestModel loyaltyPointsRequestModel);
+        public Task<LoyaltyPoints?> GetLoyaltyPointsTransaction(int transactionId);
 
-        public Task AddLoyaltyPointsTransaction(LoyaltyPointsTransactionRequestModel loyaltyPointsRequestModel);
+        public Task<LoyaltyPoints> AddLoyaltyPointsTransaction(LoyaltyPointsTransactionRequestModel loyaltyPointsRequestModel);
 
-        public Task<List<LoyaltyPoints>> GetLoyaltyPointsTransactions(LoyaltyPointsTransactionRequestModel loyaltyPointsRequestModel);
+        public Task<List<LoyaltyPoints>> GetLoyaltyPointsTransactions(int customerId , int restaurantId);
 
         public Task<int> GetTotalPoints(LoyaltyPointsTransactionRequestModel loyaltyPointsRequestModel);
     }

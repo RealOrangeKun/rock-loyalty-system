@@ -8,7 +8,7 @@ namespace LoyaltyPointsApi.Repositories
 {
     public interface ILoyaltyPointsTransactionRepository
     {
-        public Task AddLoyaltyPointsTransaction(LoyaltyPoints loyaltyPointsTransaction);
+        public Task<LoyaltyPoints> AddLoyaltyPointsTransaction(LoyaltyPoints loyaltyPointsTransaction);
 
         public Task<List<LoyaltyPoints>> GetLoyaltyPointsTransactions(LoyaltyPoints loyaltyPointsTransaction);
 

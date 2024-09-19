@@ -8,12 +8,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LoyaltyPointsApi.Repositories
 {
-    public class LoyaltyPointsTransactionRepositroy(LoyaltyDbContext dbContext) : ILoyaltyPointsTransactionRepository
+    public class LoyaltyPointsTransactionRepository(LoyaltyDbContext dbContext) : ILoyaltyPointsTransactionRepository
     {
-        public async Task AddLoyaltyPointsTransaction(LoyaltyPoints loyaltyPointsTransaction)
+        public async Task<LoyaltyPoints> AddLoyaltyPointsTransaction(LoyaltyPoints loyaltyPointsTransaction)
         {
              await dbContext.LoyaltyPoints.AddAsync(loyaltyPointsTransaction);
              await dbContext.SaveChangesAsync();
+             return loyaltyPointsTransaction;
         }
 
         public async Task<LoyaltyPoints?> GetLoyaltyPointsTransaction(LoyaltyPoints loyaltyPointsTransaction)
