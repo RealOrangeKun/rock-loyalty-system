@@ -22,6 +22,14 @@ namespace LoyaltyApi.Repositories
         public async Task<User?> GetUserAsync(User user)
         {
             logger.LogInformation("Getting user {id} for restaurant {RestaurantId}", user.Id, user.RestaurantId);
+            if (user.Id == 0 && user.Email is not null)
+            {
+                return await dbContext.Users.Where(u => u.RestaurantId == user.RestaurantId && u.Email == user.Email).FirstOrDefaultAsync();
+            }
+            else if (user.Id == 0 && user.Email is null)
+            {
+                return await dbContext.Users.Where(u => u.RestaurantId == user.RestaurantId && u.PhoneNumber == u.PhoneNumber).FirstOrDefaultAsync();
+            }
             return await dbContext.Users.Where(u => u.Id == user.Id && u.RestaurantId == user.RestaurantId).FirstOrDefaultAsync();
         }
 

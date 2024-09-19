@@ -35,7 +35,7 @@ namespace LoyaltyApi.Services
 
         public async Task<PagedVouchersResponse> GetUserVouchersAsync(int customerId, int restaurantId, int pageNumber = 1, int pageSize = 10)
         {
-            return await voucherRepository.GetUserVouchersAsync(customerId, restaurantId, pageSize, pageNumber);
+            return await voucherRepository.GetUserVouchersAsync(customerId, restaurantId, pageNumber, pageSize);
         }
 
 

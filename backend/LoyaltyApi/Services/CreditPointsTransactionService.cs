@@ -79,14 +79,16 @@ public class CreditPointsTransactionService(
             transactionRequest.CustomerId, transactionRequest.RestaurantId);
         var restaurant = await restaurantRepository.GetRestaurantById(transactionRequest.RestaurantId) ??
                          throw new ArgumentException("Invalid restaurant");
+        var pointsEarned = creditPointsUtility.CalculateCreditPoints(transactionRequest.Amount,
+                restaurant.CreditPointsBuyingRate);
+        if (pointsEarned == 0) throw new MinimumTransactionAmountNotReachedException("Point used too low");
         var transaction = new CreditPointsTransaction
         {
             CustomerId = transactionRequest.CustomerId,
             RestaurantId = transactionRequest.RestaurantId,
             ReceiptId = transactionRequest.ReceiptId,
             TransactionType = TransactionType.Earn,
-            Points = creditPointsUtility.CalculateCreditPoints(transactionRequest.Amount,
-                restaurant.CreditPointsBuyingRate),
+            Points = pointsEarned,
             TransactionValue = transactionRequest.Amount,
             TransactionDate = transactionRequest.TransactionDate ?? DateTime.Now
         };
@@ -247,7 +249,7 @@ public class CreditPointsTransactionService(
                     {
                         CustomerId = transaction.CustomerId,
                         RestaurantId = transaction.RestaurantId,
-                        Points =   -remainingPoints,
+                        Points = -remainingPoints,
                         TransactionType = TransactionType.Expire,
                         TransactionDate = currentDateTime,
                         TransactionValue = remainingPoints * restaurantMap[transaction.RestaurantId].CreditPointsSellingRate

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using LoyaltyApi.RequestModels;
 using LoyaltyApi.Services;
 using Microsoft.AspNetCore.Authorization;
+using LoyaltyApi.Exceptions;
 
 
 namespace LoyaltyApi.Controllers;
@@ -213,6 +214,11 @@ public class CreditPointsTransactionController(
             await transactionService.AddTransactionAsync(transactionRequest);
             return StatusCode(StatusCodes.Status201Created,
                 new { success = true, message = "Credit points transaction created" });
+        }
+        catch (MinimumTransactionAmountNotReachedException ex)
+        {
+            logger.LogError(ex, "Error adding transaction");
+            return BadRequest(new { success = false, message = ex.Message });
         }
         catch (Exception ex)
         {

@@ -212,7 +212,7 @@ public class VoucherController(
     [HttpGet]
     [Route("vouchers")]
     [Authorize(Roles = "User")]
-    public async Task<ActionResult> GetVouchersByJwtToken([FromQuery] int pageNumber, [FromQuery] int pageSize)
+    public async Task<ActionResult> GetVouchersByJwtToken([FromQuery] int? pageNumber, [FromQuery] int? pageSize)
     {
         try
         {
@@ -222,7 +222,7 @@ public class VoucherController(
             _ = int.TryParse(userClaim, out var userId);
             _ = int.TryParse(restaurantClaim, out var restaurantId);
             var paginationResult =
-                await voucherService.GetUserVouchersAsync(userId, restaurantId, pageNumber, pageSize);
+                await voucherService.GetUserVouchersAsync(userId, restaurantId, pageNumber ?? 1, pageSize ?? 10);
             var vouchers = paginationResult.Vouchers;
             var vouchersResult = vouchers.Select(voucher => new
             {

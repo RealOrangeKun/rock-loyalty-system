@@ -5,3 +5,4 @@ Migrations
 *db-shm
 .vscode
 config.json
+*.sql
