@@ -40,12 +40,17 @@ namespace LoyaltyPointsApi.Data
           
 
             modelBuilder.Entity<LoyaltyPoints>()
-            .HasKey(r => new {r.TransactionId});
+                .HasKey(r => new { r.TransactionId });
             modelBuilder.Entity<LoyaltyPoints>()
-            .Property(r=> r.TransactionId).ValueGeneratedOnAdd();
+                .Property(r => r.TransactionId).ValueGeneratedOnAdd();
             modelBuilder.Entity<LoyaltyPoints>()
-            .HasIndex(r => new { r.RestaurantId, r.CustomerId });
-
+                .HasIndex(r => new { r.RestaurantId, r.CustomerId });
+            modelBuilder.Entity<Promotion>()
+                .HasKey(r => r.Id);
+            modelBuilder.Entity<Promotion>()
+                .HasOne<Threshold>()
+                .WithMany()
+                .HasForeignKey(r => r.ThresholdId);
             base.OnModelCreating(modelBuilder);
         }
     }
