@@ -10,15 +10,15 @@ namespace LoyaltyPointsApi.Repositories
 {
     public class ThresholdRepository(LoyaltyDbContext dbContext) : IThresholdRepository
     {
-        public Task AddThreshold(Threshold threshold)
+        public async Task AddThreshold(Threshold threshold)
         {
-            dbContext.Thresholds.Add(threshold);
-            return dbContext.SaveChangesAsync();
+            await dbContext.Thresholds.AddAsync(threshold);
+            await dbContext.SaveChangesAsync();
         }
 
         public async Task<Threshold?> GetRestaurantThreshold(Threshold threshold)
         {
-            return await dbContext.Thresholds.FirstOrDefaultAsync(r => r.RestaurantId == threshold.RestaurantId && r.ThresholdName == threshold.ThresholdName);
+            return await dbContext.Thresholds.FirstOrDefaultAsync(r => r.RestaurantId == threshold.RestaurantId && r.ThresholdId == threshold.ThresholdId);
             
         }
 

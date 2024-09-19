@@ -12,21 +12,21 @@ namespace LoyaltyPointsApi.Services
 {
     public class ThresholdService(IThresholdRepository thresholdRepository) : IThresholdService
     {
-        public async Task AddThreshold(ThresholdRequestModel thresholdRequest , int restaurantId)
+        public async Task AddThreshold(ThresholdRequestModel thresholdRequest)
         {
             Threshold newThreshold = new(){
-                RestaurantId = restaurantId,
+                RestaurantId = thresholdRequest.RestaurantId,
                 ThresholdName = thresholdRequest.ThresholdName,
                 MinimumPoints = thresholdRequest.MinimumPoints
             };
             await thresholdRepository.AddThreshold(newThreshold);
         }
 
-        public async Task<Threshold?> GetRestaurantThreshold(int restaurantId, string thresholdName)
+        public async Task<Threshold?> GetRestaurantThreshold(int restaurantId, int thresholdId)
         {
             Threshold threshold = new(){
                 RestaurantId = restaurantId,
-                ThresholdName = thresholdName,
+                ThresholdId = thresholdId,
             };
 
             
@@ -42,15 +42,14 @@ namespace LoyaltyPointsApi.Services
             return await thresholdRepository.GetRestaurantThresholds(threshold);
         }
 
-        public async Task<Threshold?> UpdateThreshold(ThresholdRequestModel thresholdRequest , int restaurantId, string thresholdName)
+        public async Task<Threshold?> UpdateThreshold(ThresholdRequestModel thresholdRequest , int restaurantId, int thresholdId)
         {
             Threshold threshold = new(){
-                RestaurantId = thresholdRequest.RestaurantId,
-                MinimumPoints = thresholdRequest.MinimumPoints,
-                ThresholdName = thresholdRequest.ThresholdName
+                RestaurantId = restaurantId,
+                ThresholdId = thresholdId
 
             };
-            var updatedThreshold = await thresholdRepository.GetRestaurantThreshold(threshold);
+            Threshold updatedThreshold = await thresholdRepository.GetRestaurantThreshold(threshold);
             updatedThreshold.MinimumPoints = thresholdRequest.MinimumPoints;
             updatedThreshold.ThresholdName = thresholdRequest.ThresholdName;
             await thresholdRepository.UpdateThreshold(updatedThreshold);

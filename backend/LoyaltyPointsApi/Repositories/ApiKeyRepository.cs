@@ -13,7 +13,7 @@ namespace LoyaltyPointsApi.Repositories
         public async Task<ApiKey> CreateApiKey(ApiKey key)
         {
             await dbContext.ApiKeys.AddAsync(key);
-
+            await dbContext.SaveChangesAsync();
             return key;
         }
 

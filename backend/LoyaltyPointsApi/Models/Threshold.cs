@@ -7,6 +7,7 @@ namespace LoyaltyPointsApi.Models
 {
     public class Threshold
     {
+        public int ThresholdId { get; set; }
         public required int RestaurantId { get; set; }
 
         public string ThresholdName { get; set; }

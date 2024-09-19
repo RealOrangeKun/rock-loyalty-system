@@ -11,11 +11,11 @@ namespace LoyaltyPointsApi.Services
     {
         Task<List<Threshold>?> GetRestaurantThresholds(int restaurantId);
 
-        Task<Threshold?> GetRestaurantThreshold(int restaurantId, string thresholdName);
+        Task<Threshold?> GetRestaurantThreshold(int restaurantId, int thresholdId);
 
-        Task AddThreshold(ThresholdRequestModel threshold , int restaurantId);
+        Task AddThreshold(ThresholdRequestModel threshold);
 
-        Task<Threshold?> UpdateThreshold(ThresholdRequestModel threshold , int restaurantId, string thresholdName);
+        Task<Threshold?> UpdateThreshold(ThresholdRequestModel threshold , int restaurantId, int thresholdId);
     }
 
    
