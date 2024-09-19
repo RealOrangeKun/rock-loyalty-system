@@ -8,8 +8,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LoyaltyApi.Repositories
 {
-    public class UserFrontendRepository(FrontendDbContext dbContext,
-    ILogger<UserRepository> logger) : IUserRepository
+    public class UserFrontendRepository(
+        FrontendDbContext dbContext,
+        ILogger<UserRepository> logger) : IUserRepository
     {
         public async Task<User?> CreateUserAsync(User user)
         {
@@ -24,21 +25,39 @@ namespace LoyaltyApi.Repositories
             logger.LogInformation("Getting user {id} for restaurant {RestaurantId}", user.Id, user.RestaurantId);
             if (user.Id == 0 && user.Email is not null)
             {
-                return await dbContext.Users.Where(u => u.RestaurantId == user.RestaurantId && u.Email == user.Email).FirstOrDefaultAsync();
+                return await dbContext.Users.Where(u => u.RestaurantId == user.RestaurantId && u.Email == user.Email)
+                    .FirstOrDefaultAsync();
             }
             else if (user.Id == 0 && user.PhoneNumber is not null)
             {
-                return await dbContext.Users.Where(u => u.RestaurantId == user.RestaurantId && u.PhoneNumber == user.PhoneNumber).FirstOrDefaultAsync();
+                return await dbContext.Users
+                    .Where(u => u.RestaurantId == user.RestaurantId && u.PhoneNumber == user.PhoneNumber)
+                    .FirstOrDefaultAsync();
             }
-            return await dbContext.Users.Where(u => u.Id == user.Id && u.RestaurantId == user.RestaurantId).FirstOrDefaultAsync();
+
+            return await dbContext.Users.Where(u => u.Id == user.Id && u.RestaurantId == user.RestaurantId)
+                .FirstOrDefaultAsync();
         }
 
         public async Task<User> UpdateUserAsync(User user)
         {
             logger.LogInformation("Updating user {id} for restaurant {RestaurantId}", user.Id, user.RestaurantId);
-            dbContext.Update(user);
+            var existingUser = await dbContext.Users.FindAsync(user.Id);
+
+            if (existingUser == null)
+            {
+                throw new KeyNotFoundException($"User with id {user.Id} not found.");
+            }
+
+            existingUser.Name = user.Name;
+            existingUser.Email = user.Email;
+            existingUser.RestaurantId = user.RestaurantId;
+
+            logger.LogInformation("Updating user {id} for restaurant {RestaurantId}", user.Id, user.RestaurantId);
+
             await dbContext.SaveChangesAsync();
-            return user;
+
+            return existingUser;
         }
     }
 }
