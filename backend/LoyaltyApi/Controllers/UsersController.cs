@@ -6,6 +6,7 @@ using LoyaltyApi.Services;
 using LoyaltyApi.Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Sprache;
 

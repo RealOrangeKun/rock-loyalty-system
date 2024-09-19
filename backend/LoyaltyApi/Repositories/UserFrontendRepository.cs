@@ -26,9 +26,9 @@ namespace LoyaltyApi.Repositories
             {
                 return await dbContext.Users.Where(u => u.RestaurantId == user.RestaurantId && u.Email == user.Email).FirstOrDefaultAsync();
             }
-            else if (user.Id == 0 && user.Email is null)
+            else if (user.Id == 0 && user.PhoneNumber is not null)
             {
-                return await dbContext.Users.Where(u => u.RestaurantId == user.RestaurantId && u.PhoneNumber == u.PhoneNumber).FirstOrDefaultAsync();
+                return await dbContext.Users.Where(u => u.RestaurantId == user.RestaurantId && u.PhoneNumber == user.PhoneNumber).FirstOrDefaultAsync();
             }
             return await dbContext.Users.Where(u => u.Id == user.Id && u.RestaurantId == user.RestaurantId).FirstOrDefaultAsync();
         }
