@@ -235,7 +235,7 @@ public class VoucherController(
             {
                 success = true,
                 message = "Vouchers retrieved successfully",
-                data = new { vouchersResult },
+                data = new { vouchers =vouchersResult },
                 metadata = paginationMetadata
             });
         }
