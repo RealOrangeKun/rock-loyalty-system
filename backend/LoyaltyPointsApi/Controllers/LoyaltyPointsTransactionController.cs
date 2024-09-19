@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace LoyaltyPointsApi.Controllers
 {
     [ApiController]
-    [Route("api")]
+    [Route("api/loyalty-points")]
     public class LoyaltyPointsTransactionController(ILoyaltyPointsTransactionService service) : ControllerBase
     {
         [HttpGet]
