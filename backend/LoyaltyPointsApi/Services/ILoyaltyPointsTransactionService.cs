@@ -16,6 +16,6 @@ namespace LoyaltyPointsApi.Services
 
         public Task<List<LoyaltyPoints>> GetLoyaltyPointsTransactions(int customerId , int restaurantId);
 
-        public Task<int> GetTotalPoints(LoyaltyPointsTransactionRequestModel loyaltyPointsRequestModel);
+        public Task<int> GetTotalPoints(int customerId , int restaurantId);
     }
 }

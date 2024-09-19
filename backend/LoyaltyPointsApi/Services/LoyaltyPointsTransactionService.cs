@@ -47,14 +47,12 @@ namespace LoyaltyPointsApi.Services
             return await loyaltyPointsTransactionRepositroy.GetLoyaltyPointsTransactions(loyaltyPoints);
         }
 
-        public async Task<int> GetTotalPoints(LoyaltyPointsTransactionRequestModel loyaltyPointsRequestModel)
+        public async Task<int> GetTotalPoints(int customerId , int restaurantId)
         {
             LoyaltyPoints loyaltyPoints = new(){
-                TransactionId = loyaltyPointsRequestModel.TransactionId,
-                CustomerId = loyaltyPointsRequestModel.CustomerId,
-                RestaurantId = loyaltyPointsRequestModel.RestaurantId,
-                ReceiptId = loyaltyPointsRequestModel.ReceiptId,
-                Points = loyaltyPointsRequestModel.Points,
+                CustomerId = customerId,
+                RestaurantId =restaurantId,
+                
         };
         List<LoyaltyPoints> loyaltyPointsList = await loyaltyPointsTransactionRepositroy.GetLoyaltyPointsTransactions(loyaltyPoints);
         int totalPoints = loyaltyPointsList.Sum(l => l.Points);
