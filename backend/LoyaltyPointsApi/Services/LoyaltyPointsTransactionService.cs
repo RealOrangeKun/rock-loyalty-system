@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.RateLimiting;
 
 namespace LoyaltyPointsApi.Services
 {
-    public class LoyaltyPointsTransactionService(LoyaltyPointsTransactionRepository loyaltyPointsTransactionRepositroy) : ILoyaltyPointsTransactionService
+    public class LoyaltyPointsTransactionService(ILoyaltyPointsTransactionRepository loyaltyPointsTransactionRepository) : ILoyaltyPointsTransactionService
     {
         public async Task<LoyaltyPoints> AddLoyaltyPointsTransaction(LoyaltyPointsTransactionRequestModel loyaltyPointsRequestModel)
         {
@@ -25,7 +25,7 @@ namespace LoyaltyPointsApi.Services
                 ReceiptId = loyaltyPointsRequestModel.ReceiptId,
             };
 
-            return await loyaltyPointsTransactionRepositroy.AddLoyaltyPointsTransaction(loyaltyPoints);
+            return await loyaltyPointsTransactionRepository.AddLoyaltyPointsTransaction(loyaltyPoints);
         }
 
         public async Task<LoyaltyPoints?> GetLoyaltyPointsTransaction(int transactionId)
@@ -34,7 +34,7 @@ namespace LoyaltyPointsApi.Services
                 TransactionId = transactionId,
             };
 
-            return await loyaltyPointsTransactionRepositroy.GetLoyaltyPointsTransaction(loyaltyPoints);
+            return await loyaltyPointsTransactionRepository.GetLoyaltyPointsTransaction(loyaltyPoints);
         }
 
         public async Task<List<LoyaltyPoints>> GetLoyaltyPointsTransactions(int customerId , int restaurantId)
@@ -44,7 +44,7 @@ namespace LoyaltyPointsApi.Services
                 RestaurantId = restaurantId,
             };
 
-            return await loyaltyPointsTransactionRepositroy.GetLoyaltyPointsTransactions(loyaltyPoints);
+            return await loyaltyPointsTransactionRepository.GetLoyaltyPointsTransactions(loyaltyPoints);
         }
 
         public async Task<int> GetTotalPoints(int customerId , int restaurantId)
@@ -54,7 +54,7 @@ namespace LoyaltyPointsApi.Services
                 RestaurantId =restaurantId,
                 
         };
-        List<LoyaltyPoints> loyaltyPointsList = await loyaltyPointsTransactionRepositroy.GetLoyaltyPointsTransactions(loyaltyPoints);
+        List<LoyaltyPoints> loyaltyPointsList = await loyaltyPointsTransactionRepository.GetLoyaltyPointsTransactions(loyaltyPoints);
         int totalPoints = loyaltyPointsList.Sum(l => l.Points);
         return totalPoints;
     }

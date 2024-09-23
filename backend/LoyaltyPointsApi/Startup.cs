@@ -36,7 +36,9 @@ namespace LoyaltyPointsApi
             services.AddScoped<IThresholdService, ThresholdService>();
             services.AddScoped<ILoyaltyPointsTransactionRepository, LoyaltyPointsTransactionRepository>();
             services.AddScoped<ILoyaltyPointsTransactionService, LoyaltyPointsTransactionService>();
-            services.AddScoped<UserService>();
+            services.AddScoped<IPromotionRepository , PromotionRepository>();
+            services.AddScoped<IPromotionService, PromotionService>();
+            // services.AddScoped<UserService>();
 
 
             // Adding controllers and swagger
