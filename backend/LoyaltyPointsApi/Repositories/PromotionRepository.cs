@@ -20,12 +20,12 @@ namespace LoyaltyPointsApi.Repositories
 
         public async Task<Promotion?> GetPromotion(Promotion promotion)
         {
-              return await dbContext.Promotions.FirstOrDefaultAsync(r => r.Id == promotion.Id); ;
+              return await dbContext.Promotions.FirstOrDefaultAsync(r => r.PromoCode == promotion.PromoCode); ;
         }
 
-        public async Task<List<Promotion>> GetRestaurantPromotions(Promotion promotion)
+        public async Task<List<Promotion>> GetThresholdPromotions(Promotion promotion)
         {
-            var result = await dbContext.Promotions.Where(p => p.RestaurantId == promotion.RestaurantId).ToListAsync();
+            var result = await dbContext.Promotions.Where(p => p.ThresholdId == promotion.ThresholdId).ToListAsync();
             return result;
         }
 

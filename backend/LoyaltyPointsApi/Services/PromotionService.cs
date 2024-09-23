@@ -17,23 +17,23 @@ namespace LoyaltyPointsApi.Services
             return newPromotion;
         }
 
-        public async Task<Promotion?> GetPromotion(int id)
+        public async Task<Promotion?> GetPromotion(string promoCode)
         {
             Promotion promotion = new (){
-                Id = id
+                PromoCode = promoCode
             };
             var result = await promotionRepository.GetPromotion(promotion);
 
             return result;
         }
 
-        public async Task<List<Promotion>> GetRestaurantPromotions(int restaurantId)
+        public async Task<List<Promotion>> GetThresholdPromotions(int thresholdId)
         {
             Promotion promotion = new()
             {
-                RestaurantId = restaurantId
+                ThresholdId = thresholdId
             };
-            return await promotionRepository.GetRestaurantPromotions(promotion);
+            return await promotionRepository.GetThresholdPromotions(promotion);
         }
 
 

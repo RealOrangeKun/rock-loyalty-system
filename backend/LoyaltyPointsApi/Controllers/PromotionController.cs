@@ -32,7 +32,7 @@ namespace LoyaltyPointsApi.Controllers
         {
             try
             {
-                var result = await promotionService.GetRestaurantPromotions(restaurantId);
+                var result = await promotionService.GetThresholdPromotions(restaurantId);
                 if (result == null) return NotFound(new { success = false, message = "Promotions not found" });
                 return Ok(new
                 {
@@ -47,12 +47,12 @@ namespace LoyaltyPointsApi.Controllers
             }
         }
         [HttpGet]
-        [Route("{promotionId}")]
-        public async Task<ActionResult> GetPromotion([FromRoute] int promotionId)
+    
+        public async Task<ActionResult> GetPromotion([FromBody] string promoCode)
         {
             try
             {
-                var result = await promotionService.GetPromotion(promotionId);
+                var result = await promotionService.GetPromotion(promoCode);
                 if (result == null) return NotFound(new { success = false, message = "Promotion not found" });
                 return Ok(new
                 {
