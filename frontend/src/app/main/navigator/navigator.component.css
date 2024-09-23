@@ -1,13 +1,14 @@
 /* Sidebar (Desktop) */
 .sidebar {
   background-color: #ffffff;
-  width: 80px;
+  width: 65px;
   height: 100vh;
   border-right: 1px solid #e7e7e7;
   padding-top: 1rem;
   position: fixed;
   z-index: 999;
   left: 0;
+  top: 0;
 
   .nav-link {
     display: flex;
@@ -58,12 +59,5 @@
     &:hover {
       color: #007bff;
     }
-  }
-}
-
-/* Ensure main content doesn't overlap with sidebar on desktop */
-@media (min-width: 768px) {
-  main {
-    margin-left: 80px;
   }
 }

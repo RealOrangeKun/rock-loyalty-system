@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../auth.service';
 import { finalize } from 'rxjs';
 import { EmailValidator } from '@angular/forms';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-confirm-email',
@@ -16,9 +17,10 @@ export class ConfirmEmailComponent {
 
   constructor(
     private route: ActivatedRoute,
-    private authService: AuthService
-    , private router: Router
-  ) { }
+    private authService: AuthService,
+    private router: Router,
+    private toastrService: ToastrService
+  ) {}
 
   ngOnInit() {
     this.token = this.route.snapshot.paramMap.get('token') || '';
@@ -33,14 +35,19 @@ export class ConfirmEmailComponent {
       )
       .subscribe({
         next: () => {
-          this.displayMessage =
-            'email confirmed you will be redirected in 5 seconds';
+          this.toastrService.success(
+            'redirected in 5 seconds',
+            'email confirmed'
+          );
           setTimeout(() => {
             this.router.navigate(['/main']);
           }, 5000);
         },
         error: (error: Error) => {
-          this.displayMessage = error.message;
+          this.toastrService.error(
+            `couldn't confirm your email please try again`
+          );
+          this.router.navigate(['/auth', 'register']);
         },
       });
   }

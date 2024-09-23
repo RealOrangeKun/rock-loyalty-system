@@ -16,7 +16,6 @@ import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { AlertComponent } from './shared/components/alert/alert.component';
 import { CommonModule } from '@angular/common';
 import { PhoneComponent } from './auth/phone/phone.component';
-import { PopMessageComponent } from './shared/components/pop-message/pop-message.component';
 import { ConfirmEmailComponent } from './auth/confirm-email/confirm-email.component';
 import { ForgetPasswordComponent } from './auth/forget-password/forget-password.component';
 import { ForgetPasswordRequestComponent } from './auth/forget-password-request/forget-password-request.component';
@@ -25,6 +24,12 @@ import { PointsComponent } from './main/points/points.component';
 import { VouchersComponent } from './main/vouchers/vouchers.component';
 import { ProfileComponent } from './main/profile/profile.component';
 import { NavigatorComponent } from './main/navigator/navigator.component';
+import { ToastrModule } from 'ngx-toastr';
+import { ApiKeyInterceptor } from './shared/interceptor/apiKey.interceptor';
+import {
+  PaginationComponent,
+  PaginationModule,
+} from 'ngx-bootstrap/pagination';
 
 @NgModule({
   declarations: [
@@ -36,7 +41,6 @@ import { NavigatorComponent } from './main/navigator/navigator.component';
     NotFoundComponent,
     AlertComponent,
     PhoneComponent,
-    PopMessageComponent,
     ConfirmEmailComponent,
     ForgetPasswordComponent,
     ForgetPasswordRequestComponent,
@@ -52,10 +56,17 @@ import { NavigatorComponent } from './main/navigator/navigator.component';
     FormsModule,
     CommonModule,
     BrowserAnimationsModule,
-    BrowserAnimationsModule,
+    PaginationModule,
     BsDropdownModule.forRoot(),
+    ToastrModule.forRoot({
+      positionClass: 'toast-top-right',
+      timeOut: 5000,
+      closeButton: true,
+    }),
   ],
-  providers: [provideHttpClient(withInterceptors([authInterceptor]))],
+  providers: [
+    provideHttpClient(withInterceptors([ApiKeyInterceptor, authInterceptor])),
+  ],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

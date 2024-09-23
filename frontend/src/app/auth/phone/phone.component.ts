@@ -4,6 +4,7 @@ import { NgForm } from '@angular/forms';
 import { User } from '../../shared/modules/user.module';
 import { Router } from '@angular/router';
 import { finalize } from 'rxjs';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-phone',
@@ -12,7 +13,11 @@ import { finalize } from 'rxjs';
 })
 export class PhoneComponent {
   @ViewChild('loginForm') form: NgForm;
-  constructor(private authService: AuthService, private router: Router) { }
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+    private toastrService: ToastrService
+  ) {}
   loading: boolean = false;
   onSubmit() {
     const phone: string = this.form.value.phone;
@@ -27,10 +32,15 @@ export class PhoneComponent {
         })
       )
       .subscribe({
-        next: () => {
-          this.router.navigate(['/main']);
+        next: (response) => {
+          this.toastrService.success('redirecting in 5 seconds');
+          setTimeout(() => {
+            this.router.navigate(['/main']);
+          }, 5000);
         },
-        error: () => { },
+        error: (error) => {
+          this.toastrService.error(error.message);
+        },
       });
   }
 }

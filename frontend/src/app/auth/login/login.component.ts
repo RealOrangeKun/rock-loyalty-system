@@ -6,6 +6,7 @@ import { finalize, Observable } from 'rxjs';
 import { UserInterface } from '../../shared/responseInterface/user.get.response.interface';
 import { FacebookAuthService } from '../social-login/facebook-auth.service';
 import { GoogleAuthService } from '../social-login/google-auth.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-login',
@@ -16,13 +17,13 @@ export class LoginComponent implements OnInit {
   @ViewChild('loginForm') form: NgForm;
   loading: boolean = false;
   loadingMessage: string = '';
-  errorMsg: string = '';
   constructor(
     private authService: AuthService,
     private facebookAuth: FacebookAuthService,
     private googleAuth: GoogleAuthService,
-    private router: Router
-  ) { }
+    private router: Router,
+    private toastrService: ToastrService
+  ) {}
   onSubmit() {
     const phoneEmailField: string = this.form.value.phone;
     const password: string = this.form.value.password;
@@ -32,24 +33,17 @@ export class LoginComponent implements OnInit {
     } else {
       loginObs = this.authService.logIn(phoneEmailField, null, password);
     }
-    loginObs.pipe(finalize(() => { })).subscribe({
+    loginObs.pipe(finalize(() => {})).subscribe({
       next: (response) => {
-        this.router.navigate(['/main']);
+        this.redirect();
       },
-      error: (error: Error) => {
-        this.displayError(error.message);
+      error: (error) => {
+        this.toastrService.error(error.message);
       },
     });
   }
 
-  private displayError(error: string) {
-    this.errorMsg = error;
-    setTimeout(() => {
-      this.errorMsg = '';
-    }, 5000);
-  }
-
-  ngOnInit(): void { }
+  ngOnInit(): void {}
 
   onGoogleLogin() {
     this.loading = true;
@@ -60,10 +54,9 @@ export class LoginComponent implements OnInit {
         console.log('sucssesfully logged', response);
         const token = response.authentication.accessToken;
         this.loginGoogle(token);
-
       })
       .catch((error) => {
-        console.log('error', error);
+        this.toastrService.error('login with google failed');
       })
       .finally(() => {
         this.loading = false;
@@ -80,51 +73,45 @@ export class LoginComponent implements OnInit {
         this.loginFacebook(token);
       })
       .catch((error) => {
-        console.log(error);
-        this.passErrorMessage(error.message);
+        this.toastrService.error('login with facebook failed');
         this.loading = false;
       });
   }
 
   private loginFacebook(token: string) {
     this.loadingMessage = 'signing in';
-    this.authService.loginFaceBook(token).pipe().subscribe({
-      next: () => {
-        this.loadingMessage = 'log in sucssessful redirecting 5 seconds';
-        setTimeout(() => {
-          this.router.navigate(['/main']);
-        }, 5000);
-      },
-      error: (error: Error) => {
-        console.log(error);
-        this.passErrorMessage(error.message);
-        this.loading = false;
-      }
-    })
+    this.authService
+      .loginFaceBook(token)
+      .pipe()
+      .subscribe({
+        next: () => {
+          this.redirect();
+        },
+        error: (error: Error) => {
+          this.toastrService.error(error.message);
+          this.loading = false;
+        },
+      });
   }
 
   private loginGoogle(token: string) {
     this.loading = true;
     this.loadingMessage = 'signing in';
-    this.authService.loginGoogle(token)
-      .subscribe({
-        next: () => {
-          this.loadingMessage = 'log in sucssessful redirecting 5 seconds';
-          setTimeout(() => {
-            this.router.navigate(['/main']);
-          }, 5000);
-        },
-        error: (error: Error) => {
-          this.loading = false;
-          this.passErrorMessage(error.message);
-        }
-      })
+    this.authService.loginGoogle(token).subscribe({
+      next: () => {
+        this.redirect();
+      },
+      error: (error: Error) => {
+        this.loading = false;
+        this.toastrService.error(error.message);
+      },
+    });
   }
 
-  private passErrorMessage(error: string) {
-    this.errorMsg = error;
+  private redirect(seconds: number = 5) {
+    this.toastrService.success(`redirecting in ${seconds} seconds`);
     setTimeout(() => {
-      this.errorMsg = '';
-    }, 8000);
+      this.router.navigate(['/main']);
+    }, seconds * 1000);
   }
 }

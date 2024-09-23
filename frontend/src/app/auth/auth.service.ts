@@ -19,11 +19,16 @@ import { UserInterface } from '../shared/responseInterface/user.get.response.int
 })
 export class AuthService {
   currentUser: User;
+
   user: BehaviorSubject<User> = new BehaviorSubject<User>(null);
   constructor(private http: HttpClient, private router: Router) {
     this.user.subscribe((user) => {
       this.currentUser = user;
     });
+
+    let user: User = new User('omar', new Date(new Date().getTime() + 9999999));
+    user.phonenumber = '01312412423';
+    this.user.next(user);
   }
 
   isAuth() {
@@ -42,6 +47,7 @@ export class AuthService {
     user.name = userData.name;
     user.phonenumber = userData.phonenumber;
     user.id = userData.id;
+
     if (user.token) {
       this.user.next(user);
     }
@@ -53,13 +59,13 @@ export class AuthService {
     this.router.navigate(['/auth', 'login']);
   }
 
-  SignUp(name: string, email: string, password: string, phoneNumber: string) {
-    return this.http.post<UserInterface>(`${enviroment.apiUrl}/api/users`, {
-      name: name,
+  // check the return and add error handles in the auth sign up function
+  SignUp(name: string, email: string, password: string) {
+    return this.http.post(`${enviroment.apiUrl}/api/users`, {
       email: email,
       password: password,
-      phoneNumber: phoneNumber,
       restaurantId: enviroment.restaurantId,
+      name: name,
     });
   }
 
@@ -73,12 +79,8 @@ export class AuthService {
       })
       .pipe(
         catchError((errorResponse: HttpErrorResponse) => {
-          let errorMsg: string =
-            'please contact your admin to resolve this issue';
-          switch (errorResponse.status) {
-          }
           return throwError(() => {
-            return new Error();
+            return new Error(errorResponse.error.message);
           });
         }),
         tap((userInfo) => {
@@ -118,9 +120,10 @@ export class AuthService {
           localStorage.setItem('userInfo', JSON.stringify(this.user));
         }),
         catchError((errorResponse) => {
-          console.log('http error here');
-          console.log(errorResponse);
-          return throwError(() => { return new Error('kjwnrgoiwg') });
+          const errorMsg = errorResponse.error.message;
+          return throwError(() => {
+            return new Error(errorMsg);
+          });
         })
       );
   }

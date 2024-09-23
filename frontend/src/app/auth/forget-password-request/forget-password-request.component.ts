@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { AuthService } from '../auth.service';
 import { NgModel } from '@angular/forms';
 import { finalize } from 'rxjs';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-forget-password-request',
@@ -13,7 +14,11 @@ export class ForgetPasswordRequestComponent {
   errorMsg: string;
   loading: boolean;
   @ViewChild('emailInput') emailInput: NgModel;
-  constructor(private authService: AuthService, private router: Router) { }
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+    private toastrService: ToastrService
+  ) {}
   onUpdate() {
     this.loading = true;
     this.authService
@@ -25,18 +30,11 @@ export class ForgetPasswordRequestComponent {
       )
       .subscribe({
         next: () => {
-          this.popError('change password email sent');
+          this.toastrService.success('change password email sent');
         },
         error: (error: Error) => {
-          this.popError(error.message);
+          this.toastrService.error(error.message);
         },
       });
-  }
-
-  private popError(error: string) {
-    this.errorMsg = error;
-    setTimeout(() => {
-      this.errorMsg = '';
-    }, 7000);
   }
 }

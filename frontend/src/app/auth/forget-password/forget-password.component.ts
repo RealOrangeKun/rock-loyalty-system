@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../auth.service';
 import { NgModel } from '@angular/forms';
 import { finalize } from 'rxjs';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-forget-password',
@@ -17,7 +18,8 @@ export class ForgetPasswordComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private toastrService: ToastrService
   ) {}
 
   ngOnInit(): void {
@@ -35,18 +37,14 @@ export class ForgetPasswordComponent implements OnInit {
       )
       .subscribe({
         next: () => {
-          this.router.navigate(['/main']);
+          this.toastrService.success('redirecting in 5 seconds');
+          setTimeout(() => {
+            this.router.navigate(['/main']);
+          }, 5000);
         },
         error: (error: Error) => {
-          this.popError(error.message);
+          this.toastrService.error(error.message);
         },
       });
-  }
-
-  private popError(error: string) {
-    this.errorMsg = error;
-    setTimeout(() => {
-      this.errorMsg = '';
-    }, 7000);
   }
 }
