@@ -6,30 +6,30 @@ namespace LoyaltyPointsApi.Controllers
 {
     [ApiController]
     [Route("api/threshold")]
-    public class ThresholdController(IThresholdService thresholdService) :ControllerBase
+    public class ThresholdController(IThresholdService thresholdService) : ControllerBase
     {
         [HttpPost]
-        
-        public async Task<ActionResult> AddThreshold([FromBody]ThresholdRequestModel thresholdRequestModel)
+
+        public async Task<ActionResult> AddThreshold([FromBody] ThresholdRequestModel thresholdRequestModel)
         {
             try
             {
                 await thresholdService.AddThreshold(thresholdRequestModel);
-               return StatusCode(201, new { success = true, message = "Threshold added" });
+                return StatusCode(201, new { success = true, message = "Threshold added" });
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return StatusCode(500, new { success = false, message = ex.Message });
             }
         }
 
         [HttpGet]
-        [Route ("{RestaurantId}")]
-        public async Task<ActionResult> GetRestaurantThresholds([FromRoute] int RestaurantId)
+        [Route("{restaurantId}")]
+        public async Task<ActionResult> GetRestaurantThresholds([FromRoute] int restaurantId)
         {
             try
             {
-                var result = await thresholdService.GetRestaurantThresholds(RestaurantId);
+                var result = await thresholdService.GetRestaurantThresholds(restaurantId);
                 if (result == null) return NotFound(new { success = false, message = "Threshold not found" });
                 return Ok(new
                 {
@@ -44,12 +44,12 @@ namespace LoyaltyPointsApi.Controllers
             }
         }
         [HttpGet]
-        [Route ("restaurant/{RestaurantId}")]
-        public async Task<ActionResult> GetRestaurantThreshold([FromRoute] int RestaurantId, [FromQuery] int ThresholdId)
+        [Route("restaurant/{restaurantId}")]
+        public async Task<ActionResult> GetRestaurantThreshold([FromRoute] int restaurantId, [FromQuery] int thresholdId)
         {
             try
             {
-                var result = await thresholdService.GetRestaurantThreshold(RestaurantId, ThresholdId);
+                var result = await thresholdService.GetRestaurantThreshold(restaurantId, thresholdId);
                 if (result == null) return NotFound(new { success = false, message = "Threshold not found" });
                 return Ok(new
                 {
@@ -64,14 +64,14 @@ namespace LoyaltyPointsApi.Controllers
             }
         }
         [HttpPut]
-        [Route ("restaurant/{RestaurantId}/id/{thresholdId}")]
-        public async Task<ActionResult> UpdateThreshold([FromBody]ThresholdRequestModel thresholdRequestModel, [FromRoute] int RestaurantId, [FromRoute] int thresholdId)
+        [Route("restaurant/{restaurantId}/id/{thresholdId}")]
+        public async Task<ActionResult> UpdateThreshold([FromBody] ThresholdRequestModel thresholdRequestModel, [FromRoute] int restaurantId, [FromRoute] int thresholdId)
         {
             try
             {
-                var threshold = await thresholdService.GetRestaurantThreshold(RestaurantId, thresholdId);
+                var threshold = await thresholdService.GetRestaurantThreshold(restaurantId, thresholdId);
                 if (threshold == null) return NotFound(new { success = false, message = "Threshold not found" });
-                var result =  await thresholdService.UpdateThreshold(thresholdRequestModel, RestaurantId, thresholdId);
+                var result = await thresholdService.UpdateThreshold(thresholdRequestModel, restaurantId, thresholdId);
                 return Ok(new
                 {
                     success = true,
@@ -84,6 +84,6 @@ namespace LoyaltyPointsApi.Controllers
                 return StatusCode(500, new { success = false, message = ex.Message });
             }
         }
-        
+
     }
 }

@@ -37,7 +37,7 @@ namespace LoyaltyPointsApi.Controllers
 
                 await restaurantService.UpdateRestaurant(restaurantId, updateRestaurantRequestModel);
 
-                return Ok(new { success = true, message = "RestaurantSettings updated"});
+                return Ok(new { success = true, message = "RestaurantSettings updated" });
             }
             catch (Exception ex)
             {

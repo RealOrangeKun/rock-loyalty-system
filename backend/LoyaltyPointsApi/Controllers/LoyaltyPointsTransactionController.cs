@@ -14,27 +14,31 @@ namespace LoyaltyPointsApi.Controllers
     public class LoyaltyPointsTransactionController(ILoyaltyPointsTransactionService service) : ControllerBase
     {
         [HttpGet]
-        [Route("transaction/{transactionId}")]
-        public async Task<ActionResult> GetCustomerTransactions([FromRoute] int transactionId)
+        [Route("transactions/{transactionId}")]
+        public async Task<ActionResult> GetCustomerTransaction([FromRoute] int transactionId)
         {
-           try{
-            var result = await service.GetLoyaltyPointsTransaction(transactionId);
-            return Ok( new {
-                Status = "Success",
-                Message = "Transaction found",
-                Data = result
-            });
-           } 
-           catch(Exception ex){
-            return StatusCode(500, new {
-                Status = "Error",
-                Message = ex.Message
-           });
-           }
+            try
+            {
+                var result = await service.GetLoyaltyPointsTransaction(transactionId);
+                return Ok(new
+                {
+                    Status = "Success",
+                    Message = "Transaction found",
+                    Data = result
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    Status = "Error",
+                    Message = ex.Message
+                });
+            }
         }
 
         [HttpGet]
-        [Route("customer/{customerId}/restuaurant/{restaurantId}")]
+        [Route("transactions/customer/{customerId}/restuaurant/{restaurantId}")]
         public async Task<ActionResult> GetCustomerTransactions([FromRoute] int customerId, [FromRoute] int restaurantId)
         {
             try
@@ -58,11 +62,11 @@ namespace LoyaltyPointsApi.Controllers
         }
         [HttpGet]
         [Route("cus/{customerId}/res/{restaurantId}")]
-        public async Task<ActionResult> GetTotalPoints([FromRoute] int customerId , [FromRoute] int restaurantId)
+        public async Task<ActionResult> GetTotalPoints([FromRoute] int customerId, [FromRoute] int restaurantId)
         {
             try
             {
-                var result = await service.GetTotalPoints(customerId , restaurantId);
+                var result = await service.GetTotalPoints(customerId, restaurantId);
                 return Ok(new
                 {
                     Status = "Success",
