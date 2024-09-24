@@ -171,7 +171,6 @@ namespace LoyaltyApi
             app.UseIpRateLimiting();
             if (env.IsProduction())
                 app.UseMiddleware<UserAgentBlockerMiddleware>();
-            app.UseMiddleware<ApiKeyValidatorMiddleware>();
 
             if (env.IsDevelopment() || env.IsEnvironment("Frontend") || env.IsEnvironment("Testing"))
             {
@@ -179,6 +178,8 @@ namespace LoyaltyApi
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+            app.UseMiddleware<ApiKeyValidatorMiddleware>();
+
             if (env.IsEnvironment("Testing") || env.IsEnvironment("Frontend"))
             {
                 AddMigrationsAndUpdateDatabase(dbContext);
