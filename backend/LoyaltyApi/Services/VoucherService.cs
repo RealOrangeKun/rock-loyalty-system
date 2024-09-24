@@ -15,6 +15,7 @@ namespace LoyaltyApi.Services
     {
         public async Task<Voucher> CreateVoucherAsync(CreateVoucherRequest voucherRequest, int customerId, int restaurantId)
         {
+            logger.LogTrace("Creating voucher for customer {customerId} and restaurant {restaurantId}", customerId, restaurantId);
             var availablePoints = await creditPointsTransactionRepository.GetCustomerPointsAsync(customerId, restaurantId);
             logger.LogTrace("availablePoints: {availablePoints}", availablePoints);
             if (availablePoints < voucherRequest.Points) throw new PointsNotEnoughException("Not enough points");

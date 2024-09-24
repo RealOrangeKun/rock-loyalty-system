@@ -17,6 +17,12 @@ namespace LoyaltyApi.Repositories
     {
         public async Task<Voucher> CreateVoucherAsync(Voucher voucher, Restaurant restaurant)
         {
+            logger.LogInformation("Creating voucher {ShortCode} for customer {CustomerId} and restaurant {RestaurantId} with value {Value}",
+            voucher.ShortCode,
+            voucher.CustomerId,
+            voucher.RestaurantId,
+            voucher.Value);
+
             var apiKey = await apiUtility.GetApiKey(voucher.RestaurantId.ToString());
 
             string result = await apiUtility.GenerateVoucher(voucher, restaurant, apiKey);
