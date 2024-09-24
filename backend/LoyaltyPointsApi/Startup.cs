@@ -39,6 +39,8 @@ namespace LoyaltyPointsApi
             services.AddScoped<ILoyaltyPointsTransactionService, LoyaltyPointsTransactionService>();
             services.AddScoped<IPromotionRepository , PromotionRepository>();
             services.AddScoped<IPromotionService, PromotionService>();
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IUserRepository, UserRepository>();
             // services.AddScoped<UserService>();
 
 
