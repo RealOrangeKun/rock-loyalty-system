@@ -6,7 +6,9 @@ namespace LoyaltyPointsApi.Repositories
     {
          public Task<Promotion?> AddPromotion(Promotion promotion);
          public Task<Promotion?> UpdatePromotion(Promotion promotion);
+        
          public Task<Promotion?> GetPromotion(Promotion promotion);
-         public Task<List<Promotion>> GetRestaurantPromotions(Promotion promotion);
+
+         public Task<List<Promotion>> GetThresholdtPromotions(Promotion promotion);
     }
 }

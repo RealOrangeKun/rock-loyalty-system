@@ -23,12 +23,12 @@ namespace LoyaltyPointsApi.Repositories
               return await dbContext.Promotions.FirstOrDefaultAsync(r => r.PromoCode == promotion.PromoCode); ;
         }
 
-        public async Task<List<Promotion>> GetThresholdPromotions(Promotion promotion)
+
+        public async Task<List<Promotion>> GetThresholdtPromotions(Promotion promotion)
         {
-            var result = await dbContext.Promotions.Where(p => p.ThresholdId == promotion.ThresholdId).ToListAsync();
+             var result = await dbContext.Promotions.Where(p => p.ThresholdId == promotion.ThresholdId).ToListAsync();
             return result;
         }
-
 
         public async  Task<Promotion?> UpdatePromotion(Promotion promotion)
         {

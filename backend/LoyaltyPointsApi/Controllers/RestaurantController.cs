@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace LoyaltyPointsApi.Controllers
 {
     [ApiController]
-    [Route("api/restaurant")]
+    [Route("api/restaurants")]
     public class RestaurantController(IRestaurantService restaurantService) : ControllerBase
     {
         [HttpPost]

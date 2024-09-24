@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace LoyaltyPointsApi.Controllers
 {
     [ApiController]
-    [Route("api/threshold")]
+    [Route("api/thresholds")]
     public class ThresholdController(IThresholdService thresholdService) : ControllerBase
     {
         [HttpPost]
@@ -44,7 +44,7 @@ namespace LoyaltyPointsApi.Controllers
             }
         }
         [HttpGet]
-        [Route("restaurant/{restaurantId}")]
+        [Route("restaurants/{restaurantId}")]
         public async Task<ActionResult> GetRestaurantThreshold([FromRoute] int restaurantId, [FromQuery] int thresholdId)
         {
             try
@@ -64,7 +64,7 @@ namespace LoyaltyPointsApi.Controllers
             }
         }
         [HttpPut]
-        [Route("restaurant/{restaurantId}/id/{thresholdId}")]
+        [Route("restaurants/{restaurantId}/id/{thresholdId}")]
         public async Task<ActionResult> UpdateThreshold([FromBody] ThresholdRequestModel thresholdRequestModel, [FromRoute] int restaurantId, [FromRoute] int thresholdId)
         {
             try

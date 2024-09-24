@@ -27,7 +27,7 @@ namespace LoyaltyPointsApi.Controllers
             }
         }
         [HttpGet]
-        [Route("restaurant/{restaurantId}")]
+        [Route("restaurants/{restaurantId}")]
         public async Task<ActionResult> GetRestaurantPromotions([FromRoute] int restaurantId)
         {
             try

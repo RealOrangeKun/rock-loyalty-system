@@ -33,26 +33,26 @@ namespace LoyaltyPointsApi.Services
             {
                 ThresholdId = thresholdId
             };
-            return await promotionRepository.GetThresholdPromotions(promotion);
+            return await promotionRepository.GetThresholdtPromotions(promotion);
         }
 
 
-        public async Task<Promotion?> UpdatePromotion(int id,PromotionRequestModel promotion)
+        public async Task<Promotion?> UpdatePromotion(string promoCode,PromotionRequestModel promotion)
         {
-            Promotion promo = new()
-            {
-                Id = id
+            Promotion rxistingPromotion = new(){
+                PromoCode = promoCode
             };
-            var result  = await promotionRepository.GetPromotion(promo);
+            var result  = await promotionRepository.GetPromotion(rxistingPromotion);
 
-            Promotion updatedPromotion = new()
+            if(result == null)
             {
-                RestaurantId = promotion.RestaurantId,
-                PromoCode = promotion.PromoCode,
-                ThresholdId = promotion.ThresholdId
-            };
-            await promotionRepository.UpdatePromotion(updatedPromotion);
-            return updatedPromotion;
+                throw new Exception("Promotion not found");
+            }
+            result.RestaurantId = promotion.RestaurantId;
+            result.PromoCode = promotion.PromoCode;
+            result.ThresholdId = promotion.ThresholdId;
+            await promotionRepository.UpdatePromotion(result);
+            return result;
         }
 
     }
