@@ -8,7 +8,7 @@ using LoyaltyPointsApi.RequestModels;
 
 namespace LoyaltyPointsApi.Services
 {
-    public class UserService(UserRepository userRepository) : IUserService
+    public class UserService(IUserRepository userRepository) : IUserService
     {
 
         public async Task<User?> GetUser(UserRequestModel userRequestModel)

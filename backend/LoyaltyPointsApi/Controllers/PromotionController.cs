@@ -27,8 +27,8 @@ namespace LoyaltyPointsApi.Controllers
             }
         }
         [HttpPut]
-        [Route("{promoCode}")]
-        public async Task<ActionResult> UpdatePromotion([FromRoute] string promoCode,[FromBody] PromotionRequestModel promotionRequestModel)
+        [Route("{promoCode}/restaurants/{restaurantId}")]
+        public async Task<ActionResult> UpdatePromotion([FromRoute] string promoCode,[FromRoute] int restaurantId,[FromBody] UpdatePromotionRequestModel promotionRequestModel)
         {
             try
             {

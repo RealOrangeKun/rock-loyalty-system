@@ -6,7 +6,7 @@ namespace LoyaltyPointsApi.Services
 {
     public class PromotionService(IPromotionRepository promotionRepository) : IPromotionService
     {
-        public async Task<Promotion?> AddPromotion(PromotionRequestModel promotion)
+        public async Task<Promotion?> AddPromotion(AddPromotionRequestModel promotion)
         {
             Promotion newPromotion = new(){
                 RestaurantId = promotion.RestaurantId,
@@ -37,7 +37,7 @@ namespace LoyaltyPointsApi.Services
         }
 
 
-        public async Task<Promotion?> UpdatePromotion(string promoCode,PromotionRequestModel promotion)
+        public async Task<Promotion?> UpdatePromotion(string promoCode,UpdatePromotionRequestModel promotion)
         {
             Promotion rxistingPromotion = new(){
                 PromoCode = promoCode
@@ -48,8 +48,6 @@ namespace LoyaltyPointsApi.Services
             {
                 throw new Exception("Promotion not found");
             }
-            result.RestaurantId = promotion.RestaurantId;
-            result.PromoCode = promotion.PromoCode;
             result.ThresholdId = promotion.ThresholdId;
             await promotionRepository.UpdatePromotion(result);
             return result;

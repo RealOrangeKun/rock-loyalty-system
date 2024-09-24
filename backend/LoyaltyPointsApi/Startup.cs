@@ -63,7 +63,7 @@ namespace LoyaltyPointsApi
             app.UseAuthentication();
             app.UseAuthorization();
             app.MapControllers();
-            app.UseMiddleware<ApiKeyValidatorMiddleware>();
+            // app.UseMiddleware<ApiKeyValidatorMiddleware>();
 
         }
 

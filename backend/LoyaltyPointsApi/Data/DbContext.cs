@@ -8,7 +8,7 @@ namespace LoyaltyPointsApi.Data
     {
 
         // DbSets
-        public DbSet<RestaurantSettings> ResturantSettings { get; set; }
+        public DbSet<RestaurantSettings> RestaurantSettings { get; set; }
         public DbSet<LoyaltyPoints> LoyaltyPoints { get; set; }
         public DbSet<Threshold> Thresholds { get; set; }
         public DbSet<ApiKey> ApiKeys { get; set; }
@@ -35,7 +35,7 @@ namespace LoyaltyPointsApi.Data
 
 
             modelBuilder.Entity<Promotion>()
-                .HasKey(r => r.PromoCode);
+                .HasKey(r => new { r.RestaurantId, r.PromoCode });
 
             modelBuilder.Entity<Promotion>()
                 .HasOne<Threshold>()
