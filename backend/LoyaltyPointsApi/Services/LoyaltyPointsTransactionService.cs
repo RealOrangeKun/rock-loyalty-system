@@ -10,18 +10,16 @@ using Microsoft.AspNetCore.RateLimiting;
 
 namespace LoyaltyPointsApi.Services
 {
-    public class LoyaltyPointsTransactionService(ILoyaltyPointsTransactionRepository loyaltyPointsTransactionRepository) : ILoyaltyPointsTransactionService
+    public class LoyaltyPointsTransactionService(ILoyaltyPointsTransactionRepository loyaltyPointsTransactionRepository , IRestaurantService restaurantService) : ILoyaltyPointsTransactionService
     {
         public async Task<LoyaltyPoints> AddLoyaltyPointsTransaction(LoyaltyPointsTransactionRequestModel loyaltyPointsRequestModel)
         {
+            var restaurant = await restaurantService.GetRestaurant(loyaltyPointsRequestModel.RestaurantId) ?? throw new Exception("Restaurant not found");
             LoyaltyPoints loyaltyPoints = new(){
                 CustomerId = loyaltyPointsRequestModel.CustomerId,
                 RestaurantId = loyaltyPointsRequestModel.RestaurantId,
-                TransactionId = loyaltyPointsRequestModel.TransactionId,
-                Points = loyaltyPointsRequestModel.Points,
-                IsExpired = loyaltyPointsRequestModel.IsExpired,
                 TransactionDate = loyaltyPointsRequestModel.TransactionDate,
-                ExpiryDate = loyaltyPointsRequestModel.ExpiryDate,
+                ExpiryDate = loyaltyPointsRequestModel.TransactionDate.AddDays(restaurant.PointsLifeTime),
                 Restaurant = loyaltyPointsRequestModel.Restaurant,
                 ReceiptId = loyaltyPointsRequestModel.ReceiptId,
             };

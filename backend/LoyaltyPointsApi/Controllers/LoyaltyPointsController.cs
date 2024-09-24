@@ -9,10 +9,10 @@ namespace LoyaltyPointsApi.Controllers
 {
     [ApiController]
     [Route("api/loyalty-points")]
-    public class LoyaltyPointsApiController (ILoyaltyPointsTransactionService service) : ControllerBase
+    public class LoyaltyPointsController (ILoyaltyPointsTransactionService service) : ControllerBase
     {
         [HttpGet]
-        [Route("custoomers/{customerId}/restaurants/{restaurantId}")]
+        [Route("customers/{customerId}/restaurants/{restaurantId}")]
         public async Task<ActionResult> GetTotalPoints([FromRoute] int customerId, [FromRoute] int restaurantId)
         {
             try
