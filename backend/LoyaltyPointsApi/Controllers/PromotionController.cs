@@ -10,7 +10,7 @@ namespace LoyaltyPointsApi.Controllers
 
 {
     [ApiController]
-    [Route("api/promotion")]
+    [Route("api/promotions")]
     public class PromotionController(IPromotionService promotionService) : ControllerBase
     {
         [HttpPost]
@@ -27,7 +27,7 @@ namespace LoyaltyPointsApi.Controllers
             }
         }
         [HttpPut]
-        [Route("promocodes/{promoCode}")]
+        [Route("{promoCode}")]
         public async Task<ActionResult> UpdatePromotion([FromRoute] string promoCode,[FromBody] PromotionRequestModel promotionRequestModel)
         {
             try
@@ -61,7 +61,7 @@ namespace LoyaltyPointsApi.Controllers
             }
         }
         [HttpGet]
-        [Route("promocodes/{promoCode}")]
+        [Route("{promoCode}")]
         public async Task<ActionResult> GetPromotion([FromRoute] string promoCode)
         {
             try
