@@ -4,12 +4,8 @@ using Microsoft.EntityFrameworkCore.Design;
 
 namespace LoyaltyPointsApi.Data
 {
-    public class LoyaltyDbContext : DbContext
+    public class LoyaltyDbContext(DbContextOptions<LoyaltyDbContext> options) : DbContext(options)
     {
-        public LoyaltyDbContext(DbContextOptions<LoyaltyDbContext> options)
-            : base(options)
-        {
-        }
 
         // DbSets
         public DbSet<RestaurantSettings> ResturantSettings { get; set; }
@@ -25,23 +21,22 @@ namespace LoyaltyPointsApi.Data
                 .HasKey(r => r.RestaurantId);
 
             modelBuilder.Entity<Threshold>()
-                .HasKey(r =>  r.ThresholdId );
+                .HasKey(r => r.ThresholdId);
             modelBuilder.Entity<Threshold>()
                 .Property(r => r.ThresholdId).ValueGeneratedOnAdd();
 
-           
+
             modelBuilder.Entity<LoyaltyPoints>()
-                .HasKey(r =>  r.TransactionId );
+                .HasKey(r => r.TransactionId);
             modelBuilder.Entity<LoyaltyPoints>()
                 .Property(r => r.TransactionId).ValueGeneratedOnAdd();
             modelBuilder.Entity<LoyaltyPoints>()
                 .HasIndex(r => new { r.RestaurantId, r.CustomerId });
 
-        
+
             modelBuilder.Entity<Promotion>()
-                .HasKey(r =>  r.Id );
-            modelBuilder.Entity<Promotion>()
-            .Property(r => r.Id).ValueGeneratedOnAdd();
+                .HasKey(r => r.PromoCode);
+
             modelBuilder.Entity<Promotion>()
                 .HasOne<Threshold>()
                 .WithMany()
@@ -54,7 +49,7 @@ namespace LoyaltyPointsApi.Data
             modelBuilder.Entity<ApiKey>()
                 .HasIndex(r => r.RestaurantId)
                 .IsUnique();
-            
+
             base.OnModelCreating(modelBuilder);
         }
     }
