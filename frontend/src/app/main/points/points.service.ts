@@ -10,7 +10,7 @@ import { Points, PointsResponse } from './points.interface';
 })
 export class PointsService {
   pointsList: BehaviorSubject<Points[]> = new BehaviorSubject<Points[]>(null);
-  constructor(private authService: AuthService, private http: HttpClient) {}
+  constructor(private authService: AuthService, private http: HttpClient) { }
 
   getPointsList(pageNumber: number, pageSize: number) {
     return this.http
@@ -24,7 +24,18 @@ export class PointsService {
       )
       .pipe(
         tap((responseData) => {
-          this.pointsList.next(responseData.data.transactions);
+          const points: Points[] = [];
+          const transResponse = responseData.data.transactionsResponse;
+
+          transResponse.forEach(x => {
+            points.push({
+              isExpired: x.isExpired
+              , points: x.points
+              , transactionValue: x.transactionValue
+            });
+          })
+
+          this.pointsList.next(points);
         })
       );
   }

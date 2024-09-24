@@ -7,7 +7,7 @@ import { Injectable } from '@angular/core';
   providedIn: 'root',
 })
 export class ExchangePointsService {
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
   exhangeRate: BehaviorSubject<number> = new BehaviorSubject<number>(0);
   points: BehaviorSubject<number> = new BehaviorSubject<number>(0);
 
@@ -22,14 +22,22 @@ export class ExchangePointsService {
   getExchangeRate() {
     return this.http
       .get(
-        `${enviroment.apiUrl}/api/admin/restaurants/${enviroment.restaurantId}`
+        `${enviroment.apiUrl}/api/restaurants/me`
       )
       .pipe(
         tap((responseData: any) => {
           this.exhangeRate.next(
-            Number(responseData.data.restaurant.creditPointsSellingRate)
+            Number(responseData.data.restaurant.creditPointsSellingRate / 100)
           );
         })
       );
+  }
+
+  createVoucher(points: number) {
+    return this.http.post(`${enviroment.apiUrl}/api/vouchers`, { Points: points }).pipe(
+      tap(() => {
+        this.getPoints().subscribe();
+      })
+    )
   }
 }

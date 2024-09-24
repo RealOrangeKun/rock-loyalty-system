@@ -13,6 +13,7 @@ export class ExchangePointsComponent implements OnInit, OnDestroy {
   points: number;
   from: number = 0;
   to: number = 0;
+  valid: boolean = false;
 
   loadingMessage: string = '';
   loading: boolean;
@@ -22,7 +23,7 @@ export class ExchangePointsComponent implements OnInit, OnDestroy {
   constructor(
     private pointsService: ExchangePointsService,
     private toastrService: ToastrService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.pointsServiceSub = this.pointsService.points.subscribe((points) => {
@@ -48,7 +49,7 @@ export class ExchangePointsComponent implements OnInit, OnDestroy {
         })
       )
       .subscribe({
-        next: () => {},
+        next: () => { },
         error: (error) => {
           console.log(error);
           this.toastrService.error('An error occured while fetching user data');
@@ -66,7 +67,7 @@ export class ExchangePointsComponent implements OnInit, OnDestroy {
         })
       )
       .subscribe({
-        next: () => {},
+        next: () => { },
         error: (error) => {
           console.log(error);
           this.toastrService.error('An error occured while fetching user data');
@@ -79,11 +80,41 @@ export class ExchangePointsComponent implements OnInit, OnDestroy {
     this.exhangeServiceSub.unsubscribe();
   }
 
+  private checkValid() {
+    console.log('to', this.to);
+    console.log('from', this.from);
+    console.log('exchange', this.exchangeRate);
+
+    if (
+      this.to < 1
+      || this.from % 1 != 0
+      || this.from > this.points
+    ) {
+      this.valid = false;
+    } else {
+      this.valid = true;
+    }
+  }
+
   fromTyping() {
     this.to = this.exchangeRate * this.from;
+    this.checkValid();
   }
 
   toTyping() {
     this.from = this.to / this.exchangeRate;
+    this.checkValid();
+  }
+
+  onSubmit() {
+    this.pointsService.createVoucher(this.from).subscribe({
+      next: () => {
+        this.toastrService.success('Voucher Created!');
+      },
+      error: (error) => {
+        console.log(error);
+        this.toastrService.error('An error occured !');
+      }
+    })
   }
 }

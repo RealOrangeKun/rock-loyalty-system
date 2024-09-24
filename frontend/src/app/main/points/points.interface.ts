@@ -1,21 +1,22 @@
 export interface Points {
-  transactionValue: 100.0;
-  isExpired: false;
-  points: 100;
+  transactionValue: number;
+  isExpired: boolean;
+  points: number;
 }
 
 export interface metaData {
   totalPages: number;
-  totalItems: number;
+  // totalItems: number;
   pageNumber: number;
   pageSize: number;
+  totalCount: number;
 }
 
 export interface PointsResponse {
   success: true;
   message: string;
   data: {
-    transactions: Points[];
-    metadata: metaData;
+    transactionsResponse: Points[];
   };
+  metadata: metaData;
 }
