@@ -72,7 +72,10 @@ public class VoucherController(
                 {
                     success = true,
                     message = "Voucher created",
-                    data = new { voucher = voucher.ShortCode }
+                    data = new
+                    {
+                        voucher
+                    }
                 });
         }
         catch (PointsNotEnoughException ex)
@@ -235,7 +238,7 @@ public class VoucherController(
             {
                 success = true,
                 message = "Vouchers retrieved successfully",
-                data = new { vouchers =vouchersResult },
+                data = new { vouchers = vouchersResult },
                 metadata = paginationMetadata
             });
         }
