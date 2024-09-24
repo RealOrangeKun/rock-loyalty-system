@@ -178,7 +178,7 @@ namespace LoyaltyApi
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
-            app.UseMiddleware<ApiKeyValidatorMiddleware>();
+            // app.UseMiddleware<ApiKeyValidatorMiddleware>();
 
             if (env.IsEnvironment("Testing") || env.IsEnvironment("Frontend"))
             {
