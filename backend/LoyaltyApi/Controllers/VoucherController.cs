@@ -230,6 +230,7 @@ public class VoucherController(
             var vouchersResult = vouchers.Select(voucher => new
             {
                 voucher.ShortCode,
+                voucher.DateOfCreation,
                 voucher.Value,
                 voucher.IsUsed
             });
