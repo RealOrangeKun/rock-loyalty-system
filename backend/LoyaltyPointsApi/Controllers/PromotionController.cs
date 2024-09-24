@@ -26,6 +26,20 @@ namespace LoyaltyPointsApi.Controllers
                 return StatusCode(500, new { success = false, message = ex.Message });
             }
         }
+        [HttpPut]
+        [Route("promocodes/{promoCode}")]
+        public async Task<ActionResult> UpdatePromotion([FromRoute] string promoCode,[FromBody] PromotionRequestModel promotionRequestModel)
+        {
+            try
+            {
+                await promotionService.UpdatePromotion(promoCode,promotionRequestModel);
+                return Ok(new { success = true, message = "Promotion updated" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
         [HttpGet]
         [Route("restaurants/{restaurantId}")]
         public async Task<ActionResult> GetRestaurantPromotions([FromRoute] int restaurantId)
@@ -47,8 +61,8 @@ namespace LoyaltyPointsApi.Controllers
             }
         }
         [HttpGet]
-    
-        public async Task<ActionResult> GetPromotion([FromBody] string promoCode)
+        [Route("promocodes/{promoCode}")]
+        public async Task<ActionResult> GetPromotion([FromRoute] string promoCode)
         {
             try
             {
