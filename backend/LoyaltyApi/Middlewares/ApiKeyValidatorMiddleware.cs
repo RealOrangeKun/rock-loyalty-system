@@ -14,6 +14,11 @@ namespace LoyaltyApi.Middlewares
             if (!apiKeyOptions.Value.Key.Equals(extractedApiKey))
             {
                 context.Response.StatusCode = 401;
+                await context.Response.WriteAsJsonAsync(new
+                {
+                    success = false,
+                    message = "Api key is not provided or invalid"
+                });
                 return;
             }
             await next(context);
