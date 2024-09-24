@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using LoyaltyApi.RequestModels;
 using LoyaltyApi.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -6,8 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace LoyaltyApi.Controllers
 {
     [ApiController]
-    [Route("api/admin/restaurants")]
-    [Authorize(Roles = "Admin")]
+    [Route("api")]
     public class RestaurantController(
         IRestaurantService restaurantService,
         ILogger<RestaurantController> logger) : Controller
@@ -47,7 +47,9 @@ namespace LoyaltyApi.Controllers
         /// </remarks>
         /// <returns>Action result containing the response.</returns>
         [HttpPost]
-        [Route("")]
+        [Route("admin/restaurants")]
+        [Authorize(Roles = "Admin")]
+
         public async Task<ActionResult> CreateRestaurant(
             [FromBody] CreateRestaurantRequestModel createRestaurantRequest)
         {
@@ -101,7 +103,9 @@ namespace LoyaltyApi.Controllers
         /// Authorization header with JWT Bearer token is required.
         /// </remarks>
         [HttpGet]
-        [Route("{id}")]
+        [Route("admin/restaurants/{id}")]
+        [Authorize(Roles = "Admin")]
+
         public async Task<ActionResult> GetRestaurant([FromRoute] int id)
         {
             logger.LogInformation("Get restaurant request for restaurant with id {id}", id);
@@ -155,7 +159,9 @@ namespace LoyaltyApi.Controllers
         /// Authorization header with JWT Bearer token is required.
         /// </remarks>
         [HttpPut]
-        [Route("{id}")]
+        [Route("admin/restaurants/{id}")]
+        [Authorize(Roles = "Admin")]
+
         public async Task<ActionResult> UpdateRestaurant([FromRoute] int id,
             [FromBody] RestaurantCreditPointsRequestModel updateRestaurant)
         {
@@ -171,5 +177,31 @@ namespace LoyaltyApi.Controllers
                 return StatusCode(500, new { success = false, message = ex.Message });
             }
         }
+        [HttpGet]
+        [Route("restaurants/me")]
+        [Authorize(Roles = "User")]
+        public async Task<ActionResult> GetRestaurantByJwtToken()
+        {
+            logger.LogInformation("Get restaurant request for restaurant with id {id}", User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            try
+            {
+                string restaurantClaim = User.FindFirst("restaurantId")?.Value ?? throw new UnauthorizedAccessException("Restaurant id not found in token");
+                _ = int.TryParse(restaurantClaim, out var restaurantId);
+                var result = await restaurantService.GetRestaurantById(restaurantId);
+                if (result == null) return NotFound(new { success = false, message = "Restaurant not found" });
+                return Ok(new
+                {
+                    success = true,
+                    message = "Restaurant retrieved successfully.",
+                    data = new { restaurant = result }
+                });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Get restaurant failed for restaurant with id {id}", User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
+
     }
 }
