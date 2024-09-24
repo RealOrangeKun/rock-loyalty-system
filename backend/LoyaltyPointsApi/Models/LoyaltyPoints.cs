@@ -19,6 +19,8 @@ namespace LoyaltyPointsApi.Models
 
         public DateTime TransactionDate { get; set; } = DateTime.UtcNow;
 
+        public DateTime ExpiryDate { get; set; }
+
         public bool IsExpired { get; set; } = false;
 
         public RestaurantSettings Restaurant { get; set; }

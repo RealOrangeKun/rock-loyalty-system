@@ -19,6 +19,7 @@ namespace LoyaltyPointsApi.RequestModels
         public required int Points { get; set; }
 
         public DateTime TransactionDate { get; set; } = DateTime.UtcNow;
+        public DateTime ExpiryDate { get; set; }
 
         public bool IsExpired { get; set; } = false;
 

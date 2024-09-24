@@ -19,6 +19,7 @@ namespace LoyaltyPointsApi
         {
             // Adding configurations
             services.Configure<AdminOptions>(configuration.GetSection("AdminOptions"));
+            services.Configure<ApiOptions>(configuration.GetSection("ApiOptions"));
 
             // Adding db context
             services.AddDbContext<LoyaltyDbContext>(options =>
@@ -29,7 +30,7 @@ namespace LoyaltyPointsApi
             // Adding services
             services.AddScoped<IApiKeyRepository, ApiKeyRepository>();
             services.AddScoped<IApiKeyService, ApiKeyService>();
-            services.AddScoped<ApiKeyUtility>();
+            services.AddScoped<ApiUtility>();
             services.AddScoped<IRestaurantRepository, RestaurantRepository>();
             services.AddScoped<IRestaurantService, RestaurantService>();
             services.AddScoped<IThresholdRepository, ThresholdRepository>();

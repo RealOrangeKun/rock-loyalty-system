@@ -21,6 +21,7 @@ namespace LoyaltyPointsApi.Services
                 Points = loyaltyPointsRequestModel.Points,
                 IsExpired = loyaltyPointsRequestModel.IsExpired,
                 TransactionDate = loyaltyPointsRequestModel.TransactionDate,
+                ExpiryDate = loyaltyPointsRequestModel.ExpiryDate,
                 Restaurant = loyaltyPointsRequestModel.Restaurant,
                 ReceiptId = loyaltyPointsRequestModel.ReceiptId,
             };

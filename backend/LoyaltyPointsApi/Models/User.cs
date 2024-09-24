@@ -8,9 +8,10 @@ namespace LoyaltyPointsApi.Models
     public class User
     {
         public int CustomerId { get; set; }
+        public string PhoneNumber { get; set; }
+        public string Email { get; set; }
+        public string Name { get; set; }
         public int RestaurantId { get; set; }
-
-        public string Rank { get; set; }
 
         public int LoyaltyPoints { get; set; }
     }

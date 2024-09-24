@@ -10,9 +10,6 @@ namespace LoyaltyPointsApi.Repositories
     {
         public Task<User?> GetUser(User user);
 
-        public Task<User?> UpdateUser(User user);
-
-        public Task AddUser(User user);
         
     }
 }
