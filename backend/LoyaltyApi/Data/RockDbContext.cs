@@ -35,6 +35,9 @@ namespace LoyaltyApi.Data
                 .Property(v => v.IsUsed)
                 .HasDefaultValue(false);
 
+            modelBuilder.Entity<Voucher>()
+                .HasIndex(v => v.DateOfCreation);
+
             modelBuilder.Entity<CreditPointsTransaction>()
                 .HasKey(p => p.TransactionId);
 

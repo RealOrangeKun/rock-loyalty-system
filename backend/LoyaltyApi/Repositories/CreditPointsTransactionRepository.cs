@@ -42,6 +42,7 @@ public class CreditPointsTransactionRepository(
             customerId, restaurantId);
         var query = dbContext.CreditPointsTransactions
             .Where(t => t.CustomerId == customerId && t.RestaurantId == restaurantId)
+            .OrderByDescending(t => t.TransactionId)
             .AsQueryable();
         var totalCount = await query.CountAsync();
         var paginatedQuery = query
@@ -111,13 +112,13 @@ public class CreditPointsTransactionRepository(
     {
         // Use SQL query to get all transactions that have expired based on the restaurant's lifetime
         var query = from transaction in dbContext.CreditPointsTransactions
-            join restaurant in dbContext.Restaurants
-                on transaction.RestaurantId equals restaurant.RestaurantId
-            where transaction.TransactionType == TransactionType.Earn &&
-                  transaction.IsExpired == false &&
-                  transaction.Points > 0 &&
-                  transaction.TransactionDate < currentDate.AddDays(-restaurant.CreditPointsLifeTime)
-            select transaction;
+                    join restaurant in dbContext.Restaurants
+                        on transaction.RestaurantId equals restaurant.RestaurantId
+                    where transaction.TransactionType == TransactionType.Earn &&
+                          transaction.IsExpired == false &&
+                          transaction.Points > 0 &&
+                          transaction.TransactionDate < currentDate.AddDays(-restaurant.CreditPointsLifeTime)
+                    select transaction;
         logger.LogInformation("Getting expired transactions");
         return await query.ToListAsync();
     }

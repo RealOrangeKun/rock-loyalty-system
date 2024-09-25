@@ -4,6 +4,7 @@ using LoyaltyApi.Config;
 using LoyaltyApi.Data;
 using LoyaltyApi.Models;
 using LoyaltyApi.Utilities;
+using Microsoft.AspNetCore.Mvc.ViewComponents;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
@@ -46,6 +47,7 @@ namespace LoyaltyApi.Repositories
                 customerId, restaurantId);
             var query = dbContext.Vouchers
                 .Where(v => v.CustomerId == customerId && v.RestaurantId == restaurantId)
+                .OrderByDescending(v => v.DateOfCreation)
                 .AsQueryable();
             var totalCount = await query.CountAsync();
             var paginatedQuery = query
