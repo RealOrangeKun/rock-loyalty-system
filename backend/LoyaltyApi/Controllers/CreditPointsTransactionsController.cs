@@ -16,6 +16,7 @@ namespace LoyaltyApi.Controllers;
 [ApiController]
 public class CreditPointsTransactionController(
     ICreditPointsTransactionService transactionService,
+    IRestaurantService restaurantService,
     ILogger<CreditPointsTransactionController> logger) : ControllerBase
 {
     /// <summary>
@@ -69,6 +70,8 @@ public class CreditPointsTransactionController(
                 return NotFound(new { success = false, message = "Transaction not found" });
             }
 
+            var restaurantSettings = await restaurantService.GetRestaurantById(transaction.RestaurantId) ?? throw new Exception("Restaurant not found");
+
             var responseTransaction = new
             {
                 transactionId = transaction.TransactionId,
@@ -78,7 +81,8 @@ public class CreditPointsTransactionController(
                 transactionDate = transaction.TransactionDate,
                 isExpired = transaction.IsExpired,
                 points = transaction.Points,
-                transactionValue = transaction.TransactionValue
+                transactionValue = transaction.TransactionValue,
+                pointsExpirationDare = transaction.TransactionDate.AddDays(restaurantSettings.CreditPointsLifeTime)
             };
             return Ok(new
             {
@@ -144,7 +148,7 @@ public class CreditPointsTransactionController(
             {
                 return NotFound(new { success = false, message = "Transaction not found" });
             }
-
+            var restaurantSettings = await restaurantService.GetRestaurantById(transaction.RestaurantId) ?? throw new Exception("Restaurant not found");
             var responseTransaction = new
             {
                 transactionId = transaction.TransactionId,
@@ -154,7 +158,8 @@ public class CreditPointsTransactionController(
                 transactionDate = transaction.TransactionDate,
                 isExpired = transaction.IsExpired,
                 points = transaction.Points,
-                transactionValue = transaction.TransactionValue
+                transactionValue = transaction.TransactionValue,
+                pointsExpirationDare = transaction.TransactionDate.AddDays(restaurantSettings.CreditPointsLifeTime)
             };
             return Ok(new
             {
@@ -298,6 +303,7 @@ public class CreditPointsTransactionController(
             var paginationResult =
                 await transactionService.GetTransactionsByCustomerAndRestaurantAsync(userId, restaurantId, pageNumber, pageSize);
             var transactions = paginationResult.Transactions;
+            var restaurantSettings = await restaurantService.GetRestaurantById(restaurantId) ?? throw new Exception("Restaurant not found");
             var transactionsResponse = transactions.Select(t => new
             {
                 transactionId = t.TransactionId,
@@ -309,6 +315,7 @@ public class CreditPointsTransactionController(
                 points = t.Points,
                 transactionValue = t.TransactionValue,
                 isExpired = t.IsExpired,
+                pointsExpirationDare = t.TransactionDate.AddDays(restaurantSettings.CreditPointsLifeTime)
             });
             var paginationMetadata = paginationResult.PaginationMetadata;
             return Ok(new
