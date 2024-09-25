@@ -7,7 +7,7 @@ namespace LoyaltyPointsApi.Services
     {
          public Task<Promotion?> AddPromotion(AddPromotionRequestModel promotion);
          public Task<Promotion?> GetPromotion(string promoCode );
-         public Task<Promotion?> UpdatePromotion(String promoCode ,UpdatePromotionRequestModel promotion);
+         public Task<Promotion?> UpdatePromotion(String promoCode ,UpdatePromotionRequestModel promotion,int restaurantId);
 
          public Task<List<Promotion>> GetThresholdPromotions(int thresholdId);
     }

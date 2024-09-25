@@ -14,7 +14,7 @@ namespace LoyaltyPointsApi.Controllers
     public class PromotionController(IPromotionService promotionService) : ControllerBase
     {
         [HttpPost]
-        public async Task<ActionResult> AddPromotion(PromotionRequestModel promotionRequestModel)
+        public async Task<ActionResult> AddPromotion([FromBody] AddPromotionRequestModel promotionRequestModel)
         {
             try
             {
@@ -32,7 +32,7 @@ namespace LoyaltyPointsApi.Controllers
         {
             try
             {
-                await promotionService.UpdatePromotion(promoCode,promotionRequestModel);
+                await promotionService.UpdatePromotion(promoCode,promotionRequestModel,restaurantId);
                 return Ok(new { success = true, message = "Promotion updated" });
             }
             catch (Exception ex)

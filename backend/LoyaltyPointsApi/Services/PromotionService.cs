@@ -37,17 +37,19 @@ namespace LoyaltyPointsApi.Services
         }
 
 
-        public async Task<Promotion?> UpdatePromotion(string promoCode,UpdatePromotionRequestModel promotion)
+        public async Task<Promotion?> UpdatePromotion(string promoCode,UpdatePromotionRequestModel promotion,int restaurantId)
         {
-            Promotion rxistingPromotion = new(){
-                PromoCode = promoCode
+            Promotion existingPromotion = new(){
+                PromoCode = promoCode,
+                RestaurantId = restaurantId
             };
-            var result  = await promotionRepository.GetPromotion(rxistingPromotion);
+            var result  = await promotionRepository.GetPromotion(existingPromotion);
 
             if(result == null)
             {
                 throw new Exception("Promotion not found");
             }
+
             result.ThresholdId = promotion.ThresholdId;
             await promotionRepository.UpdatePromotion(result);
             return result;
