@@ -9,6 +9,7 @@ export interface PaginationMetadata {
   pageSize: number;
   currentPage: number;
   totalPages: number;
+  dateOfCreation: Date;
 }
 
 export interface VouchersResponse {

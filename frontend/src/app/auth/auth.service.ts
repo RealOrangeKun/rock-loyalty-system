@@ -25,10 +25,6 @@ export class AuthService {
     this.user.subscribe((user) => {
       this.currentUser = user;
     });
-
-    let user: User = new User('omar', new Date(new Date().getTime() + 9999999));
-    user.phonenumber = '01312412423';
-    this.user.next(user);
   }
 
   isAuth() {
@@ -79,6 +75,8 @@ export class AuthService {
       })
       .pipe(
         catchError((errorResponse: HttpErrorResponse) => {
+          console.log(errorResponse);
+
           return throwError(() => {
             return new Error(errorResponse.error.message);
           });

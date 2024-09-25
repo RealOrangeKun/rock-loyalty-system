@@ -24,7 +24,7 @@ export class PointsComponent {
   constructor(
     private toastrService: ToastrService,
     private pointsService: PointsService
-  ) {}
+  ) { }
 
   pageChanged(paginator: any) {
     this.loading = true;
@@ -38,7 +38,7 @@ export class PointsComponent {
       )
       .subscribe({
         next: (response) => {
-          this.totalItems = response.data.metadata.totalItems;
+          this.totalItems = response.metadata.totalCount;
         },
         error: () => {
           this.resetPage();
@@ -48,7 +48,10 @@ export class PointsComponent {
 
   ngOnInit(): void {
     this.PointsSub = this.pointsService.pointsList.subscribe(
-      (points: Points[]) => {}
+      (points: Points[]) => {
+        this.points = points;
+
+      }
     );
     this.loading = true;
     this.loadingMessage = 'Fetching points';
@@ -61,7 +64,7 @@ export class PointsComponent {
       )
       .subscribe({
         next: (response) => {
-          this.totalItems = response.data.metadata.totalItems;
+          this.totalItems = response.metadata.totalCount;
         },
         error: () => {
           this.resetPage();
@@ -74,7 +77,7 @@ export class PointsComponent {
   }
   private resetPage() {
     this.pointsService.getPointsList(1, this.itemsPerPage).subscribe({
-      next: () => {},
+      next: () => { },
       error: () => {
         this.toastrService.error(`Couldn't fetching points`);
       },

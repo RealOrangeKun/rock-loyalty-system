@@ -9,43 +9,28 @@
         @if ( points?.length > 0 ) {
         <div class="row row-cols-1 row-cols-md-3 g-4 w-100 py-4">
           <div *ngFor="let point of points; let i = index" class="col">
-            <article
-              class="gift-card"
-              [ngClass]="{ 'gift-card--claimed': point.isExpired }"
-            >
+            <article class="gift-card" [ngClass]="{ 'gift-card--claimed': point.isExpired }">
               <div class="gift-card__image"></div>
               <section class="gift-card__content">
-                <div class="gift-card__amount">${{ point.points }}</div>
+                <div class="gift-card__amount">${{ point.transactionValue }}</div>
 
                 <div class="gift-card__code">
-                  {{ point.transactionValue | uppercase }}
+                  {{ point.points }}
                 </div>
               </section>
             </article>
           </div>
         </div>
         } @else {
-        <div
-          class="d-flex justify-content-between align-items-center"
-          style="height: calc(100vh - 71px)"
-        >
+        <div class="d-flex justify-content-between align-items-center" style="height: calc(100vh - 71px)">
           <div class="no-vouchers">
             <p>No points to show</p>
           </div>
         </div>
         } @if ( totalItems > 10 ) {
-        <pagination
-          [totalItems]="totalItems"
-          [maxSize]="5"
-          [boundaryLinks]="true"
-          [itemsPerPage]="itemsPerPage"
-          previousText="&lsaquo;"
-          nextText="&rsaquo;"
-          firstText="&laquo;"
-          lastText="&raquo;"
-          class="paginator"
-        ></pagination>
-        <!--  (pageChanged)="pageChanged($event)" -->
+        <pagination [totalItems]="totalItems" [maxSize]="5" [boundaryLinks]="true" [itemsPerPage]="itemsPerPage"
+          previousText="&lsaquo;" nextText="&rsaquo;" firstText="&laquo;" lastText="&raquo;" class="paginator"
+          (pageChanged)="pageChanged($event)"></pagination>
         }
       </div>
     </div>
