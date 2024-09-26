@@ -13,6 +13,6 @@ namespace LoyaltyPointsApi.Models
         public string ThresholdName { get; set; }
 
         public int MinimumPoints { get; set; }
-
-    }
+        
+        public List<Promotion> Promotions { get; set; } }
 }

@@ -18,14 +18,18 @@ namespace LoyaltyPointsApi.Repositories
 
         public async Task<Threshold?> GetRestaurantThreshold(Threshold threshold)
         {
-            return await dbContext.Thresholds.FirstOrDefaultAsync(r => r.RestaurantId == threshold.RestaurantId && r.ThresholdId == threshold.ThresholdId);
-            
+            return await dbContext.Thresholds
+                .Include(t => t.Promotions)
+                .FirstOrDefaultAsync(r =>
+                    r.RestaurantId == threshold.RestaurantId && r.ThresholdId == threshold.ThresholdId);
         }
 
         public async Task<List<Threshold>> GetRestaurantThresholds(Threshold threshold)
         {
-            return await dbContext.Thresholds.Where(r => r.RestaurantId == threshold.RestaurantId).ToListAsync();
-            
+            return await dbContext.Thresholds
+                .Include(t => t.Promotions)
+                .Where(r => r.RestaurantId == threshold.RestaurantId)
+                .ToListAsync();
         }
 
         public Task UpdateThreshold(Threshold threshold)

@@ -37,12 +37,11 @@ namespace LoyaltyPointsApi.Data
             modelBuilder.Entity<Promotion>()
                 .HasKey(r => new { r.RestaurantId, r.PromoCode });
 
-            modelBuilder.Entity<Promotion>()
-                .HasOne<Threshold>()
-                .WithMany()
-                .HasForeignKey(r => r.ThresholdId);
-
-
+            modelBuilder.Entity<Threshold>()
+                .HasMany(t => t.Promotions)
+                .WithOne(p => p.Threshold)
+                .HasForeignKey(p => p.ThresholdId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<ApiKey>()
             .HasKey(r => r.Key);
