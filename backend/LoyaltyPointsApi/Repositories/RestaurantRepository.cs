@@ -30,5 +30,10 @@ namespace LoyaltyPointsApi.Repositories
             await dbContext.SaveChangesAsync();
             return restaurant;
         }
+
+        public async Task<List<RestaurantSettings>> GetAllRestaurants()
+        {
+           return await dbContext.RestaurantSettings.ToListAsync();
+        }
     }
 }

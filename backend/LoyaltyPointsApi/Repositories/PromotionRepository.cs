@@ -24,6 +24,11 @@ namespace LoyaltyPointsApi.Repositories
              await dbContext.SaveChangesAsync();
         }
 
+        public async Task<List<Promotion>> GetAllPromotions()
+        {
+            return await dbContext.Promotions.ToListAsync();
+        }
+
         public async Task<Promotion?> GetPromotion(Promotion promotion)
         {
               return await dbContext.Promotions.FirstOrDefaultAsync(r => r.PromoCode == promotion.PromoCode); ;
