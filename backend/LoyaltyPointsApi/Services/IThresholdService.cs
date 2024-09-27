@@ -9,13 +9,16 @@ namespace LoyaltyPointsApi.Services
 {
     public interface IThresholdService
     {
-        Task<List<Threshold>?> GetRestaurantThresholds(int restaurantId);
+        public Task<List<Threshold>?> GetRestaurantThresholds(int restaurantId);
 
-        Task<Threshold?> GetRestaurantThreshold(int restaurantId, int thresholdId);
+        public Task<Threshold?> GetRestaurantThreshold(int restaurantId, int thresholdId);
 
-        Task AddThreshold(ThresholdRequestModel threshold);
+        public Task<Threshold> AddThreshold(ThresholdRequestModel threshold);
 
-        Task<Threshold?> UpdateThreshold(ThresholdRequestModel threshold , int restaurantId, int thresholdId);
+        public Task<Threshold?> UpdateThreshold(ThresholdRequestModel threshold , int restaurantId, int thresholdId);
+
+        public Task DelteThreshold(int thresholdId);
+
     }
 
    

@@ -18,6 +18,12 @@ namespace LoyaltyPointsApi.Repositories
             return promotion;
         }
 
+        public async Task DeletePromotion(Promotion promotion)
+        {
+             dbContext.Remove(promotion);
+             await dbContext.SaveChangesAsync();
+        }
+
         public async Task<Promotion?> GetPromotion(Promotion promotion)
         {
               return await dbContext.Promotions.FirstOrDefaultAsync(r => r.PromoCode == promotion.PromoCode); ;

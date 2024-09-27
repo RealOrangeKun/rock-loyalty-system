@@ -80,5 +80,19 @@ namespace LoyaltyPointsApi.Controllers
                 return StatusCode(500, new { success = false, message = ex.Message });
             }
         }
+        [HttpDelete]
+        [Route("{promoCode}")]
+        public async Task<ActionResult> DeletePromotion([FromRoute] string promoCode)
+        {
+            try
+            {
+                await promotionService.DeletePromotion(promoCode);
+                return Ok(new { success = true, message = "Promotion deleted" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
     }
 }

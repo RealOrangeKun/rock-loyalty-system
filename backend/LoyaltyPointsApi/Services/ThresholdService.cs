@@ -12,7 +12,7 @@ namespace LoyaltyPointsApi.Services
 {
     public class ThresholdService(IThresholdRepository thresholdRepository) : IThresholdService
     {
-        public async Task AddThreshold(ThresholdRequestModel thresholdRequest)
+        public async Task<Threshold> AddThreshold(ThresholdRequestModel thresholdRequest)
         {
             Threshold newThreshold = new(){
                 RestaurantId = thresholdRequest.RestaurantId,
@@ -20,6 +20,15 @@ namespace LoyaltyPointsApi.Services
                 MinimumPoints = thresholdRequest.MinimumPoints
             };
             await thresholdRepository.AddThreshold(newThreshold);
+            return newThreshold;
+        }
+
+        public async Task DelteThreshold(int thresholdId)
+        {
+           Threshold threshold = new(){
+                ThresholdId = thresholdId
+            };
+            await thresholdRepository.DeleteThreshold(threshold);
         }
 
         public async Task<Threshold?> GetRestaurantThreshold(int restaurantId, int thresholdId)

@@ -10,5 +10,8 @@ namespace LoyaltyPointsApi.Repositories
          public Task<Promotion?> GetPromotion(Promotion promotion);
 
          public Task<List<Promotion>> GetThresholdtPromotions(Promotion promotion);
+
+         public Task DeletePromotion(Promotion promotion);
+         
     }
 }

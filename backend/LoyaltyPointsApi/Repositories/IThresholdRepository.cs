@@ -9,12 +9,14 @@ namespace LoyaltyPointsApi.Repositories
 {
     public interface IThresholdRepository
     {
-        Task<List<Threshold>> GetRestaurantThresholds(Threshold threshold);
+        public Task<List<Threshold>> GetRestaurantThresholds(Threshold threshold);
 
-        Task<Threshold> GetRestaurantThreshold(Threshold threshold);
+        public Task<Threshold> GetRestaurantThreshold(Threshold threshold);
 
-        Task AddThreshold(Threshold threshold);
+        public Task<Threshold> AddThreshold(Threshold threshold);
 
-        Task UpdateThreshold(Threshold threshold);
+        public Task<Threshold> UpdateThreshold(Threshold threshold);
+
+        public Task DeleteThreshold(Threshold threshold);
     }
 }

@@ -10,9 +10,16 @@ namespace LoyaltyPointsApi.Repositories
 {
     public class ThresholdRepository(LoyaltyDbContext dbContext) : IThresholdRepository
     {
-        public async Task AddThreshold(Threshold threshold)
+        public async Task<Threshold> AddThreshold(Threshold threshold)
         {
             await dbContext.Thresholds.AddAsync(threshold);
+            await dbContext.SaveChangesAsync();
+            return threshold;
+        }
+
+        public async Task DeleteThreshold(Threshold threshold)
+        {
+            dbContext.Thresholds.Remove(threshold);
             await dbContext.SaveChangesAsync();
         }
 
@@ -32,10 +39,11 @@ namespace LoyaltyPointsApi.Repositories
                 .ToListAsync();
         }
 
-        public Task UpdateThreshold(Threshold threshold)
+        public async Task<Threshold> UpdateThreshold(Threshold threshold)
         {
             dbContext.Thresholds.Update(threshold);
-            return dbContext.SaveChangesAsync();
+            await dbContext.SaveChangesAsync();
+            return threshold;
         }
     }
 }

@@ -17,6 +17,20 @@ namespace LoyaltyPointsApi.Services
             return newPromotion;
         }
 
+        public async Task DeletePromotion(string promoCode)
+        {
+            Promotion promotion = new (){
+                PromoCode = promoCode
+            };
+            await promotionRepository.DeletePromotion(promotion);
+
+            Promotion result = await promotionRepository.GetPromotion(promotion) ?? throw new Exception("Promotion not found");
+            
+            await promotionRepository.DeletePromotion(result);
+        }
+          
+        
+
         public async Task<Promotion?> GetPromotion(string promoCode)
         {
             Promotion promotion = new (){

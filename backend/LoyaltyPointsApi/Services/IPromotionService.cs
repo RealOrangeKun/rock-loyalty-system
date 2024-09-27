@@ -10,5 +10,6 @@ namespace LoyaltyPointsApi.Services
          public Task<Promotion?> UpdatePromotion(String promoCode ,UpdatePromotionRequestModel promotion,int restaurantId);
 
          public Task<List<Promotion>> GetThresholdPromotions(int thresholdId);
+         public Task DeletePromotion(String promoCode);
     }
 }   

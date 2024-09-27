@@ -103,5 +103,20 @@ namespace LoyaltyPointsApi.Controllers
                 return StatusCode(500, new { success = false, message = ex.Message });
             }
         }
+
+        [HttpDelete]
+        [Route("{thresholdId}")]
+        public async Task<ActionResult> DeleteThreshold([FromRoute] int thresholdId)
+        {
+            try
+            {
+                await thresholdService.DelteThreshold(thresholdId);
+                return Ok(new{ success = true, message = "Threshold deleted",});
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
     }
 }
