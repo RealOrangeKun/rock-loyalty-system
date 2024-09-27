@@ -31,13 +31,14 @@ namespace LoyaltyPointsApi
             services.AddScoped<IApiKeyRepository, ApiKeyRepository>();
             services.AddScoped<IApiKeyService, ApiKeyService>();
             services.AddScoped<ApiUtility>();
+            services.AddTransient<EmailUtility>();
             services.AddScoped<IRestaurantRepository, RestaurantRepository>();
             services.AddScoped<IRestaurantService, RestaurantService>();
             services.AddScoped<IThresholdRepository, ThresholdRepository>();
             services.AddScoped<IThresholdService, ThresholdService>();
             services.AddScoped<ILoyaltyPointsTransactionRepository, LoyaltyPointsTransactionRepository>();
             services.AddScoped<ILoyaltyPointsTransactionService, LoyaltyPointsTransactionService>();
-            services.AddScoped<IPromotionRepository , PromotionRepository>();
+            services.AddScoped<IPromotionRepository, PromotionRepository>();
             services.AddScoped<IPromotionService, PromotionService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IUserRepository, UserRepository>();
