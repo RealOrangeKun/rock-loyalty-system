@@ -6,13 +6,18 @@ using System.Threading.Tasks;
 using LoyaltyPointsApi.Models;
 using LoyaltyPointsApi.Repositories;
 using LoyaltyPointsApi.Services;
+using LoyaltyPointsApi.Utilities;
+using System.ComponentModel.DataAnnotations;
 
 public class NotifyService(
     Timer timer,
     ILogger<NotifyService> logger,
     IRestaurantRepository restaurantRepository,
     IThresholdService thresholdService,
-    ILoyaltyPointsTransactionService loyaltyPointsTransactionService) : BackgroundService
+    ILoyaltyPointsTransactionRepository loyaltyPointsTransactionRepository,
+    ApiUtility apiUtility,
+    EmailUtility emailUtility,
+    IPromotionRepository promotionRepository) : BackgroundService
 {
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -42,7 +47,7 @@ public class NotifyService(
 
             thresholds.Add(restaurantThresholds);
         }
-
+        //TODO : Get promotions with start date that is near this day
         List<Promotion> promotions = [];
         foreach (var restaurantThresholds in thresholds)
         {
@@ -82,7 +87,22 @@ public class NotifyService(
     {
         logger.LogInformation("Notifying users about promotion: {promoCode}", promotion.PromoCode);
         
-        promotion.
+        var boundaries = await thresholdService.GetThresholdBoundaries(promotion.ThresholdId, promotion.RestaurantId);
+
+        var customerIds = await loyaltyPointsTransactionRepository.Zura(promotion.RestaurantId, boundaries[0], boundaries[1]);
+
+        foreach (var customerId in customerIds){
+            // TODO:send email to each customer ID
+            User user = new (){
+                CustomerId = customerId,
+                RestaurantId = promotion.RestaurantId
+            };
+            var result = await apiUtility.GetUserAsync(user, await apiUtility.GetApiKey(user.RestaurantId.ToString()));
+            if(user.Email is null) continue;
+            await NotifyUserAsync(promotion, user);
+            await promotionRepository.SetPromotionNotified(promotion);
+
+        }
         
         logger.LogInformation("Finished notifying users about promotion: {promoCode}.", promotion.PromoCode);
     }
@@ -99,4 +119,21 @@ public class NotifyService(
         timer?.Dispose();
         base.Dispose();
     }
+    public async Task NotifyUserAsync(Promotion promotion , User user){
+
+        string Message = $"Hello {user.Name},\n\nWe are excited to share our latest promotion with you! \n\n" +
+            $"Promotion Code: {promotion.PromoCode}\n" +
+            $"Start Date: {promotion.StartDate}\n" +
+            $"End Date: {promotion.EndDate}\n\n" +
+            "Don't miss out on this great offer! Use the promo code at checkout to enjoy discounts.\n\n" +
+            $"Best regards,\n{promotion.RestaurantId}"; //TODO : get restaurant name from restaurant id
+
+        var sent = await emailUtility.SendEmailAsync(user.Email,"Promotion",Message ,promotion.RestaurantId.ToString()); //TODO : restaurant name
+
+        if(!sent) {
+            sent =await emailUtility.SendEmailAsync(user.Email,"Promotion",Message ,promotion.RestaurantId.ToString());  //TODO : restaurant name
+            if(!sent) logger.LogWarning($"Email not sent for {user.Email}");
+        }
+    }
+
 }

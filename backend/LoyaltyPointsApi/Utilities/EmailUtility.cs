@@ -8,7 +8,7 @@ namespace LoyaltyPointsApi.Utilities
     public class EmailUtility(IOptions<EmailOptions> emailOptions,
     ILogger<EmailUtility> logger)
     {
-        public async Task SendEmailAsync(string email, string subject, string message, string name)
+        public async Task<bool> SendEmailAsync(string email, string subject, string message, string name)
         {
             using HttpClient client = new();
             var body = new
@@ -24,17 +24,26 @@ namespace LoyaltyPointsApi.Utilities
             StringContent content = new(jsonBody, Encoding.UTF8, "application/json");
             client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", emailOptions.Value.Key);
 
-            // Send the POST request
-            var result = await client.PostAsync($"{emailOptions.Value.BaseUrl}/api/email", content);
+              try
+                {
+                    // Send the POST request
+                    var result = await client.PostAsync($"{emailOptions.Value.BaseUrl}/api/email", content);
 
-            // Log the status code
-            logger.LogInformation("Request made to send email. Response Status Code: {statusCode}", result.StatusCode);
+                    // Log the status code
+                    logger.LogInformation("Request made to send email. Response Status Code: {statusCode}", result.StatusCode);
 
-            // Optionally read and log the response content
-            var responseContent = await result.Content.ReadAsStringAsync();
+                    // Ensure the request was successful
+                    result.EnsureSuccessStatusCode();
 
-            // Ensure the request was successful
-            result.EnsureSuccessStatusCode();
+                    // Return true if the request was successful
+                    return true;
+                }
+                catch (HttpRequestException ex)
+                {
+                    // Log the error and return false if the email failed to send
+                    logger.LogError(ex, "Failed to send email to {email}", email);
+                    return false;
+                }
         }
     }
 }

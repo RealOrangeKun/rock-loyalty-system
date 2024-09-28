@@ -41,6 +41,13 @@ namespace LoyaltyPointsApi.Repositories
             return result;
         }
 
+        public async Task SetPromotionNotified(Promotion promotion)
+        {
+            promotion.IsNotified = true;
+            dbContext.Update(promotion);
+            await dbContext.SaveChangesAsync();
+        }
+
         public async  Task<Promotion?> UpdatePromotion(Promotion promotion)
         {
             dbContext.Update(promotion);

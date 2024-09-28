@@ -13,5 +13,7 @@ namespace LoyaltyPointsApi.Repositories
         public Task<List<LoyaltyPoints>> GetLoyaltyPointsTransactions(LoyaltyPoints loyaltyPointsTransaction);
 
         public Task<LoyaltyPoints> GetLoyaltyPointsTransaction(LoyaltyPoints loyaltyPointsTransaction);
+
+        public Task<List<int>> Zura(int restaurantId , int? minimumPoints , int? maximumPoints); 
     }
 }

@@ -27,5 +27,25 @@ namespace LoyaltyPointsApi.Repositories
         {
             return await dbContext.LoyaltyPoints.Where(r => r.CustomerId== loyaltyPointsTransaction.CustomerId && r.RestaurantId == loyaltyPointsTransaction.RestaurantId).ToListAsync();
         }
+
+        public async Task<List<int>> Zura(int restaurantId, int? minPoints, int? maxPoints)
+        {
+            
+            if(maxPoints != null){
+                var userIds = dbContext.LoyaltyPoints.GroupBy(lp => lp.CustomerId)  
+                .Where(g => g.Sum(lp => lp.Points) >= minPoints && g.Sum(lp => lp.Points) <= maxPoints)
+                .Select(g => g.Key)
+                .ToList();
+                return userIds;
+            }
+            else{
+                var userIds = dbContext.LoyaltyPoints.GroupBy(lp => lp.CustomerId)
+                .Where(g => g.Sum(lp => lp.Points) >= minPoints )
+                .Select(g => g.Key)
+                .ToList();
+                return userIds;
+            }
+            
+        }
     }
 }

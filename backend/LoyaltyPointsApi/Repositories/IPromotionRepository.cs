@@ -13,6 +13,7 @@ namespace LoyaltyPointsApi.Repositories
 
          public Task DeletePromotion(Promotion promotion);
          
+         public Task SetPromotionNotified(Promotion promotion);
          
     }
 }

@@ -36,6 +36,8 @@ namespace LoyaltyPointsApi.Data
 
             modelBuilder.Entity<Promotion>()
                 .HasKey(r => new { r.RestaurantId, r.PromoCode });
+            modelBuilder.Entity<Promotion>()
+                .Property(p=> p.IsNotified).HasDefaultValue(false);   
 
             modelBuilder.Entity<Threshold>()
                 .HasMany(t => t.Promotions)

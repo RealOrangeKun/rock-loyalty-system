@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using LoyaltyPointsApi.Data;
 using LoyaltyPointsApi.Models;
 using LoyaltyPointsApi.Repositories;
 using LoyaltyPointsApi.RequestModels;
@@ -10,7 +11,9 @@ using Microsoft.AspNetCore.RateLimiting;
 
 namespace LoyaltyPointsApi.Services
 {
-    public class LoyaltyPointsTransactionService(ILoyaltyPointsTransactionRepository loyaltyPointsTransactionRepository , IRestaurantService restaurantService , IThresholdService thresholdService) : ILoyaltyPointsTransactionService
+    public class LoyaltyPointsTransactionService(ILoyaltyPointsTransactionRepository loyaltyPointsTransactionRepository 
+    ,IRestaurantService restaurantService , IThresholdService thresholdService 
+    ,LoyaltyDbContext dbContext) : ILoyaltyPointsTransactionService
     {
         public async Task<LoyaltyPoints> AddLoyaltyPointsTransaction(LoyaltyPointsTransactionRequestModel loyaltyPointsRequestModel)
         {
@@ -27,11 +30,7 @@ namespace LoyaltyPointsApi.Services
             return await loyaltyPointsTransactionRepository.AddLoyaltyPointsTransaction(loyaltyPoints);
         }
 
-        public async Task<List<User>> Dika(int restaurantId, int minPoints, int maxPoints)
-        {
-            string query = $"SUM(Points) >= {minPoints} AND SUM(Points) <= {maxPoints}";
-            var result = 
-        }
+       
 
         public async Task<LoyaltyPoints?> GetLoyaltyPointsTransaction(int transactionId)
         {

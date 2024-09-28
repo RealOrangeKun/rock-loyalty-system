@@ -19,7 +19,7 @@ namespace LoyaltyPointsApi.Services
 
         public Task DelteThreshold(int thresholdId);
 
-        public Task<List<int?>> GetThresholdBoundries(int thresholdId , int restaurantId); 
+        public Task<List<int?>> GetThresholdBoundaries(int thresholdId , int restaurantId); 
 
     }
 

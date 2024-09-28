@@ -70,9 +70,9 @@ namespace LoyaltyPointsApi.Services
             return updatedThreshold;
         }
 
-        public async Task<List<int?>> GetThresholdBoundries(int thresholdId, int restaurantId)
+        public async Task<List<int?>> GetThresholdBoundaries(int thresholdId, int restaurantId)
         {
-            List<int?> boundries = [];
+            List<int?> boundaries = [];
 
             List<Threshold> restaurantThresholds = await GetRestaurantThresholds(restaurantId);
 
@@ -80,13 +80,13 @@ namespace LoyaltyPointsApi.Services
 
             int thresholdIndex = sortedThresholds.Find(t => t.ThresholdId == thresholdId).ThresholdId;
 
-            boundries.Add(sortedThresholds[thresholdIndex].MinimumPoints);
+            boundaries.Add(sortedThresholds[thresholdIndex].MinimumPoints);
 
-            if (thresholdIndex == sortedThresholds.Count - 1) boundries.Add(null);
+            if (thresholdIndex == sortedThresholds.Count - 1) boundaries.Add(null);
 
-            boundries.Add(sortedThresholds[thresholdIndex + 1].MinimumPoints - 1);
+            boundaries.Add(sortedThresholds[thresholdIndex + 1].MinimumPoints - 1);
 
-            return boundries;
+            return boundaries;
         }
     }
 }
