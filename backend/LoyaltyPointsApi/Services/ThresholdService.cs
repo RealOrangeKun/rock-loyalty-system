@@ -14,7 +14,8 @@ namespace LoyaltyPointsApi.Services
     {
         public async Task<Threshold> AddThreshold(ThresholdRequestModel thresholdRequest)
         {
-            Threshold newThreshold = new(){
+            Threshold newThreshold = new()
+            {
                 RestaurantId = thresholdRequest.RestaurantId,
                 ThresholdName = thresholdRequest.ThresholdName,
                 MinimumPoints = thresholdRequest.MinimumPoints
@@ -25,7 +26,8 @@ namespace LoyaltyPointsApi.Services
 
         public async Task DelteThreshold(int thresholdId)
         {
-           Threshold threshold = new(){
+            Threshold threshold = new()
+            {
                 ThresholdId = thresholdId
             };
             await thresholdRepository.DeleteThreshold(threshold);
@@ -33,36 +35,58 @@ namespace LoyaltyPointsApi.Services
 
         public async Task<Threshold?> GetRestaurantThreshold(int restaurantId, int thresholdId)
         {
-            Threshold threshold = new(){
+            Threshold threshold = new()
+            {
                 RestaurantId = restaurantId,
                 ThresholdId = thresholdId,
             };
 
-            
+
             return await thresholdRepository.GetRestaurantThreshold(threshold);
         }
 
         public async Task<List<Threshold>?> GetRestaurantThresholds(int restaurantId)
         {
-            Threshold threshold = new (){
+            Threshold threshold = new()
+            {
                 RestaurantId = restaurantId
             };
 
             return await thresholdRepository.GetRestaurantThresholds(threshold);
         }
 
-        public async Task<Threshold?> UpdateThreshold(ThresholdRequestModel thresholdRequest , int restaurantId, int thresholdId)
+        public async Task<Threshold?> UpdateThreshold(ThresholdRequestModel thresholdRequest, int restaurantId,
+            int thresholdId)
         {
-            Threshold threshold = new(){
+            Threshold threshold = new()
+            {
                 RestaurantId = restaurantId,
                 ThresholdId = thresholdId
-
             };
             Threshold updatedThreshold = await thresholdRepository.GetRestaurantThreshold(threshold);
             updatedThreshold.MinimumPoints = thresholdRequest.MinimumPoints;
             updatedThreshold.ThresholdName = thresholdRequest.ThresholdName;
             await thresholdRepository.UpdateThreshold(updatedThreshold);
             return updatedThreshold;
+        }
+
+        public async Task<List<int?>> GetThresholdBoundries(int thresholdId, int restaurantId)
+        {
+            List<int?> boundries = [];
+
+            List<Threshold> restaurantThresholds = await GetRestaurantThresholds(restaurantId);
+
+            List<Threshold> sortedThresholds = restaurantThresholds.OrderBy(t => t.MinimumPoints).ToList();
+
+            int thresholdIndex = sortedThresholds.Find(t => t.ThresholdId == thresholdId).ThresholdId;
+
+            boundries.Add(sortedThresholds[thresholdIndex].MinimumPoints);
+
+            if (thresholdIndex == sortedThresholds.Count - 1) boundries.Add(null);
+
+            boundries.Add(sortedThresholds[thresholdIndex + 1].MinimumPoints - 1);
+
+            return boundries;
         }
     }
 }

@@ -17,5 +17,7 @@ namespace LoyaltyPointsApi.Services
         public Task<List<LoyaltyPoints>> GetLoyaltyPointsTransactions(int customerId , int restaurantId);
 
         public Task<int> GetTotalPoints(int customerId , int restaurantId);
+
+        public Task<List<User>> Dika(int restaurantId , int minPoints , int maxPoints);
     }
 }

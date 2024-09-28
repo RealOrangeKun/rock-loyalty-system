@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.RateLimiting;
 
 namespace LoyaltyPointsApi.Services
 {
-    public class LoyaltyPointsTransactionService(ILoyaltyPointsTransactionRepository loyaltyPointsTransactionRepository , IRestaurantService restaurantService) : ILoyaltyPointsTransactionService
+    public class LoyaltyPointsTransactionService(ILoyaltyPointsTransactionRepository loyaltyPointsTransactionRepository , IRestaurantService restaurantService , IThresholdService thresholdService) : ILoyaltyPointsTransactionService
     {
         public async Task<LoyaltyPoints> AddLoyaltyPointsTransaction(LoyaltyPointsTransactionRequestModel loyaltyPointsRequestModel)
         {
@@ -25,6 +25,12 @@ namespace LoyaltyPointsApi.Services
             };
 
             return await loyaltyPointsTransactionRepository.AddLoyaltyPointsTransaction(loyaltyPoints);
+        }
+
+        public async Task<List<User>> Dika(int restaurantId, int minPoints, int maxPoints)
+        {
+            string query = $"SUM(Points) >= {minPoints} AND SUM(Points) <= {maxPoints}";
+            var result = 
         }
 
         public async Task<LoyaltyPoints?> GetLoyaltyPointsTransaction(int transactionId)
