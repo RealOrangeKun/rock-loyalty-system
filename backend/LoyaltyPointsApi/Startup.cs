@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using LoyaltyPointsApi.Config;
 using LoyaltyPointsApi.Data;
+using LoyaltyPointsApi.Events;
 using LoyaltyPointsApi.Middlewares;
 using LoyaltyPointsApi.Repositories;
 using LoyaltyPointsApi.Services;
@@ -42,6 +43,8 @@ namespace LoyaltyPointsApi
             services.AddScoped<IPromotionService, PromotionService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddSingleton<NotifyService>();
+            services.AddSingleton<PromotionAddedEvent>();
             // services.AddScoped<UserService>();
 
 
@@ -53,7 +56,9 @@ namespace LoyaltyPointsApi
         }
         public void Configure(WebApplication app)
         {
-
+            var notificationService = app.Services.GetService<NotifyService>();
+            var addedEvent = app.Services.GetService<PromotionAddedEvent>();
+            addedEvent.PromotionAdded += notificationService.OnPromotionAdded;
             if (environment.IsDevelopment())
             {
                 app.UseSwagger();
