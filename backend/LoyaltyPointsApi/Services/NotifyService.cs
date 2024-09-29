@@ -17,14 +17,15 @@ public class NotifyService(
     ILoyaltyPointsTransactionRepository loyaltyPointsTransactionRepository,
     ApiUtility apiUtility,
     EmailUtility emailUtility,
-    IPromotionRepository promotionRepository) : BackgroundService
+    IPromotionRepository promotionRepository
+    ,IRestaurantService RestaurantService) : BackgroundService
 {
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
         logger.LogInformation("Periodic Task Service is starting.");
 
 
-        timer = new Timer(TriggerTasks, null, TimeSpan.Zero, TimeSpan.FromSeconds(30));
+        timer = new Timer(TriggerTasks, null, TimeSpan.Zero, TimeSpan.FromHours(1));
 
         return Task.CompletedTask;
     }
@@ -47,15 +48,15 @@ public class NotifyService(
 
             thresholds.Add(restaurantThresholds);
         }
-        //TODO : Get promotions with start date that is near this day
         List<Promotion> promotions = [];
         foreach (var restaurantThresholds in thresholds)
         {
             foreach (var threshold in restaurantThresholds)
             {
-                foreach (var p in threshold.Promotions)
+                foreach (var promotion in threshold.Promotions)
                 {
-                    promotions.Add(p);
+                    if(promotion.StartDate.Date != DateTime.Now.Date) continue;
+                    promotions.Add(promotion);
                 }
             }
 
@@ -63,15 +64,17 @@ public class NotifyService(
             foreach (var promotion in promotions)
             {
                 if (promotion.IsNotified) continue;
-                var delay = 60; // seconds
+                if(promotion.StartDate < DateTime.Now) continue;
+                var delay = promotion.StartDate - DateTime.Now;
+                double delayInMilliseconds = delay.TotalMilliseconds;
                 i++;
-                Task.Run(() => ExecuteDelayedTask(promotion, delay * i));
+                await Task.Run(() => ExecuteDelayedTask(promotion, delayInMilliseconds));
             }
         }
     }
 
 
-    private async Task ExecuteDelayedTask(Promotion promotion, int delayInSeconds)    {
+    private async Task ExecuteDelayedTask(Promotion promotion, double delayInSeconds)    {
         logger.LogInformation("Task scheduled to run in {delayInSeconds} seconds for promotion: {promoCode}.",
             delayInSeconds, promotion.PromoCode );
             
@@ -121,17 +124,18 @@ public class NotifyService(
     }
     public async Task NotifyUserAsync(Promotion promotion , User user){
 
+        var restaurant = await RestaurantService.GetRestaurant(promotion.RestaurantId);
         string Message = $"Hello {user.Name},\n\nWe are excited to share our latest promotion with you! \n\n" +
             $"Promotion Code: {promotion.PromoCode}\n" +
             $"Start Date: {promotion.StartDate}\n" +
             $"End Date: {promotion.EndDate}\n\n" +
             "Don't miss out on this great offer! Use the promo code at checkout to enjoy discounts.\n\n" +
-            $"Best regards,\n{promotion.RestaurantId}"; //TODO : get restaurant name from restaurant id
+            $"Best regards,\n{restaurant.Name}"; 
 
-        var sent = await emailUtility.SendEmailAsync(user.Email,"Promotion",Message ,promotion.RestaurantId.ToString()); //TODO : restaurant name
+        var sent = await emailUtility.SendEmailAsync(user.Email,"Promotion",Message ,restaurant.Name); 
 
         if(!sent) {
-            sent =await emailUtility.SendEmailAsync(user.Email,"Promotion",Message ,promotion.RestaurantId.ToString());  //TODO : restaurant name
+            sent =await emailUtility.SendEmailAsync(user.Email,"Promotion",Message ,restaurant.Name);  
             if(!sent) logger.LogWarning($"Email not sent for {user.Email}");
         }
     }

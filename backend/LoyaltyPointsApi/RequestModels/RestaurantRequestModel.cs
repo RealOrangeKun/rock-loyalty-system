@@ -7,6 +7,7 @@ namespace LoyaltyPointsApi.RequestModels
 {
     public class RestaurantRequestModel
     {
+        public required string Name { get; set; }
         public required int RestaurantId { get; set; }
         public required double PointsRate { get; set; }
 

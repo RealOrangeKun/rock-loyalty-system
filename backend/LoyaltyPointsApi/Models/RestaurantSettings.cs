@@ -7,6 +7,7 @@ namespace LoyaltyPointsApi.Models
 {
     public class RestaurantSettings
     {
+        public string Name{ get; set; }
         public int RestaurantId { get; set; }
 
         public double PointsRate { get; set; }

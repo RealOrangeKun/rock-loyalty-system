@@ -14,6 +14,7 @@ namespace LoyaltyPointsApi.Services
         public async Task AddRestaurantSettings(RestaurantRequestModel restaurantRequestModel)
         {
             RestaurantSettings restaurant = new (){
+                Name = restaurantRequestModel.Name,
 
                 RestaurantId = restaurantRequestModel.RestaurantId,
 
