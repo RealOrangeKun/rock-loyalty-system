@@ -13,17 +13,22 @@ namespace LoyaltyPointsApi.Controllers
 {
     [ApiController]
     [Route("api/api-key")]
-    public class ApiKeyController(IApiKeyService service,
-    IOptions<AdminOptions> adminOptions) : ControllerBase
+    public class ApiKeyController(
+        IApiKeyService service,
+        IOptions<AdminOptions> adminOptions) : ControllerBase
     {
         [HttpPost]
         public async Task<ActionResult> CreateApiKey(LoginRequestBody requestBody)
         {
             if (requestBody.Username != adminOptions.Value.Username ||
-            requestBody.Password != adminOptions.Value.Password) return Unauthorized();
+                requestBody.Password != adminOptions.Value.Password) return Unauthorized();
             ApiKey apiKey = await service.CreateApiKey(requestBody.RestaurantId);
-            return Ok(apiKey.Key);
+            return StatusCode(StatusCodes.Status201Created, new
+            {
+                success = true,
+                message = "Api key created successfully",
+                data = new { apiKey = apiKey.Key }
+            });
         }
-        
     }
 }
