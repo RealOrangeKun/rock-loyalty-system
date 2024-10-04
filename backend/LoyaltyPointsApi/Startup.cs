@@ -29,7 +29,7 @@ namespace LoyaltyPointsApi
             // Adding db context
             services.AddDbContext<LoyaltyDbContext>(options =>
             {
-                options.UseSqlite("Data Source=Zura.db");
+                options.UseSqlite("Data Source=GetCustomersByRestaurantAndPointsRange.db");
             });
 
             // Adding services
@@ -47,7 +47,7 @@ namespace LoyaltyPointsApi
             services.AddScoped<IPromotionService, PromotionService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IUserRepository, UserRepository>();
-            services.AddSingleton<NotifyService>();
+            services.AddHostedService<NotifyService>();     
             services.AddSingleton<PromotionAddedEvent>();
             // services.AddScoped<UserService>();
             Log.Logger.Information("Services added");
@@ -64,25 +64,27 @@ namespace LoyaltyPointsApi
         public void Configure(WebApplication app)
         {
             Log.Logger.Information("Configuring app");
-            var notificationService = app.Services.GetService<NotifyService>() ?? throw new Exception("NotifyService is null");
+
             var addedEvent = app.Services.GetService<PromotionAddedEvent>() ?? throw new Exception("PromotionAddedEvent is null");
-            addedEvent.PromotionAdded += notificationService.OnPromotionAdded;
+
             if (environment.IsDevelopment())
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+
             app.UseRouting();
             app.UseHttpsRedirection();
             app.UseAuthentication();
             app.UseAuthorization();
             app.MapControllers();
+    
             if (environment.IsProduction())
                 app.UseMiddleware<ApiKeyValidatorMiddleware>();
 
             Log.Logger.Information("App configured");
-
         }
+
 
     }
 }
