@@ -145,7 +145,7 @@ namespace LoyaltyPointsApi.Services
             }
         }
 
-        public async Task OnPromotionAdded(Object sender, Promotion promotion)
+        public async void OnPromotionAdded(Object sender, Promotion promotion)
         {
             await Task.Delay(promotion.StartDate - DateTime.Now);
             await NotifyUsers(promotion);

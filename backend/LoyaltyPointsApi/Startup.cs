@@ -58,7 +58,7 @@ namespace LoyaltyPointsApi
         {
             var notificationService = app.Services.GetService<NotifyService>();
             var addedEvent = app.Services.GetService<PromotionAddedEvent>();
-            addedEvent.PromotionAdded += notificationService.OnPromotionAdded;
+            // addedEvent.PromotionAdded += notificationService.OnPromotionAdded;
             if (environment.IsDevelopment())
             {
                 app.UseSwagger();
