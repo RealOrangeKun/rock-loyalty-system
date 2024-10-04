@@ -95,7 +95,7 @@ namespace LoyaltyPointsApi.Services
 
             var boundaries = await thresholdService.GetThresholdBoundaries(promotion.ThresholdId, promotion.RestaurantId);
 
-            var customerIds = await loyaltyPointsTransactionRepository.Zura(promotion.RestaurantId, boundaries[0], boundaries[1]);
+            var customerIds = await loyaltyPointsTransactionRepository.GetCustomersByRestaurantAndPointsRange(promotion.RestaurantId, boundaries[0], boundaries[1]);
 
             foreach (var customerId in customerIds)
             {
