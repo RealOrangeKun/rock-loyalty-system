@@ -9,12 +9,14 @@ namespace LoyaltyPointsApi.Controllers
 {
     [ApiController]
     [Route("api/loyalty-points")]
-    public class LoyaltyPointsController (ILoyaltyPointsTransactionService service) : ControllerBase
+    public class LoyaltyPointsController(ILoyaltyPointsTransactionService service,
+    ILogger<LoyaltyPointsController> logger) : ControllerBase
     {
         [HttpGet]
         [Route("customers/{customerId}/restaurants/{restaurantId}")]
         public async Task<ActionResult> GetTotalPoints([FromRoute] int customerId, [FromRoute] int restaurantId)
         {
+            logger.LogInformation("Request to get total points: {customerId} for restaurant: {restaurantId}", customerId, restaurantId);
             try
             {
                 var result = await service.GetTotalPoints(customerId, restaurantId);
@@ -27,6 +29,7 @@ namespace LoyaltyPointsApi.Controllers
             }
             catch (Exception ex)
             {
+                logger.LogError(ex, "Error getting total points: {customerId} for restaurant: {restaurantId}", customerId, restaurantId);
                 return StatusCode(500, new
                 {
                     success = false,

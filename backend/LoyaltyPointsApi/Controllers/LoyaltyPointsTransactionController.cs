@@ -11,12 +11,14 @@ namespace LoyaltyPointsApi.Controllers
 {
     [ApiController]
     [Route("api/transactions")]
-    public class LoyaltyPointsTransactionController(ILoyaltyPointsTransactionService service) : ControllerBase
+    public class LoyaltyPointsTransactionController(ILoyaltyPointsTransactionService service,
+    ILogger<LoyaltyPointsTransactionController> logger) : ControllerBase
     {
         [HttpGet]
         [Route("{transactionId}")]
         public async Task<ActionResult> GetCustomerTransaction([FromRoute] int transactionId)
         {
+            logger.LogInformation("Request to get transaction: {transactionId}", transactionId);
             try
             {
                 var result = await service.GetLoyaltyPointsTransaction(transactionId);
@@ -41,6 +43,7 @@ namespace LoyaltyPointsApi.Controllers
         [Route("customers/{customerId}/restaurants/{restaurantId}")]
         public async Task<ActionResult> GetCustomerTransactions([FromRoute] int customerId, [FromRoute] int restaurantId)
         {
+            logger.LogInformation("Request to get transactions: {customerId} for restaurant: {restaurantId}", customerId, restaurantId);
             try
             {
                 var result = await service.GetLoyaltyPointsTransactions(customerId, restaurantId);
@@ -60,10 +63,11 @@ namespace LoyaltyPointsApi.Controllers
                 });
             }
         }
-        
+
         [HttpPost]
         public async Task<ActionResult> AddLoyaltyPointsTransaction([FromBody] LoyaltyPointsTransactionRequestModel loyaltyPointsRequestModel)
         {
+            logger.LogInformation("Adding LoyaltyPointsTransaction: {customerId} for restaurant: {restaurantId}", loyaltyPointsRequestModel.CustomerId, loyaltyPointsRequestModel.RestaurantId);
             try
             {
                 var result = await service.AddLoyaltyPointsTransaction(loyaltyPointsRequestModel);
@@ -78,7 +82,7 @@ namespace LoyaltyPointsApi.Controllers
             {
                 return StatusCode(500, new
                 {
-                   success = false,
+                    success = false,
                     Message = ex.Message
                 });
             }

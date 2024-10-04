@@ -8,17 +8,20 @@ using LoyaltyPointsApi.RequestModels;
 
 namespace LoyaltyPointsApi.Services
 {
-    public class UserService(IUserRepository userRepository) : IUserService
+    public class UserService(IUserRepository userRepository,
+    ILogger<UserService> logger) : IUserService
     {
 
         public async Task<User?> GetUser(UserRequestModel userRequestModel)
         {
-            User user = new(){
+            logger.LogInformation("Getting User: {customerId} for restaurant: {restaurantId}", userRequestModel.CustomerId, userRequestModel.RestaurantId);
+            User user = new()
+            {
                 CustomerId = userRequestModel.CustomerId,
                 RestaurantId = userRequestModel.RestaurantId
             };
 
-            return await userRepository.GetUser(user) ;
+            return await userRepository.GetUser(user);
         }
     }
 }

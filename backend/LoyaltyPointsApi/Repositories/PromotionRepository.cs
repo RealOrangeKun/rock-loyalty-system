@@ -8,11 +8,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LoyaltyPointsApi.Repositories
 {
-    public class PromotionRepository(LoyaltyDbContext dbContext) : IPromotionRepository
+    public class PromotionRepository(LoyaltyDbContext dbContext,
+    ILogger<PromotionRepository> logger) : IPromotionRepository
 
     {
         public async Task<Promotion?> AddPromotion(Promotion promotion)
         {
+            logger.LogInformation("Adding Promotion: {promotion} for restaurant: {restaurantId}", promotion.PromoCode, promotion.RestaurantId);
             await dbContext.Promotions.AddAsync(promotion);
             await dbContext.SaveChangesAsync();
             return promotion;
@@ -20,36 +22,42 @@ namespace LoyaltyPointsApi.Repositories
 
         public async Task DeletePromotion(Promotion promotion)
         {
-             dbContext.Remove(promotion);
-             await dbContext.SaveChangesAsync();
+            logger.LogInformation("Deleting Promotion: {promotion} for restaurant: {restaurantId}", promotion.PromoCode, promotion.RestaurantId);
+            dbContext.Remove(promotion);
+            await dbContext.SaveChangesAsync();
         }
 
         public async Task<List<Promotion>> GetAllPromotions()
         {
+            logger.LogInformation("Getting all Promotions");
             return await dbContext.Promotions.ToListAsync();
         }
 
         public async Task<Promotion?> GetPromotion(Promotion promotion)
         {
-              return await dbContext.Promotions.FirstOrDefaultAsync(r => r.PromoCode == promotion.PromoCode); ;
+            logger.LogInformation("Getting Promotion: {promotion} for restaurant: {restaurantId}", promotion.PromoCode, promotion.RestaurantId);
+            return await dbContext.Promotions.FirstOrDefaultAsync(r => r.PromoCode == promotion.PromoCode); ;
         }
 
 
         public async Task<List<Promotion>> GetThresholdtPromotions(Promotion promotion)
         {
-             var result = await dbContext.Promotions.Where(p => p.ThresholdId == promotion.ThresholdId).ToListAsync();
+            logger.LogInformation("Getting Thresholdt Promotions: {promotion} for restaurant: {restaurantId}", promotion.ThresholdId, promotion.RestaurantId);
+            var result = await dbContext.Promotions.Where(p => p.ThresholdId == promotion.ThresholdId).ToListAsync();
             return result;
         }
 
         public async Task SetPromotionNotified(Promotion promotion)
         {
+            logger.LogInformation("Setting Promotion: {promotion} for restaurant: {restaurantId} as notified", promotion.PromoCode, promotion.RestaurantId);
             promotion.IsNotified = true;
             dbContext.Update(promotion);
             await dbContext.SaveChangesAsync();
         }
 
-        public async  Task<Promotion?> UpdatePromotion(Promotion promotion)
+        public async Task<Promotion?> UpdatePromotion(Promotion promotion)
         {
+            logger.LogInformation("Updating Promotion: {promotion} for restaurant: {restaurantId}", promotion.PromoCode, promotion.RestaurantId);
             dbContext.Update(promotion);
             await dbContext.SaveChangesAsync();
             return promotion;

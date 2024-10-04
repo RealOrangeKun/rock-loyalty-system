@@ -9,11 +9,14 @@ using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace LoyaltyPointsApi.Services
 {
-    public class RestaurantService(IRestaurantRepository restaurantRepository) : IRestaurantService
+    public class RestaurantService(IRestaurantRepository restaurantRepository,
+    ILogger<RestaurantService> logger) : IRestaurantService
     {
         public async Task AddRestaurantSettings(RestaurantRequestModel restaurantRequestModel)
         {
-            RestaurantSettings restaurant = new (){
+            logger.LogInformation("Adding Restaurant: {restaurantId}", restaurantRequestModel.RestaurantId);
+            RestaurantSettings restaurant = new()
+            {
                 Name = restaurantRequestModel.Name,
 
                 RestaurantId = restaurantRequestModel.RestaurantId,
@@ -25,13 +28,15 @@ namespace LoyaltyPointsApi.Services
                 PointsLifeTime = restaurantRequestModel.PointsLifeTime
             };
 
-           await restaurantRepository.AddRestaurantSettings(restaurant);
-            
+            await restaurantRepository.AddRestaurantSettings(restaurant);
+
         }
 
         public async Task<RestaurantSettings?> GetRestaurant(int ResturantId)
         {
-            RestaurantSettings restaurant = new (){
+            logger.LogInformation("Getting Restaurant: {restaurantId}", ResturantId);
+            RestaurantSettings restaurant = new()
+            {
                 RestaurantId = ResturantId
             };
             return await restaurantRepository.GetRestaurant(restaurant);
@@ -39,7 +44,9 @@ namespace LoyaltyPointsApi.Services
 
         public async Task<RestaurantSettings?> UpdateRestaurant(int restaurantId, UpdateRestaurantRequestModel updateRestaurantRequestModel)
         {
-            RestaurantSettings restaurant = new(){
+            logger.LogInformation("Updating Restaurant: {restaurantId}", restaurantId);
+            RestaurantSettings restaurant = new()
+            {
                 RestaurantId = restaurantId
             };
             var result = await restaurantRepository.GetRestaurant(restaurant);

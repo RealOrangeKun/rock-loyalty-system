@@ -15,13 +15,13 @@ namespace LoyaltyPointsApi.Services
 
         public Task<Threshold> AddThreshold(ThresholdRequestModel threshold);
 
-        public Task<Threshold?> UpdateThreshold(ThresholdRequestModel threshold , int restaurantId, int thresholdId);
+        public Task<Threshold?> UpdateThreshold(ThresholdRequestModel threshold, int restaurantId, int thresholdId);
 
-        public Task DelteThreshold(int thresholdId);
+        public Task DeleteThreshold(int thresholdId);
 
-        public Task<List<int?>> GetThresholdBoundaries(int thresholdId , int restaurantId); 
+        public Task<List<int?>> GetThresholdBoundaries(int thresholdId, int restaurantId);
 
     }
 
-   
+
 }

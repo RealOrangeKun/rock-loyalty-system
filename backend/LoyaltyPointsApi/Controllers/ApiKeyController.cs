@@ -15,13 +15,15 @@ namespace LoyaltyPointsApi.Controllers
     [Route("api/api-key")]
     public class ApiKeyController(
         IApiKeyService service,
-        IOptions<AdminOptions> adminOptions) : ControllerBase
+        IOptions<AdminOptions> adminOptions,
+        ILogger<ApiKeyController> logger) : ControllerBase
     {
         [HttpPost]
         public async Task<ActionResult> CreateApiKey(LoginRequestBody requestBody)
         {
             if (requestBody.Username != adminOptions.Value.Username ||
                 requestBody.Password != adminOptions.Value.Password) return Unauthorized();
+            logger.LogInformation("Creating ApiKey for restaurantId: {restaurantId}", requestBody.RestaurantId);
             ApiKey apiKey = await service.CreateApiKey(requestBody.RestaurantId);
             return StatusCode(StatusCodes.Status201Created, new
             {

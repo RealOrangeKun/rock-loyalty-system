@@ -8,10 +8,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LoyaltyPointsApi.Repositories
 {
-    public class LoyaltyPointsTransactionRepository(LoyaltyDbContext dbContext) : ILoyaltyPointsTransactionRepository
+    public class LoyaltyPointsTransactionRepository(LoyaltyDbContext dbContext,
+    ILogger<LoyaltyPointsTransactionRepository> logger) : ILoyaltyPointsTransactionRepository
     {
         public async Task<LoyaltyPoints> AddLoyaltyPointsTransaction(LoyaltyPoints loyaltyPointsTransaction)
         {
+            logger.LogInformation("Adding LoyaltyPointsTransaction: {loyaltyPointsTransaction}", loyaltyPointsTransaction);
             await dbContext.LoyaltyPoints.AddAsync(loyaltyPointsTransaction);
             await dbContext.SaveChangesAsync();
             return loyaltyPointsTransaction;
@@ -19,12 +21,14 @@ namespace LoyaltyPointsApi.Repositories
 
         public async Task<LoyaltyPoints?> GetLoyaltyPointsTransaction(LoyaltyPoints loyaltyPointsTransaction)
         {
+            logger.LogInformation("Getting LoyaltyPointsTransaction: {loyaltyPointsTransaction}", loyaltyPointsTransaction);
             return await dbContext.LoyaltyPoints.FirstOrDefaultAsync(r =>
                 r.TransactionId == loyaltyPointsTransaction.TransactionId);
         }
 
         public async Task<List<LoyaltyPoints>> GetLoyaltyPointsTransactions(LoyaltyPoints loyaltyPointsTransaction)
         {
+            logger.LogInformation("Getting LoyaltyPointsTransactions: {loyaltyPointsTransaction}", loyaltyPointsTransaction);
             return await dbContext.LoyaltyPoints.Where(r =>
                 r.CustomerId == loyaltyPointsTransaction.CustomerId &&
                 r.RestaurantId == loyaltyPointsTransaction.RestaurantId).ToListAsync();

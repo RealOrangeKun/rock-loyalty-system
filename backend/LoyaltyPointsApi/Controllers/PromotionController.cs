@@ -11,11 +11,13 @@ namespace LoyaltyPointsApi.Controllers
 {
     [ApiController]
     [Route("api/promotions")]
-    public class PromotionController(IPromotionService promotionService) : ControllerBase
+    public class PromotionController(IPromotionService promotionService,
+    ILogger<PromotionController> logger) : ControllerBase
     {
         [HttpPost]
         public async Task<ActionResult> AddPromotion([FromBody] AddPromotionRequestModel promotionRequestModel)
         {
+            logger.LogInformation("Add Promotion request: {promotion} for restaurant: {restaurantId}", promotionRequestModel.PromoCode, promotionRequestModel.RestaurantId);
             try
             {
                 await promotionService.AddPromotion(promotionRequestModel);
@@ -28,11 +30,12 @@ namespace LoyaltyPointsApi.Controllers
         }
         [HttpPut]
         [Route("{promoCode}/restaurants/{restaurantId}")]
-        public async Task<ActionResult> UpdatePromotion([FromRoute] string promoCode,[FromRoute] int restaurantId,[FromBody] UpdatePromotionRequestModel promotionRequestModel)
+        public async Task<ActionResult> UpdatePromotion([FromRoute] string promoCode, [FromRoute] int restaurantId, [FromBody] UpdatePromotionRequestModel promotionRequestModel)
         {
+            logger.LogInformation("Update Promotion request: {promotion} for restaurant: {restaurantId}", promoCode, restaurantId);
             try
             {
-                await promotionService.UpdatePromotion(promoCode,promotionRequestModel,restaurantId);
+                await promotionService.UpdatePromotion(promoCode, promotionRequestModel, restaurantId);
                 return Ok(new { success = true, message = "Promotion updated" });
             }
             catch (Exception ex)
@@ -44,6 +47,7 @@ namespace LoyaltyPointsApi.Controllers
         [Route("restaurants/{restaurantId}")]
         public async Task<ActionResult> GetRestaurantPromotions([FromRoute] int restaurantId)
         {
+            logger.LogInformation("Getting promotions request for restaurant: {restaurantId}", restaurantId);
             try
             {
                 var result = await promotionService.GetThresholdPromotions(restaurantId);
@@ -64,6 +68,7 @@ namespace LoyaltyPointsApi.Controllers
         [Route("{promoCode}")]
         public async Task<ActionResult> GetPromotion([FromRoute] string promoCode)
         {
+            logger.LogInformation("Get Promotion Request: {promoCode}", promoCode);
             try
             {
                 var result = await promotionService.GetPromotion(promoCode);
@@ -84,6 +89,7 @@ namespace LoyaltyPointsApi.Controllers
         [Route("{promoCode}")]
         public async Task<ActionResult> DeletePromotion([FromRoute] string promoCode)
         {
+            logger.LogInformation("Delete Promotion Request: {promoCode}", promoCode);
             try
             {
                 await promotionService.DeletePromotion(promoCode);

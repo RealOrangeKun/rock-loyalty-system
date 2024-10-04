@@ -11,7 +11,7 @@ namespace LoyaltyPointsApi.Repositories
     {
         public Task<List<Threshold>> GetRestaurantThresholds(Threshold threshold);
 
-        public Task<Threshold> GetRestaurantThreshold(Threshold threshold);
+        public Task<Threshold?> GetRestaurantThreshold(Threshold threshold);
 
         public Task<Threshold> AddThreshold(Threshold threshold);
 

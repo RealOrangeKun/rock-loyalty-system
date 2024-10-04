@@ -8,11 +8,14 @@ using LoyaltyPointsApi.Utilities;
 
 namespace LoyaltyPointsApi.Services
 {
-    public class ApiKeyService(IApiKeyRepository repository) : IApiKeyService
+    public class ApiKeyService(IApiKeyRepository repository,
+    ILogger<ApiKeyService> logger) : IApiKeyService
     {
         public async Task<ApiKey> CreateApiKey(int restaurantId)
         {
+            logger.LogInformation("Creating ApiKey for restaurantId: {restaurantId}", restaurantId);
             var key = ApiKeyUtility.GenerateApiKey();
+            logger.LogTrace("Generated ApiKey: {key}", key);
             ApiKey apiKey = new()
             {
                 Key = key,
@@ -24,6 +27,7 @@ namespace LoyaltyPointsApi.Services
 
         public async Task<ApiKey?> GetApiKey(string key)
         {
+            logger.LogInformation("Getting ApiKey for key: {key}", key);
             ApiKey apiKey = new()
             {
                 Key = key,

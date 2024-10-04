@@ -6,11 +6,13 @@ namespace LoyaltyPointsApi.Controllers
 {
     [ApiController]
     [Route("api/thresholds")]
-    public class ThresholdController(IThresholdService thresholdService) : ControllerBase
+    public class ThresholdController(IThresholdService thresholdService,
+    ILogger<ThresholdController> logger) : ControllerBase
     {
         [HttpPost]
         public async Task<ActionResult> AddThreshold([FromBody] ThresholdRequestModel thresholdRequestModel)
         {
+            logger.LogInformation("Add Threshold request: {threshold} for restaurant: {restaurantId}", thresholdRequestModel.ThresholdName, thresholdRequestModel.RestaurantId);
             try
             {
                 await thresholdService.AddThreshold(thresholdRequestModel);
@@ -26,6 +28,7 @@ namespace LoyaltyPointsApi.Controllers
         [Route("{restaurantId}")]
         public async Task<ActionResult> GetRestaurantThresholds([FromRoute] int restaurantId)
         {
+            logger.LogInformation("Get Thresholds request for restaurant: {restaurantId}", restaurantId);
             try
             {
                 var result = await thresholdService.GetRestaurantThresholds(restaurantId);
@@ -64,6 +67,7 @@ namespace LoyaltyPointsApi.Controllers
         public async Task<ActionResult> GetRestaurantThreshold([FromRoute] int restaurantId,
             [FromQuery] int thresholdId)
         {
+            logger.LogInformation("Get Threshold request: {threshold} for restaurant: {restaurantId}", thresholdId, restaurantId);
             try
             {
                 var result = await thresholdService.GetRestaurantThreshold(restaurantId, thresholdId);
@@ -86,6 +90,7 @@ namespace LoyaltyPointsApi.Controllers
         public async Task<ActionResult> UpdateThreshold([FromBody] ThresholdRequestModel thresholdRequestModel,
             [FromRoute] int restaurantId, [FromRoute] int thresholdId)
         {
+            logger.LogInformation("Update Threshold request: {threshold} for restaurant: {restaurantId}", thresholdId, restaurantId);
             try
             {
                 var threshold = await thresholdService.GetRestaurantThreshold(restaurantId, thresholdId);
@@ -108,10 +113,11 @@ namespace LoyaltyPointsApi.Controllers
         [Route("{thresholdId}")]
         public async Task<ActionResult> DeleteThreshold([FromRoute] int thresholdId)
         {
+            logger.LogInformation("Delete Threshold request: {thresholdId}", thresholdId);
             try
             {
-                await thresholdService.DelteThreshold(thresholdId);
-                return Ok(new{ success = true, message = "Threshold deleted",});
+                await thresholdService.DeleteThreshold(thresholdId);
+                return Ok(new { success = true, message = "Threshold deleted", });
             }
             catch (Exception ex)
             {

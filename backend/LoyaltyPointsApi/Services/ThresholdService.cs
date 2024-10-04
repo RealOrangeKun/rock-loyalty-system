@@ -10,10 +10,12 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace LoyaltyPointsApi.Services
 {
-    public class ThresholdService(IThresholdRepository thresholdRepository) : IThresholdService
+    public class ThresholdService(IThresholdRepository thresholdRepository,
+    ILogger<ThresholdService> logger) : IThresholdService
     {
         public async Task<Threshold> AddThreshold(ThresholdRequestModel thresholdRequest)
         {
+            logger.LogInformation("Adding Threshold: {threshold} for restaurant: {restaurantId}", thresholdRequest.ThresholdName, thresholdRequest.RestaurantId);
             Threshold newThreshold = new()
             {
                 RestaurantId = thresholdRequest.RestaurantId,
@@ -24,8 +26,9 @@ namespace LoyaltyPointsApi.Services
             return newThreshold;
         }
 
-        public async Task DelteThreshold(int thresholdId)
+        public async Task DeleteThreshold(int thresholdId)
         {
+            logger.LogInformation("Deleting Threshold: {threshold} for restaurant: {restaurantId}", thresholdId, thresholdId);
             Threshold threshold = new()
             {
                 ThresholdId = thresholdId
@@ -35,6 +38,7 @@ namespace LoyaltyPointsApi.Services
 
         public async Task<Threshold?> GetRestaurantThreshold(int restaurantId, int thresholdId)
         {
+            logger.LogInformation("Getting Threshold: {threshold} for restaurant: {restaurantId}", thresholdId, restaurantId);
             Threshold threshold = new()
             {
                 RestaurantId = restaurantId,
@@ -47,6 +51,7 @@ namespace LoyaltyPointsApi.Services
 
         public async Task<List<Threshold>?> GetRestaurantThresholds(int restaurantId)
         {
+            logger.LogInformation("Getting Thresholds for restaurant: {restaurantId}", restaurantId);
             Threshold threshold = new()
             {
                 RestaurantId = restaurantId
@@ -58,12 +63,13 @@ namespace LoyaltyPointsApi.Services
         public async Task<Threshold?> UpdateThreshold(ThresholdRequestModel thresholdRequest, int restaurantId,
             int thresholdId)
         {
+            logger.LogInformation("Updating Threshold: {threshold} for restaurant: {restaurantId}", thresholdId, restaurantId);
             Threshold threshold = new()
             {
                 RestaurantId = restaurantId,
                 ThresholdId = thresholdId
             };
-            Threshold updatedThreshold = await thresholdRepository.GetRestaurantThreshold(threshold);
+            Threshold? updatedThreshold = await thresholdRepository.GetRestaurantThreshold(threshold) ?? throw new Exception("Threshold not found");
             updatedThreshold.MinimumPoints = thresholdRequest.MinimumPoints;
             updatedThreshold.ThresholdName = thresholdRequest.ThresholdName;
             await thresholdRepository.UpdateThreshold(updatedThreshold);
@@ -72,6 +78,8 @@ namespace LoyaltyPointsApi.Services
 
         public async Task<List<int?>> GetThresholdBoundaries(int thresholdId, int restaurantId)
         {
+            logger.LogInformation("Getting Threshold Boundaries: {thresholdId} for restaurant: {restaurantId}", thresholdId, restaurantId);
+
             List<int?> boundaries = [];
 
             List<Threshold> restaurantThresholds = await GetRestaurantThresholds(restaurantId);

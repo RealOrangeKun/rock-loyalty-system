@@ -10,6 +10,7 @@ using LoyaltyPointsApi.Repositories;
 using LoyaltyPointsApi.Services;
 using LoyaltyPointsApi.Utilities;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 
 namespace LoyaltyPointsApi
 {
@@ -18,10 +19,13 @@ namespace LoyaltyPointsApi
     {
         public void ConfigureServices(IServiceCollection services)
         {
+            Log.Logger.Information("Applying configurations");
             // Adding configurations
             services.Configure<AdminOptions>(configuration.GetSection("AdminOptions"));
             services.Configure<ApiOptions>(configuration.GetSection("ApiOptions"));
+            Log.Logger.Information("Configurations applied");
 
+            Log.Logger.Information("Adding services");
             // Adding db context
             services.AddDbContext<LoyaltyDbContext>(options =>
             {
@@ -46,19 +50,23 @@ namespace LoyaltyPointsApi
             services.AddSingleton<NotifyService>();
             services.AddSingleton<PromotionAddedEvent>();
             // services.AddScoped<UserService>();
+            Log.Logger.Information("Services added");
 
-
+            Log.Logger.Information("Adding middlewares");
             // Adding controllers and swagger
             services.AddControllers();
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
 
+            Log.Logger.Information("Middleware added");
+
         }
         public void Configure(WebApplication app)
         {
-            var notificationService = app.Services.GetService<NotifyService>();
-            var addedEvent = app.Services.GetService<PromotionAddedEvent>();
-            // addedEvent.PromotionAdded += notificationService.OnPromotionAdded;
+            Log.Logger.Information("Configuring app");
+            var notificationService = app.Services.GetService<NotifyService>() ?? throw new Exception("NotifyService is null");
+            var addedEvent = app.Services.GetService<PromotionAddedEvent>() ?? throw new Exception("PromotionAddedEvent is null");
+            addedEvent.PromotionAdded += notificationService.OnPromotionAdded;
             if (environment.IsDevelopment())
             {
                 app.UseSwagger();
@@ -69,7 +77,10 @@ namespace LoyaltyPointsApi
             app.UseAuthentication();
             app.UseAuthorization();
             app.MapControllers();
-            // app.UseMiddleware<ApiKeyValidatorMiddleware>();
+            if (environment.IsProduction())
+                app.UseMiddleware<ApiKeyValidatorMiddleware>();
+
+            Log.Logger.Information("App configured");
 
         }
 

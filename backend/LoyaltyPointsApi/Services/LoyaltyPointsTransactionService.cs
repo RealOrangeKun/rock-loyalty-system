@@ -11,14 +11,19 @@ using Microsoft.AspNetCore.RateLimiting;
 
 namespace LoyaltyPointsApi.Services
 {
-    public class LoyaltyPointsTransactionService(ILoyaltyPointsTransactionRepository loyaltyPointsTransactionRepository 
-    ,IRestaurantService restaurantService , IThresholdService thresholdService 
-    ,LoyaltyDbContext dbContext) : ILoyaltyPointsTransactionService
+    public class LoyaltyPointsTransactionService(ILoyaltyPointsTransactionRepository loyaltyPointsTransactionRepository,
+    IRestaurantService restaurantService,
+    IThresholdService thresholdService,
+    LoyaltyDbContext dbContext,
+    ILogger<LoyaltyPointsTransactionService> logger) : ILoyaltyPointsTransactionService
     {
         public async Task<LoyaltyPoints> AddLoyaltyPointsTransaction(LoyaltyPointsTransactionRequestModel loyaltyPointsRequestModel)
         {
+            logger.LogInformation("Adding LoyaltyPointsTransaction: {customerId} for restaurant: {restaurantId}", loyaltyPointsRequestModel.CustomerId, loyaltyPointsRequestModel.RestaurantId);
             var restaurant = await restaurantService.GetRestaurant(loyaltyPointsRequestModel.RestaurantId) ?? throw new Exception("Restaurant not found");
-            LoyaltyPoints loyaltyPoints = new(){
+            logger.LogTrace("Restaurant found: {restaurant}", restaurant);
+            LoyaltyPoints loyaltyPoints = new()
+            {
                 CustomerId = loyaltyPointsRequestModel.CustomerId,
                 RestaurantId = loyaltyPointsRequestModel.RestaurantId,
                 TransactionDate = loyaltyPointsRequestModel.TransactionDate,
@@ -30,20 +35,24 @@ namespace LoyaltyPointsApi.Services
             return await loyaltyPointsTransactionRepository.AddLoyaltyPointsTransaction(loyaltyPoints);
         }
 
-       
+
 
         public async Task<LoyaltyPoints?> GetLoyaltyPointsTransaction(int transactionId)
         {
-            LoyaltyPoints loyaltyPoints = new(){
+            logger.LogInformation("Getting LoyaltyPointsTransaction: {transactionId}", transactionId);
+            LoyaltyPoints loyaltyPoints = new()
+            {
                 TransactionId = transactionId,
             };
 
             return await loyaltyPointsTransactionRepository.GetLoyaltyPointsTransaction(loyaltyPoints);
         }
 
-        public async Task<List<LoyaltyPoints>> GetLoyaltyPointsTransactions(int customerId , int restaurantId)
+        public async Task<List<LoyaltyPoints>> GetLoyaltyPointsTransactions(int customerId, int restaurantId)
         {
-            LoyaltyPoints loyaltyPoints = new(){
+            logger.LogInformation("Getting LoyaltyPointsTransactions: {customerId} for restaurant: {restaurantId}", customerId, restaurantId);
+            LoyaltyPoints loyaltyPoints = new()
+            {
                 CustomerId = customerId,
                 RestaurantId = restaurantId,
             };
@@ -51,18 +60,18 @@ namespace LoyaltyPointsApi.Services
             return await loyaltyPointsTransactionRepository.GetLoyaltyPointsTransactions(loyaltyPoints);
         }
 
-        public async Task<int> GetTotalPoints(int customerId , int restaurantId)
+        public async Task<int> GetTotalPoints(int customerId, int restaurantId)
         {
-            LoyaltyPoints loyaltyPoints = new(){
+            logger.LogInformation("Getting total points: {customerId} for restaurant: {restaurantId}", customerId, restaurantId);
+            LoyaltyPoints loyaltyPoints = new()
+            {
                 CustomerId = customerId,
-                RestaurantId =restaurantId,
-                
-        };
-        List<LoyaltyPoints> loyaltyPointsList = await loyaltyPointsTransactionRepository.GetLoyaltyPointsTransactions(loyaltyPoints);
-        int totalPoints = loyaltyPointsList.Sum(l => l.Points);
-        return totalPoints;
+                RestaurantId = restaurantId,
+
+            };
+            List<LoyaltyPoints> loyaltyPointsList = await loyaltyPointsTransactionRepository.GetLoyaltyPointsTransactions(loyaltyPoints);
+            int totalPoints = loyaltyPointsList.Sum(l => l.Points);
+            return totalPoints;
+        }
     }
-
-
-}
 }

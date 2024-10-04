@@ -11,11 +11,13 @@ namespace LoyaltyPointsApi.Controllers
 {
     [ApiController]
     [Route("api/restaurants")]
-    public class RestaurantController(IRestaurantService restaurantService) : ControllerBase
+    public class RestaurantController(IRestaurantService restaurantService,
+    ILogger<RestaurantController> logger) : ControllerBase
     {
         [HttpPost]
         public async Task<ActionResult> AddRestaurantSettings([FromBody] RestaurantRequestModel restaurantRequestModel)
         {
+            logger.LogInformation("Add Restaurant request: {restaurantId}", restaurantRequestModel.RestaurantId);
             try
             {
                 await restaurantService.AddRestaurantSettings(restaurantRequestModel);
@@ -30,6 +32,7 @@ namespace LoyaltyPointsApi.Controllers
         [Route("{restaurantId}")]
         public async Task<ActionResult> UpdateRestaurant([FromRoute] int restaurantId, [FromBody] UpdateRestaurantRequestModel updateRestaurantRequestModel)
         {
+            logger.LogInformation("Update Restaurant request: {restaurantId}", restaurantId);
             try
             {
                 var result = await restaurantService.GetRestaurant(restaurantId);
@@ -49,6 +52,7 @@ namespace LoyaltyPointsApi.Controllers
         [Route("{restaurantId}")]
         public async Task<ActionResult> GetRestaurant([FromRoute] int restaurantId)
         {
+            logger.LogInformation("Get Restaurant request: {restaurantId}", restaurantId);
             try
             {
                 var restaurant = await restaurantService.GetRestaurant(restaurantId);

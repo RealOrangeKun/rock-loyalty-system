@@ -8,10 +8,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LoyaltyPointsApi.Repositories
 {
-    public class ApiKeyRepository(LoyaltyDbContext dbContext) :  IApiKeyRepository
+    public class ApiKeyRepository(LoyaltyDbContext dbContext,
+    ILogger<ApiKeyRepository> logger) : IApiKeyRepository
     {
         public async Task<ApiKey> CreateApiKey(ApiKey key)
         {
+            logger.LogInformation("Creating ApiKey for restaurantId: {restaurantId}", key.RestaurantId);
             await dbContext.ApiKeys.AddAsync(key);
             await dbContext.SaveChangesAsync();
             return key;
@@ -19,12 +21,14 @@ namespace LoyaltyPointsApi.Repositories
 
         public async Task<ApiKey?> GetApiKeyByKey(ApiKey key)
         {
+            logger.LogInformation("Getting ApiKey for key: {key}", key.Key);
             return await dbContext.ApiKeys.Where(k => k.Key == key.Key).FirstOrDefaultAsync();
         }
 
-        public Task<ApiKey?> GetApiKeyByRestaurantId(ApiKey key)
+        public async Task<ApiKey?> GetApiKeyByRestaurantId(ApiKey key)
         {
-            return dbContext.ApiKeys.Where(k => k.RestaurantId == key.RestaurantId).FirstOrDefaultAsync();
+            logger.LogInformation("Getting ApiKey for restaurantId: {restaurantId}", key.RestaurantId);
+            return await dbContext.ApiKeys.Where(k => k.RestaurantId == key.RestaurantId).FirstOrDefaultAsync();
         }
     }
 }
