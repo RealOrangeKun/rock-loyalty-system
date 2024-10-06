@@ -72,7 +72,8 @@ namespace LoyaltyPointsApi.Services
                 PromoCode = promoCode,
                 RestaurantId = restaurantId
             };
-            var result = await promotionRepository.GetPromotion(existingPromotion) ?? throw new Exception("Promotion not found");
+            var result = await promotionRepository.GetPromotion(existingPromotion);
+            if (result == null) return null;
             result.ThresholdId = promotion.ThresholdId;
             await promotionRepository.UpdatePromotion(result);
             return result;

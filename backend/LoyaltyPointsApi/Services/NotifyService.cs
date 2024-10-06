@@ -8,7 +8,7 @@ namespace LoyaltyPointsApi.Services
         IServiceScopeFactory serviceScopeFactory,
         ILogger<NotifyService> logger
         ) : BackgroundService
-    
+
     {
         private Timer timer;
 
@@ -35,14 +35,16 @@ namespace LoyaltyPointsApi.Services
             try
             {
                 using var scope = serviceScopeFactory.CreateScope();
-                
+
                 var restaurantRepository = scope.ServiceProvider.GetRequiredService<IRestaurantRepository>();
                 var thresholdService = scope.ServiceProvider.GetRequiredService<IThresholdService>();
 
                 // Fetch restaurant settings
                 List<RestaurantSettings> restaurants = await restaurantRepository.GetAllRestaurants();
 
-                List<List<Threshold>> thresholds = new();
+                if (restaurants.Count == 0) return;
+
+                List<List<Threshold>> thresholds = [];
                 foreach (var restaurant in restaurants)
                 {
                     List<Threshold>? restaurantThresholds =
@@ -54,6 +56,7 @@ namespace LoyaltyPointsApi.Services
 
                     thresholds.Add(restaurantThresholds);
                 }
+                logger.LogDebug("Thresholds: {thresholds}", thresholds);
 
                 List<Promotion> promotions = new();
                 foreach (var restaurantThresholds in thresholds)
@@ -99,13 +102,13 @@ namespace LoyaltyPointsApi.Services
         {
             logger.LogInformation("Notifying users about promotion: {promoCode}", promotion.PromoCode);
             using var scope = serviceScopeFactory.CreateScope();
-            
+
             var promotionRepository = scope.ServiceProvider.GetRequiredService<IPromotionRepository>();
             var loyaltyPointsTransactionRepository =
                 scope.ServiceProvider.GetRequiredService<ILoyaltyPointsTransactionRepository>();
             var thresholdService = scope.ServiceProvider.GetRequiredService<IThresholdService>();
             var apiUtility = scope.ServiceProvider.GetRequiredService<ApiUtility>();
-                
+
             var boundaries =
                 await thresholdService.GetThresholdBoundaries(promotion.ThresholdId, promotion.RestaurantId);
 
@@ -150,7 +153,7 @@ namespace LoyaltyPointsApi.Services
             var restaurantService = scope.ServiceProvider.GetRequiredService<IRestaurantService>();
             var emailUtility = scope.ServiceProvider.GetRequiredService<EmailUtility>();
             var restaurant = await restaurantService.GetRestaurant(promotion.RestaurantId);
-            
+
             string message = $"Hello {user.Name},\n\nWe are excited to share our latest promotion with you! \n\n" +
                              $"Promotion Code: {promotion.PromoCode}\n" +
                              $"Start Date: {promotion.StartDate}\n" +

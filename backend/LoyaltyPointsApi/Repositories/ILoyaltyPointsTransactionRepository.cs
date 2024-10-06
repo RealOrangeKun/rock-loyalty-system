@@ -10,10 +10,10 @@ namespace LoyaltyPointsApi.Repositories
     {
         public Task<LoyaltyPoints> AddLoyaltyPointsTransaction(LoyaltyPoints loyaltyPointsTransaction);
 
-        public Task<List<LoyaltyPoints>> GetLoyaltyPointsTransactions(LoyaltyPoints loyaltyPointsTransaction);
+        public Task<List<LoyaltyPoints?>> GetLoyaltyPointsTransactions(LoyaltyPoints loyaltyPointsTransaction);
 
-        public Task<LoyaltyPoints> GetLoyaltyPointsTransaction(LoyaltyPoints loyaltyPointsTransaction);
+        public Task<LoyaltyPoints?> GetLoyaltyPointsTransaction(LoyaltyPoints loyaltyPointsTransaction);
 
-        public Task<List<int>> GetCustomersByRestaurantAndPointsRange(int restaurantId , int? minimumPoints , int? maximumPoints); 
+        public Task<List<int>> GetCustomersByRestaurantAndPointsRange(int restaurantId, int? minimumPoints, int? maximumPoints);
     }
 }

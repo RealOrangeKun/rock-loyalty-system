@@ -22,6 +22,9 @@ namespace LoyaltyPointsApi.Repositories
         public async Task<LoyaltyPoints?> GetLoyaltyPointsTransaction(LoyaltyPoints loyaltyPointsTransaction)
         {
             logger.LogInformation("Getting LoyaltyPointsTransaction: {loyaltyPointsTransaction}", loyaltyPointsTransaction);
+            if (loyaltyPointsTransaction.ReceiptId != 0)
+                return await dbContext.LoyaltyPoints.FirstOrDefaultAsync(r =>
+                    r.ReceiptId == loyaltyPointsTransaction.ReceiptId);
             return await dbContext.LoyaltyPoints.FirstOrDefaultAsync(r =>
                 r.TransactionId == loyaltyPointsTransaction.TransactionId);
         }
@@ -38,12 +41,12 @@ namespace LoyaltyPointsApi.Repositories
         {
             if (maxPoints != null)
             {
-                var userIds = dbContext.LoyaltyPoints
+                var userIds = await dbContext.LoyaltyPoints
                     .Where(lp => lp.RestaurantId == restaurantId)
                     .GroupBy(lp => lp.CustomerId)
                     .Where(g => g.Sum(lp => lp.Points) >= minPoints && g.Sum(lp => lp.Points) <= maxPoints)
                     .Select(g => g.Key)
-                    .ToList();
+                    .ToListAsync();
                 return userIds;
             }
             else

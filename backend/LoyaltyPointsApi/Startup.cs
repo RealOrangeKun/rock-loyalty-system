@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using LoyaltyPointsApi.Config;
 using LoyaltyPointsApi.Data;
@@ -47,7 +48,7 @@ namespace LoyaltyPointsApi
             services.AddScoped<IPromotionService, PromotionService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IUserRepository, UserRepository>();
-            services.AddHostedService<NotifyService>();     
+            services.AddHostedService<NotifyService>();
             services.AddSingleton<PromotionAddedEvent>();
             // services.AddScoped<UserService>();
             Log.Logger.Information("Services added");
@@ -56,7 +57,15 @@ namespace LoyaltyPointsApi
             // Adding controllers and swagger
             services.AddControllers();
             services.AddEndpointsApiExplorer();
-            services.AddSwaggerGen();
+            services.AddSwaggerGen(options =>
+            {
+                // Get the path to the XML documentation file
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+
+                // Include the XML documentation in Swagger
+                options.IncludeXmlComments(xmlPath);
+            });
 
             Log.Logger.Information("Middleware added");
 
@@ -78,7 +87,7 @@ namespace LoyaltyPointsApi
             app.UseAuthentication();
             app.UseAuthorization();
             app.MapControllers();
-    
+
             if (environment.IsProduction())
                 app.UseMiddleware<ApiKeyValidatorMiddleware>();
 

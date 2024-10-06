@@ -38,7 +38,9 @@ namespace LoyaltyPointsApi.Repositories
         public async Task<List<RestaurantSettings>> GetAllRestaurants()
         {
             logger.LogInformation("Getting all Restaurants");
-            return await dbContext.RestaurantSettings.ToListAsync();
+            var restaurants = await dbContext.RestaurantSettings.ToListAsync();
+            if (restaurants.Count == 0) logger.LogWarning("No Restaurants found");
+            return restaurants;
         }
     }
 }
