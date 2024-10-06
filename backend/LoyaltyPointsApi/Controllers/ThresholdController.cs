@@ -66,22 +66,25 @@ namespace LoyaltyPointsApi.Controllers
         /// Response:
         /// HTTP/1.1 200 OK
         /// Content-Type: application/json
-        /// [
+        ///
+        /// {
+        ///     "success": true,
+        ///     "message": "Thresholds found",
+        ///     "data": [
         ///     {
         ///         "thresholdId": 1,
         ///         "restaurantId": 1,
-        ///         "thresholdName": "Silver",
-        ///         "minimumPoints": 10,
-        ///         "promotions": []
+        ///         "thresholdName": "Bronze",
+        ///         "minimumPoints": 100
         ///     },
         ///     {
         ///         "thresholdId": 2,
         ///         "restaurantId": 1,
-        ///         "thresholdName": "Gold",
-        ///         "minimumPoints": 20,
-        ///         "promotions": []
+        ///         "thresholdName": "Silver",
+        ///         "minimumPoints": 500
         ///     }
-        /// ]
+        ///     ]
+        /// }
         /// </example>
         /// <returns>A 200 OK response with a list of thresholds</returns>
         /// <response code="200">Thresholds found</response>
@@ -104,13 +107,7 @@ namespace LoyaltyPointsApi.Controllers
                     thresholdId = t.ThresholdId,
                     restaurantId = t.RestaurantId,
                     thresholdName = t.ThresholdName,
-                    minimumPoints = t.MinimumPoints,
-                    promotions = t.Promotions?.Select(promo => new
-                    {
-                        restaurantId = promo.RestaurantId,
-                        promoCode = promo.PromoCode,
-                        thresholdId = promo.ThresholdId
-                    }).ToList()
+                    minimumPoints = t.MinimumPoints
                 }).ToList();
 
                 return Ok(new
@@ -168,11 +165,18 @@ namespace LoyaltyPointsApi.Controllers
             {
                 var result = await thresholdService.GetRestaurantThreshold(restaurantId, thresholdId);
                 if (result == null) return NotFound(new { success = false, message = "Threshold not found" });
+                var responseData = new                                       
+                {                                                                               
+                    thresholdId = result.ThresholdId,                                                
+                    restaurantId = result.RestaurantId,                                              
+                    thresholdName = result.ThresholdName,                                            
+                    minimumPoints = result.MinimumPoints                                             
+                };       
                 return Ok(new
                 {
                     success = true,
                     message = "Threshold found",
-                    data = result
+                    data = responseData
                 });
             }
             catch (Exception ex)

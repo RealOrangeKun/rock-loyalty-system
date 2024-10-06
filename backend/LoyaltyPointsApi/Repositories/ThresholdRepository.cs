@@ -30,7 +30,6 @@ namespace LoyaltyPointsApi.Repositories
         {
             logger.LogInformation("Getting Threshold: {threshold} for restaurant: {restaurantId}", threshold.ThresholdId, threshold.RestaurantId);
             return await dbContext.Thresholds
-                .Include(t => t.Promotions)
                 .FirstOrDefaultAsync(r =>
                     r.RestaurantId == threshold.RestaurantId && r.ThresholdId == threshold.ThresholdId);
         }
@@ -39,7 +38,6 @@ namespace LoyaltyPointsApi.Repositories
         {
             logger.LogInformation("Getting Thresholds for restaurant: {restaurantId}", threshold.RestaurantId);
             return await dbContext.Thresholds
-                .Include(t => t.Promotions)
                 .Where(r => r.RestaurantId == threshold.RestaurantId)
                 .ToListAsync()!;
         }

@@ -32,8 +32,8 @@ namespace LoyaltyPointsApi.Controllers
         ///  {
         ///      "success": true,
         ///      "message": "Total points found",
-        ///      "Data": {
-        ///          "TotalPoints": 100
+        ///      "data": {
+        ///          "totalPoints": 100
         ///      }
         ///  }
         /// </example>
@@ -51,9 +51,9 @@ namespace LoyaltyPointsApi.Controllers
                 {
                     success = true,
                     message = "Total points found",
-                    Data = new
+                    data = new
                     {
-                        TotalPoints = result
+                        totalPoints = result
                     }
                 });
             }

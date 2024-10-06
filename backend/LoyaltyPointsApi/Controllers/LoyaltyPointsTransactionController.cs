@@ -241,13 +241,13 @@ namespace LoyaltyPointsApi.Controllers
         ///      "success": true,
         ///      "message": "Transaction added",
         ///      "data": {
-        ///          "TransactionId": 1,
-        ///          "CustomerId": 1,
-        ///          "ReceiptId": 1,          
-        ///          "RestaurantId": 1,
-        ///          "TransactionDate": "2022-11-01T14:30:00",
-        ///          "ExpiryDate": "2022-11-01T14:30:00",
-        ///          "Points": 100
+        ///          "transactionId": 1,
+        ///          "customerId": 1,
+        ///          "receiptId": 1,          
+        ///          "restaurantId": 1,
+        ///          "transactionDate": "2022-11-01T14:30:00",
+        ///          "expiryDate": "2022-11-01T14:30:00",
+        ///          "points": 100
         ///      }
         ///  }
         /// </example>
