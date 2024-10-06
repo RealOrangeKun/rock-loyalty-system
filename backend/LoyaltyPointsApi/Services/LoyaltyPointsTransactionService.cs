@@ -1,13 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using LoyaltyPointsApi.Data;
 using LoyaltyPointsApi.Models;
 using LoyaltyPointsApi.Repositories;
 using LoyaltyPointsApi.RequestModels;
-using LoyaltyPointsApi.Services;
-using Microsoft.AspNetCore.RateLimiting;
+using X.PagedList;
 
 namespace LoyaltyPointsApi.Services
 {
@@ -28,7 +23,7 @@ namespace LoyaltyPointsApi.Services
                 RestaurantId = loyaltyPointsRequestModel.RestaurantId,
                 TransactionDate = loyaltyPointsRequestModel.TransactionDate,
                 ExpiryDate = loyaltyPointsRequestModel.TransactionDate.AddDays(restaurant.PointsLifeTime),
-                Restaurant = loyaltyPointsRequestModel.Restaurant,
+                Restaurant = restaurant,
                 ReceiptId = loyaltyPointsRequestModel.ReceiptId,
             };
 
@@ -58,6 +53,21 @@ namespace LoyaltyPointsApi.Services
             };
 
             return await loyaltyPointsTransactionRepository.GetLoyaltyPointsTransactions(loyaltyPoints);
+        }
+
+        public async Task<IPagedList<LoyaltyPoints>> GetLoyaltyPointsTransactions(int customerId, int restaurantId,
+            int pageNumber, int pageSize)
+        {
+            logger.LogInformation("Getting LoyaltyPointsTransactions: {customerId} for restaurant: {restaurantId}",
+                customerId, restaurantId);
+            LoyaltyPoints loyaltyPoints = new()
+            {
+                CustomerId = customerId,
+                RestaurantId = restaurantId,
+            };
+
+            return await loyaltyPointsTransactionRepository.GetPagedLoyaltyPointsTransactions(
+                loyaltyPoints, pageNumber, pageSize);
         }
 
         public async Task<int> GetTotalPoints(int customerId, int restaurantId)

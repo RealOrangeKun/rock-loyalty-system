@@ -1,10 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
 using LoyaltyPointsApi.Models;
 using LoyaltyPointsApi.RequestModels;
+using X.PagedList;
 
 namespace LoyaltyPointsApi.Services
 {
@@ -14,7 +10,7 @@ namespace LoyaltyPointsApi.Services
 
         public Task<LoyaltyPoints> AddLoyaltyPointsTransaction(LoyaltyPointsTransactionRequestModel loyaltyPointsRequestModel);
 
-        public Task<List<LoyaltyPoints>> GetLoyaltyPointsTransactions(int customerId , int restaurantId);
+        public Task<IPagedList<LoyaltyPoints>> GetLoyaltyPointsTransactions(int customerId , int restaurantId,int pageNumber, int pageSize);
 
         public Task<int> GetTotalPoints(int customerId , int restaurantId);
 

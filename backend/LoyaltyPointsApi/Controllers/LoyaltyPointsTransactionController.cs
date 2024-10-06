@@ -4,6 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace LoyaltyPointsApi.Controllers
 {
+    /// <summary>
+    ///     Controller for transactions in the loyalty points system
+    /// </summary>
     [ApiController]
     [Route("api/transactions")]
     public class LoyaltyPointsTransactionController(ILoyaltyPointsTransactionService service,
@@ -138,37 +141,67 @@ namespace LoyaltyPointsApi.Controllers
         ///  HTTP/1.1 200 OK
         ///  Content-Type: application/json
         ///  
-        ///  {
-        ///      "success": true,
-        ///      "message": "Transactions found",
-        ///      "data": [
-        ///          {
-        ///              "TransactionId": 1,
-        ///              "CustomerId": 1,
-        ///              "ReceiptId": 1,          
-        ///              "RestaurantId": 1,
-        ///              "TransactionDate": "2022-11-01T14:30:00",
-        ///              "ExpiryDate": "2022-11-01T14:30:00",
-        ///              "Points": 100
-        ///          }
-        ///      ]
-        ///  }
+        /// {
+        ///     "success": true,
+        ///     "message": "Transactions found",
+        ///     "data": [
+        ///     {
+        ///         "transactionId": 1,
+        ///         "receiptId": 100,
+        ///         "customerId": 1,
+        ///         "restaurantId": 1,
+        ///         "points": 0,
+        ///         "transactionDate": "2024-10-06T13:41:44.019",
+        ///         "expiryDate": "2027-07-03T13:41:44.019",
+        ///         "isExpired": false,
+        ///         "restaurant": null
+        ///     },
+        ///     {
+        ///         "transactionId": 2,
+        ///         "receiptId": 101,
+        ///         "customerId": 1,
+        ///         "restaurantId": 1,
+        ///         "points": 0,
+        ///         "transactionDate": "2024-10-06T13:41:45.019",
+        ///         "expiryDate": "2027-07-03T13:41:45.019",
+        ///         "isExpired": false,
+        ///         "restaurant": null
+        ///     }
+        ///     ],
+        ///     "metadata": {
+        ///         "pageNumber": 1,
+        ///         "pageSize": 2,
+        ///         "totalItemCount": 3,
+        ///         "pageCount": 2,
+        ///         "hasPreviousPage": false,
+        ///         "hasNextPage": true
+        ///     }
+        /// }
         /// </example>
         [HttpGet]
         [Route("customers/{customerId}/restaurants/{restaurantId}")]
         [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(object), StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult> GetCustomerTransactions([FromRoute] int customerId, [FromRoute] int restaurantId)
+        public async Task<ActionResult> GetCustomerTransactions([FromRoute] int customerId, [FromRoute] int restaurantId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             logger.LogInformation("Request to get transactions: {customerId} for restaurant: {restaurantId}", customerId, restaurantId);
             try
             {
-                var result = await service.GetLoyaltyPointsTransactions(customerId, restaurantId);
+                var pagedTransactions = await service.GetLoyaltyPointsTransactions(customerId, restaurantId, pageNumber, pageSize);
                 return Ok(new
                 {
                     success = true,
                     message = "Transactions found",
-                    data = result
+                    data = pagedTransactions.ToList(),
+                    metadata = new
+                    {
+                        PageNumber = pagedTransactions.PageNumber,
+                        PageSize = pagedTransactions.PageSize,
+                        TotalItemCount = pagedTransactions.TotalItemCount,
+                        PageCount = pagedTransactions.PageCount,
+                        HasPreviousPage = pagedTransactions.HasPreviousPage,
+                        HasNextPage = pagedTransactions.HasNextPage
+                    }
                 });
             }
             catch (Exception ex)
