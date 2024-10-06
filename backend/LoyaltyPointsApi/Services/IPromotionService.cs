@@ -1,5 +1,6 @@
 using LoyaltyPointsApi.Models;
 using LoyaltyPointsApi.RequestModels;
+using X.PagedList;
 
 namespace LoyaltyPointsApi.Services
 {
@@ -9,7 +10,7 @@ namespace LoyaltyPointsApi.Services
          public Task<Promotion?> GetPromotion(string promoCode );
          public Task<Promotion?> UpdatePromotion(String promoCode ,UpdatePromotionRequestModel promotion,int restaurantId);
 
-         public Task<List<Promotion>> GetThresholdPromotions(int thresholdId);
+         public Task<IPagedList<Promotion>> GetThresholdPromotions(int thresholdId, int pageNumber, int pageSize);
          public Task DeletePromotion(String promoCode);
     }
 }   

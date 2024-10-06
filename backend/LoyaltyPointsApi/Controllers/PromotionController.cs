@@ -110,13 +110,33 @@ namespace LoyaltyPointsApi.Controllers
         ///     "success": true,
         ///     "message": "Promotions found",
         ///     "data": [
-        ///         {
-        ///             "id": 1,
-        ///             "promoCode": "SUMMER2022",
-        ///             "restaurantId": 1,
-        ///             "thresholdId": 1
-        ///         }
-        ///     ]
+        ///     {
+        ///         "restaurantId": 1,
+        ///         "promoCode": "save200",
+        ///         "thresholdId": 1,
+        ///         "isNotified": false,
+        ///         "startDate": "0001-01-01T00:00:00",
+        ///         "endDate": "0001-01-01T00:00:00",
+        ///         "threshold": null
+        ///     },
+        ///     {
+        ///         "restaurantId": 1,
+        ///         "promoCode": "save100",
+        ///         "thresholdId": 1,
+        ///         "isNotified": false,
+        ///         "startDate": "0001-01-01T00:00:00",
+        ///         "endDate": "0001-01-01T00:00:00",
+        ///         "threshold": null
+        ///     }
+        ///     ],
+        ///     "metadata": {
+        ///         "pageNumber": 1,
+        ///         "pageSize": 2,
+        ///         "totalItemCount": 4,
+        ///         "pageCount": 2,
+        ///         "hasPreviousPage": false,
+        ///         "hasNextPage": true
+        ///     }
         /// }
         /// </example>
         [HttpGet]
@@ -124,18 +144,27 @@ namespace LoyaltyPointsApi.Controllers
         [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(object), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(object), StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult> GetRestaurantPromotions([FromRoute] int restaurantId)
+        public async Task<ActionResult> GetRestaurantPromotions([FromRoute] int restaurantId,[FromQuery] int pageNumber = 1,[FromQuery] int pageSize = 10)
         {
             logger.LogInformation("Getting promotions request for restaurant: {restaurantId}", restaurantId);
             try
             {
-                var result = await promotionService.GetThresholdPromotions(restaurantId);
-                if (result == null) return NotFound(new { success = false, message = "Promotions not found" });
+                var pagedPromotions = await promotionService.GetThresholdPromotions(restaurantId,  pageNumber,  pageSize);
+                if (pagedPromotions == null) return NotFound(new { success = false, message = "Promotions not found" });
                 return Ok(new
                 {
                     success = true,
                     message = "Promotions found",
-                    data = result
+                    data = pagedPromotions.ToList(),
+                    metadata = new
+                    {
+                        PageNumber = pagedPromotions.PageNumber,
+                        PageSize = pagedPromotions.PageSize,
+                        TotalItemCount = pagedPromotions.TotalItemCount,
+                        PageCount = pagedPromotions.PageCount,
+                        HasPreviousPage = pagedPromotions.HasPreviousPage,
+                        HasNextPage = pagedPromotions.HasNextPage
+                    }
                 });
             }
             catch (Exception ex)

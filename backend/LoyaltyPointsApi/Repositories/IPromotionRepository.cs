@@ -1,4 +1,5 @@
 using LoyaltyPointsApi.Models;
+using X.PagedList;
 
 namespace LoyaltyPointsApi.Repositories
 {
@@ -9,7 +10,7 @@ namespace LoyaltyPointsApi.Repositories
         
          public Task<Promotion?> GetPromotion(Promotion promotion);
 
-         public Task<List<Promotion>> GetThresholdtPromotions(Promotion promotion);
+         public Task<IPagedList<Promotion>> GetThresholdPromotions(Promotion promotion, int pageNumber, int pageSize);
 
          public Task DeletePromotion(Promotion promotion);
          

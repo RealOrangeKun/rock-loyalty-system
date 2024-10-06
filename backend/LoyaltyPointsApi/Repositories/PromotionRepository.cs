@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using LoyaltyPointsApi.Data;
 using LoyaltyPointsApi.Models;
 using Microsoft.EntityFrameworkCore;
+using X.PagedList;
 
 namespace LoyaltyPointsApi.Repositories
 {
@@ -40,11 +41,11 @@ namespace LoyaltyPointsApi.Repositories
         }
 
 
-        public async Task<List<Promotion>> GetThresholdtPromotions(Promotion promotion)
+        public async Task<IPagedList<Promotion>> GetThresholdPromotions(Promotion promotion, int pageNumber, int pageSize)
         {
             logger.LogInformation("Getting Thresholdt Promotions: {promotion} for restaurant: {restaurantId}", promotion.ThresholdId, promotion.RestaurantId);
             var result = await dbContext.Promotions.Where(p => p.ThresholdId == promotion.ThresholdId).ToListAsync();
-            return result;
+            return result.ToPagedList(pageNumber, pageSize);
         }
 
         public async Task SetPromotionNotified(Promotion promotion)

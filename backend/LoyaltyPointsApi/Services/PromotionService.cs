@@ -2,16 +2,19 @@ using LoyaltyPointsApi.Events;
 using LoyaltyPointsApi.Models;
 using LoyaltyPointsApi.Repositories;
 using LoyaltyPointsApi.RequestModels;
+using X.PagedList;
 
 namespace LoyaltyPointsApi.Services
 {
-    public class PromotionService(IPromotionRepository promotionRepository,
-    PromotionAddedEvent promotionAddedEvent,
-    ILogger<PromotionService> logger) : IPromotionService
+    public class PromotionService(
+        IPromotionRepository promotionRepository,
+        PromotionAddedEvent promotionAddedEvent,
+        ILogger<PromotionService> logger) : IPromotionService
     {
         public async Task<Promotion?> AddPromotion(AddPromotionRequestModel promotion)
         {
-            logger.LogInformation("Adding Promotion: {promotion} for restaurant: {restaurantId}", promotion.PromoCode, promotion.RestaurantId);
+            logger.LogInformation("Adding Promotion: {promotion} for restaurant: {restaurantId}", promotion.PromoCode,
+                promotion.RestaurantId);
             Promotion promotionModel = new()
             {
                 RestaurantId = promotion.RestaurantId,
@@ -34,11 +37,11 @@ namespace LoyaltyPointsApi.Services
             };
             await promotionRepository.DeletePromotion(promotion);
 
-            Promotion result = await promotionRepository.GetPromotion(promotion) ?? throw new Exception("Promotion not found");
+            Promotion result = await promotionRepository.GetPromotion(promotion) ??
+                               throw new Exception("Promotion not found");
 
             await promotionRepository.DeletePromotion(result);
         }
-
 
 
         public async Task<Promotion?> GetPromotion(string promoCode)
@@ -53,20 +56,22 @@ namespace LoyaltyPointsApi.Services
             return result;
         }
 
-        public async Task<List<Promotion>> GetThresholdPromotions(int thresholdId)
+        public async Task<IPagedList<Promotion>> GetThresholdPromotions(int thresholdId, int pageNumber, int pageSize)
         {
             logger.LogInformation("Getting Threshold Promotions: {thresholdId}", thresholdId);
             Promotion promotion = new()
             {
                 ThresholdId = thresholdId
             };
-            return await promotionRepository.GetThresholdtPromotions(promotion);
+            return await promotionRepository.GetThresholdPromotions(promotion, pageNumber, pageSize);
         }
 
 
-        public async Task<Promotion?> UpdatePromotion(string promoCode, UpdatePromotionRequestModel promotion, int restaurantId)
+        public async Task<Promotion?> UpdatePromotion(string promoCode, UpdatePromotionRequestModel promotion,
+            int restaurantId)
         {
-            logger.LogInformation("Updating Promotion: {promoCode} for restaurant: {restaurantId}", promoCode, restaurantId);
+            logger.LogInformation("Updating Promotion: {promoCode} for restaurant: {restaurantId}", promoCode,
+                restaurantId);
             Promotion existingPromotion = new()
             {
                 PromoCode = promoCode,
@@ -78,6 +83,5 @@ namespace LoyaltyPointsApi.Services
             await promotionRepository.UpdatePromotion(result);
             return result;
         }
-
     }
 }
