@@ -9,9 +9,8 @@ import {
   throwError,
 } from 'rxjs';
 import { User } from '../shared/modules/user.module';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { enviroment } from '../../env';
-import { LoginInterface } from '../shared/responseInterface/login.response.interface';
 import { UserInterface } from '../shared/responseInterface/user.get.response.interface';
 
 @Injectable({
@@ -19,12 +18,22 @@ import { UserInterface } from '../shared/responseInterface/user.get.response.int
 })
 export class AuthService {
   currentUser: User;
+  restaurantId: string;
 
   user: BehaviorSubject<User> = new BehaviorSubject<User>(null);
   constructor(private http: HttpClient, private router: Router) {
     this.user.subscribe((user) => {
       this.currentUser = user;
     });
+    this.restaurantId = window.location.pathname.split('/')[1];
+
+    // login test
+    const myUser: User = new User(
+      'asfda',
+      new Date(new Date().getTime() + 9999999999999)
+    );
+    myUser.phonenumber = '0123141';
+    this.user.next(myUser);
   }
 
   isAuth() {
@@ -32,13 +41,24 @@ export class AuthService {
     else return false;
   }
 
+  autoLogOut(date: Date) {
+    const differenceInMs: number = date.getTime() - new Date().getTime();
+    setTimeout(() => {
+      this.LogOut();
+    }, differenceInMs);
+  }
+
   autoLogin() {
-    const userData = JSON.parse(localStorage.getItem('userInfo'));
+    const userData = JSON.parse(
+      localStorage.getItem('userInfo' + this.restaurantId)
+    );
+
     if (!userData) {
       return;
     }
-
-    const user: User = new User(userData._token, userData._tokenExpirationDate);
+    const token = userData._token;
+    const expireDate = new Date(userData._tokenExpirationDate);
+    const user: User = new User(token, expireDate);
     user.email = userData.email;
     user.name = userData.name;
     user.phonenumber = userData.phonenumber;
@@ -46,21 +66,21 @@ export class AuthService {
 
     if (user.token) {
       this.user.next(user);
+      this.autoLogOut(expireDate);
     }
   }
 
   LogOut() {
     this.user.next(null);
     localStorage.removeItem('userInfo');
-    this.router.navigate(['/auth', 'login']);
+    this.router.navigate([this.restaurantId, 'auth', 'login']);
   }
 
-  // check the return and add error handles in the auth sign up function
   SignUp(name: string, email: string, password: string) {
     return this.http.post(`${enviroment.apiUrl}/api/users`, {
       email: email,
       password: password,
-      restaurantId: enviroment.restaurantId,
+      restaurantId: this.restaurantId,
       name: name,
     });
   }
@@ -71,7 +91,7 @@ export class AuthService {
         email: email,
         phoneNumber: phoneNumber,
         password: password,
-        restaurantId: enviroment.restaurantId,
+        restaurantId: this.restaurantId,
       })
       .pipe(
         catchError((errorResponse: HttpErrorResponse) => {
@@ -174,7 +194,7 @@ export class AuthService {
     return this.http
       .post<UserInterface>(`${enviroment.apiUrl}/api/oauth2/signin-facebook`, {
         accessToken: token,
-        restaurantId: enviroment.restaurantId,
+        restaurantId: this.restaurantId,
       })
       .pipe(
         tap((userInfo) => {
@@ -187,12 +207,12 @@ export class AuthService {
         })
       );
   }
-  // to do :
+
   forgotPassword(email: string): Observable<any> {
     return this.http
       .post(`${enviroment.apiUrl}/api/password/forgot-password-email`, {
         email: email,
-        restaurantId: enviroment.restaurantId,
+        restaurantId: this.restaurantId,
       })
       .pipe(
         catchError((response: HttpErrorResponse) => {
@@ -217,7 +237,7 @@ export class AuthService {
     return this.http
       .post<UserInterface>(`${enviroment.apiUrl}/api/oauth2/signin-google`, {
         accessToken: token,
-        restaurantId: enviroment.restaurantId,
+        restaurantId: this.restaurantId,
       })
       .pipe(
         tap((userInfo) => {
@@ -244,6 +264,6 @@ export class AuthService {
     user.phonenumber = phoneNumber;
     user.id = userId;
     this.user.next(user);
-    localStorage.setItem('userInfo', JSON.stringify(user));
+    localStorage.setItem('userInfo' + this.restaurantId, JSON.stringify(user));
   }
 }

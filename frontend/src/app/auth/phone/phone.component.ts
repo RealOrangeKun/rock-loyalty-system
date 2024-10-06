@@ -35,7 +35,7 @@ export class PhoneComponent {
         next: (response) => {
           this.toastrService.success('redirecting in 5 seconds');
           setTimeout(() => {
-            this.router.navigate(['/main']);
+            this.router.navigate([this.authService.restaurantId, 'main']);
           }, 5000);
         },
         error: (error) => {

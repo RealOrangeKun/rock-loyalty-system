@@ -17,76 +17,83 @@ import { ExchangePointsComponent } from './main/exchange-points/exchange-points.
 import { PointsComponent } from './main/points/points.component';
 import { VouchersComponent } from './main/vouchers/vouchers.component';
 import { ProfileComponent } from './main/profile/profile.component';
+import { AppComponent } from './app.component';
 
 const routes: Routes = [
   {
-    path: '',
-    redirectTo: 'main',
-    pathMatch: 'full',
-  },
-  {
-    path: 'auth',
-    component: AuthComponent,
+    path: ':restId',
+    component: AppComponent,
     children: [
       {
         path: '',
-        redirectTo: 'login',
+        redirectTo: 'main',
         pathMatch: 'full',
       },
       {
-        path: 'login',
-        component: LoginComponent,
-        canActivate: [notAuthGuard],
+        path: 'auth',
+        component: AuthComponent,
+        children: [
+          {
+            path: '',
+            redirectTo: 'login',
+            pathMatch: 'full',
+          },
+          {
+            path: 'login',
+            component: LoginComponent,
+            canActivate: [notAuthGuard],
+          },
+          {
+            path: 'register',
+            component: RegisterComponent,
+            canActivate: [notAuthGuard],
+          },
+          {
+            path: 'phone',
+            component: PhoneComponent,
+            canActivate: [authGuard, notPhoneGuard],
+          },
+          {
+            path: 'forget-password-request',
+            component: ForgetPasswordRequestComponent,
+            canActivate: [authGuard],
+          },
+          {
+            path: 'confirm-email/:token',
+            component: ConfirmEmailComponent,
+          },
+          {
+            path: 'forget-request',
+            component: ForgetPasswordRequestComponent,
+          },
+          {
+            path: 'forget-password/:token',
+            component: ForgetPasswordComponent,
+          },
+        ],
       },
       {
-        path: 'register',
-        component: RegisterComponent,
-        canActivate: [notAuthGuard],
-      },
-      {
-        path: 'phone',
-        component: PhoneComponent,
-        canActivate: [authGuard, notPhoneGuard],
-      },
-      {
-        path: 'forget-password-request',
-        component: ForgetPasswordRequestComponent,
-        canActivate: [authGuard],
-      },
-      {
-        path: 'confirm-email/:token',
-        component: ConfirmEmailComponent,
-      },
-      {
-        path: 'forget-request',
-        component: ForgetPasswordRequestComponent,
-      },
-      {
-        path: 'forget-password/:token',
-        component: ForgetPasswordComponent,
-      },
-    ],
-  },
-  {
-    path: 'main',
-    component: MainComponent,
-    canActivate: [authGuard, phoneGuardGuard],
-    children: [
-      {
-        path: '',
-        component: ExchangePointsComponent,
-      },
-      {
-        path: 'points',
-        component: PointsComponent,
-      },
-      {
-        path: 'vouchers',
-        component: VouchersComponent,
-      },
-      {
-        path: 'profile',
-        component: ProfileComponent,
+        path: 'main',
+        component: MainComponent,
+        canActivate: [authGuard, phoneGuardGuard],
+        children: [
+          {
+            path: '',
+            component: ExchangePointsComponent,
+          },
+          {
+            path: 'points',
+            component: PointsComponent,
+          },
+          {
+            path: 'vouchers',
+            component: VouchersComponent,
+          },
+          {
+            path: 'profile',
+            component: ProfileComponent,
+          },
+        ],
       },
     ],
   },

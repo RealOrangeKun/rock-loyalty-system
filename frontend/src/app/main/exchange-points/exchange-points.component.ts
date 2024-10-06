@@ -14,16 +14,18 @@ export class ExchangePointsComponent implements OnInit, OnDestroy {
   from: number = 0;
   to: number = 0;
   valid: boolean = false;
+  lifeTime: number = 0;
 
   loadingMessage: string = '';
   loading: boolean;
   exchangeRate: number = 2;
   private pointsServiceSub: Subscription;
   private exhangeServiceSub: Subscription;
+  private lifeTimeServiceSub: Subscription;
   constructor(
     private pointsService: ExchangePointsService,
     private toastrService: ToastrService
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     this.pointsServiceSub = this.pointsService.points.subscribe((points) => {
@@ -35,6 +37,11 @@ export class ExchangePointsComponent implements OnInit, OnDestroy {
         this.exchangeRate = rate;
       }
     );
+
+    this.lifeTimeServiceSub =
+      this.pointsService.voucherLifeTimeInMinutes.subscribe((lifeTime) => {
+        this.lifeTime = lifeTime;
+      });
 
     let cnt = 0;
     cnt++;
@@ -49,7 +56,7 @@ export class ExchangePointsComponent implements OnInit, OnDestroy {
         })
       )
       .subscribe({
-        next: () => { },
+        next: () => {},
         error: (error) => {
           console.log(error);
           this.toastrService.error('An error occured while fetching user data');
@@ -67,7 +74,7 @@ export class ExchangePointsComponent implements OnInit, OnDestroy {
         })
       )
       .subscribe({
-        next: () => { },
+        next: () => {},
         error: (error) => {
           console.log(error);
           this.toastrService.error('An error occured while fetching user data');
@@ -85,11 +92,7 @@ export class ExchangePointsComponent implements OnInit, OnDestroy {
     console.log('from', this.from);
     console.log('exchange', this.exchangeRate);
 
-    if (
-      this.to < 1
-      || this.from % 1 != 0
-      || this.from > this.points
-    ) {
+    if (this.to < 1 || this.from % 1 != 0 || this.from > this.points) {
       this.valid = false;
     } else {
       this.valid = true;
@@ -114,7 +117,7 @@ export class ExchangePointsComponent implements OnInit, OnDestroy {
       error: (error) => {
         console.log(error);
         this.toastrService.error('An error occured !');
-      }
-    })
+      },
+    });
   }
 }

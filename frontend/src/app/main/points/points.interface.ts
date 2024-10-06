@@ -6,7 +6,6 @@ export interface Points {
 
 export interface metaData {
   totalPages: number;
-  // totalItems: number;
   pageNumber: number;
   pageSize: number;
   totalCount: number;

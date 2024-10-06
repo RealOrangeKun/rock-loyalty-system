@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { AuthService } from '../auth.service';
 import { finalize } from 'rxjs';
@@ -12,11 +12,12 @@ import { GoogleAuthService } from '../social-login/google-auth.service';
   templateUrl: './register.component.html',
   styleUrl: './register.component.css',
 })
-export class RegisterComponent {
+export class RegisterComponent implements OnInit {
   @ViewChild('registerForm') form: NgForm;
   isLoading: boolean = false;
   loading: boolean = false;
   loadingMessage: string = '';
+  restuarantId: string;
   constructor(
     private authService: AuthService,
     private toastrService: ToastrService,
@@ -24,6 +25,9 @@ export class RegisterComponent {
     private googleAuth: GoogleAuthService,
     private router: Router
   ) {}
+  ngOnInit(): void {
+    this.restuarantId = this.authService.restaurantId;
+  }
 
   onSubmit() {
     const values = this.form.value;

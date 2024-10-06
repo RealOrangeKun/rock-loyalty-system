@@ -17,6 +17,7 @@ export class LoginComponent implements OnInit {
   @ViewChild('loginForm') form: NgForm;
   loading: boolean = false;
   loadingMessage: string = '';
+  restuarantId: string;
   constructor(
     private authService: AuthService,
     private facebookAuth: FacebookAuthService,
@@ -43,7 +44,9 @@ export class LoginComponent implements OnInit {
     });
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.restuarantId = this.authService.restaurantId;
+  }
 
   onGoogleLogin() {
     this.loading = true;
@@ -111,7 +114,7 @@ export class LoginComponent implements OnInit {
   private redirect(seconds: number = 5) {
     this.toastrService.success(`redirecting in ${seconds} seconds`);
     setTimeout(() => {
-      this.router.navigate(['/main']);
+      this.router.navigate([this.authService.restaurantId, 'main']);
     }, seconds * 1000);
   }
 }

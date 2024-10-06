@@ -2,6 +2,7 @@ export interface Voucher {
   shortCode: string;
   value: number;
   isUsed: boolean;
+  DateOfCreation: Date;
 }
 
 export interface PaginationMetadata {

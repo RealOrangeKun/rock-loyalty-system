@@ -40,14 +40,18 @@ export class ConfirmEmailComponent {
             'email confirmed'
           );
           setTimeout(() => {
-            this.router.navigate(['/main']);
+            this.router.navigate([this.authService.restaurantId, 'main']);
           }, 5000);
         },
         error: (error: Error) => {
           this.toastrService.error(
             `couldn't confirm your email please try again`
           );
-          this.router.navigate(['/auth', 'register']);
+          this.router.navigate([
+            this.authService.restaurantId,
+            'auth',
+            'register',
+          ]);
         },
       });
   }

@@ -42,7 +42,7 @@
   flex: 1;
   max-width: 182px;
   background-size: cover;
-  background-image: url("../../../../public/Untitled.png");
+  background-image: url("../../../../public/360_F_730143545_7SLrhZLBoq8V0dUfuJq34CuvBnZudkJd.jpg");
 }
 
 .gift-card__content {
@@ -83,6 +83,12 @@
   font-size: 24px;
   padding: 10px 20px;
   border-radius: 5px;
+}
+
+.gift-card__msg {
+  font-size: 10px;
+  display: block;
+  margin-top: 10px;
 }
 
 .no-vouchers {

@@ -24,7 +24,7 @@ export class VouchersComponent implements OnInit, OnDestroy {
   constructor(
     private toastrService: ToastrService,
     private vouchersService: VouchersService
-  ) { }
+  ) {}
 
   pageChanged(paginator: any) {
     this.loading = true;
@@ -76,7 +76,7 @@ export class VouchersComponent implements OnInit, OnDestroy {
   }
   private resetPage() {
     this.vouchersService.getVouchers(1, this.itemsPerPage).subscribe({
-      next: () => { },
+      next: () => {},
       error: () => {
         this.toastrService.error(`Couldn't fetching vouchers`);
       },

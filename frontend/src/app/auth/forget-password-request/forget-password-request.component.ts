@@ -1,5 +1,4 @@
 import { Component, ViewChild } from '@angular/core';
-import { Router } from '@angular/router';
 import { AuthService } from '../auth.service';
 import { NgModel } from '@angular/forms';
 import { finalize } from 'rxjs';
@@ -16,7 +15,7 @@ export class ForgetPasswordRequestComponent {
   @ViewChild('emailInput') emailInput: NgModel;
   constructor(
     private authService: AuthService,
-    private router: Router,
+
     private toastrService: ToastrService
   ) {}
   onUpdate() {

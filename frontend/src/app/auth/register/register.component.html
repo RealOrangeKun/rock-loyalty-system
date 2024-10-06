@@ -128,7 +128,10 @@
         submit
       </button>
       <div class="d-flex flex-column align-items-end justify-content-end">
-        <a class="icon-link icon-link-hover" [routerLink]="['/auth', 'login']">
+        <a
+          class="icon-link icon-link-hover"
+          [routerLink]="['/' + restuarantId, 'auth', 'login']"
+        >
           alreay registered ?
         </a>
       </div>

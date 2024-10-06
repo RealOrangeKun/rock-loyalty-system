@@ -9,7 +9,7 @@ import { Voucher, VouchersResponse } from './vouchers.interface';
 })
 export class VouchersService {
   vouchers: BehaviorSubject<Voucher[]> = new BehaviorSubject<Voucher[]>(null);
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
   getVouchers(pageNumber: number, pageSize: number) {
     return this.http
       .get<VouchersResponse>(`${enviroment.apiUrl}/api/vouchers`, {

@@ -5,34 +5,22 @@
   <div class="container-fluid flex-column align-items-start pt-3">
     <a
       class="nav-link"
-      [routerLink]="['/main']"
+      [routerLink]="['/' + restaurantId, 'main']"
       routerLinkActive="active"
       [routerLinkActiveOptions]="{ exact: true }"
     >
       <i class="bi bi-currency-exchange"></i>
       <span>Exchange</span>
     </a>
-    <a
-      class="nav-link"
-      [routerLink]="['/main', 'vouchers']"
-      routerLinkActive="active"
-    >
+    <a class="nav-link" [routerLink]="['vouchers']" routerLinkActive="active">
       <i class="bi bi-ticket-perforated-fill"></i>
       <span>Vouchers</span>
     </a>
-    <a
-      class="nav-link"
-      [routerLink]="['/main', 'points']"
-      routerLinkActive="active"
-    >
+    <a class="nav-link" [routerLink]="['points']" routerLinkActive="active">
       <i class="bi bi-cash-stack"></i>
       <span>Points</span>
     </a>
-    <a
-      class="nav-link"
-      [routerLink]="['/main', 'profile']"
-      routerLinkActive="active"
-    >
+    <a class="nav-link" [routerLink]="['profile']" routerLinkActive="active">
       <i class="bi bi-person-circle"></i>
       <span>Profile</span>
     </a>
@@ -44,34 +32,22 @@
   <div class="container-fluid justify-content-evenly">
     <a
       class="nav-link"
-      [routerLink]="['/main']"
+      [routerLink]="['/' + restaurantId, 'main']"
       routerLinkActive="active"
       [routerLinkActiveOptions]="{ exact: true }"
     >
       <i class="bi bi-currency-exchange"></i>
       <span>Exchange</span>
     </a>
-    <a
-      class="nav-link"
-      [routerLink]="['/main', 'vouchers']"
-      routerLinkActive="active"
-    >
+    <a class="nav-link" [routerLink]="['vouchers']" routerLinkActive="active">
       <i class="bi bi-ticket-perforated-fill"></i>
       <span>Vouchers</span>
     </a>
-    <a
-      class="nav-link"
-      [routerLink]="['/main', 'points']"
-      routerLinkActive="active"
-    >
+    <a class="nav-link" [routerLink]="['points']" routerLinkActive="active">
       <i class="bi bi-cash-stack"></i>
       <span>Points</span>
     </a>
-    <a
-      class="nav-link"
-      [routerLink]="['/main', 'profile']"
-      routerLinkActive="active"
-    >
+    <a class="nav-link" [routerLink]="['profile']" routerLinkActive="active">
       <i class="bi bi-person-circle"></i>
       <span>Profile</span>
     </a>

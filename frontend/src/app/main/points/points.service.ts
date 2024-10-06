@@ -10,12 +10,12 @@ import { Points, PointsResponse } from './points.interface';
 })
 export class PointsService {
   pointsList: BehaviorSubject<Points[]> = new BehaviorSubject<Points[]>(null);
-  constructor(private authService: AuthService, private http: HttpClient) { }
+  constructor(private authService: AuthService, private http: HttpClient) {}
 
   getPointsList(pageNumber: number, pageSize: number) {
     return this.http
       .get<PointsResponse>(
-        `${enviroment.apiUrl}/api/users/${this.authService.currentUser.id}/restaurants/${enviroment.restaurantId}/credit-points-transactions`,
+        `${enviroment.apiUrl}/api/users/${this.authService.currentUser.id}/restaurants/${this.authService.restaurantId}/credit-points-transactions`,
         {
           params: new HttpParams()
             .set('pageNumber', pageNumber)
@@ -27,13 +27,13 @@ export class PointsService {
           const points: Points[] = [];
           const transResponse = responseData.data.transactionsResponse;
 
-          transResponse.forEach(x => {
+          transResponse.forEach((x) => {
             points.push({
-              isExpired: x.isExpired
-              , points: x.points
-              , transactionValue: x.transactionValue
+              isExpired: x.isExpired,
+              points: x.points,
+              transactionValue: x.transactionValue,
             });
-          })
+          });
 
           this.pointsList.next(points);
         })

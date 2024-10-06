@@ -7,9 +7,11 @@ import { Injectable } from '@angular/core';
   providedIn: 'root',
 })
 export class ExchangePointsService {
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
   exhangeRate: BehaviorSubject<number> = new BehaviorSubject<number>(0);
   points: BehaviorSubject<number> = new BehaviorSubject<number>(0);
+  voucherLifeTimeInMinutes: BehaviorSubject<number> =
+    new BehaviorSubject<number>(0);
 
   getPoints() {
     return this.http.get(`${enviroment.apiUrl}/api/credit-points`).pipe(
@@ -20,24 +22,25 @@ export class ExchangePointsService {
   }
 
   getExchangeRate() {
-    return this.http
-      .get(
-        `${enviroment.apiUrl}/api/restaurants/me`
-      )
-      .pipe(
-        tap((responseData: any) => {
-          this.exhangeRate.next(
-            Number(responseData.data.restaurant.creditPointsSellingRate / 100)
-          );
-        })
-      );
+    return this.http.get(`${enviroment.apiUrl}/api/restaurants/me`).pipe(
+      tap((responseData: any) => {
+        this.exhangeRate.next(
+          Number(responseData.data.restaurant.creditPointsSellingRate / 100)
+        );
+        this.voucherLifeTimeInMinutes.next(
+          Number(responseData.data.restaurant.VoucherLifeTime)
+        );
+      })
+    );
   }
 
   createVoucher(points: number) {
-    return this.http.post(`${enviroment.apiUrl}/api/vouchers`, { Points: points }).pipe(
-      tap(() => {
-        this.getPoints().subscribe();
-      })
-    )
+    return this.http
+      .post(`${enviroment.apiUrl}/api/vouchers`, { Points: points })
+      .pipe(
+        tap(() => {
+          this.getPoints().subscribe();
+        })
+      );
   }
 }
