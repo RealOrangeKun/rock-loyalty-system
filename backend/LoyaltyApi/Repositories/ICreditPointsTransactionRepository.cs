@@ -7,7 +7,7 @@ public interface ICreditPointsTransactionRepository
 {
     public Task<CreditPointsTransaction?> GetTransactionByIdAsync(int transactionId);
 
-    public Task<CreditPointsTransaction?> GetTransactionByReceiptIdAsync(BigInteger receiptId);
+    public Task<CreditPointsTransaction?> GetTransactionByReceiptIdAsync(long receiptId);
 
     Task<IEnumerable<CreditPointsTransaction>> GetAllTransactionsByCustomerAndRestaurantAsync(int customerId, int restaurantId);
 

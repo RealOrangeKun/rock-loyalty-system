@@ -17,7 +17,7 @@ public class CreditPointsTransactionRepository(
             .FirstOrDefaultAsync(t => t.TransactionId == transactionId);
     }
 
-    public async Task<CreditPointsTransaction?> GetTransactionByReceiptIdAsync(BigInteger receiptId)
+    public async Task<CreditPointsTransaction?> GetTransactionByReceiptIdAsync(long receiptId)
     {
         logger.LogInformation("Getting transaction for receipt {ReceiptId}", receiptId);
         return await dbContext.CreditPointsTransactions
@@ -31,7 +31,7 @@ public class CreditPointsTransactionRepository(
         logger.LogInformation("Getting transactions for customer {CustomerId} and restaurant {RestaurantId}",
             customerId, restaurantId);
         return await dbContext.CreditPointsTransactions
-            .Where(t => t.CustomerId == customerId && t.RestaurantId == restaurantId)
+            .Where(t => t.RestaurantId == restaurantId && t.CustomerId == customerId)
             .ToListAsync();
     }
 
@@ -41,7 +41,7 @@ public class CreditPointsTransactionRepository(
         logger.LogInformation("Getting transactions for customer {CustomerId} and restaurant {RestaurantId}",
             customerId, restaurantId);
         var query = dbContext.CreditPointsTransactions
-            .Where(t => t.CustomerId == customerId && t.RestaurantId == restaurantId)
+            .Where(t => t.RestaurantId == restaurantId && t.CustomerId == customerId)
             .OrderByDescending(t => t.TransactionId)
             .AsQueryable();
         var totalCount = await query.CountAsync();
@@ -103,7 +103,7 @@ public class CreditPointsTransactionRepository(
         logger.LogInformation("Getting total points for customer {CustomerId} and restaurant {RestaurantId}",
             customerId, restaurantId);
         return await dbContext.CreditPointsTransactions
-            .Where(t => t.CustomerId == customerId && t.RestaurantId == restaurantId)
+            .Where(t => t.RestaurantId == restaurantId && t.CustomerId == customerId)
             .SumAsync(t => t.Points);
     }
 
@@ -112,13 +112,14 @@ public class CreditPointsTransactionRepository(
     {
         // Use SQL query to get all transactions that have expired based on the restaurant's lifetime
         var query = from transaction in dbContext.CreditPointsTransactions
-                    join restaurant in dbContext.Restaurants
-                        on transaction.RestaurantId equals restaurant.RestaurantId
-                    where transaction.TransactionType == TransactionType.Earn &&
-                          transaction.IsExpired == false &&
-                          transaction.Points > 0 &&
-                          transaction.TransactionDate < currentDate.AddDays(-restaurant.CreditPointsLifeTime)
-                    select transaction;
+            join restaurant in dbContext.Restaurants
+                on transaction.RestaurantId equals restaurant.RestaurantId
+            where
+                transaction.TransactionDate < currentDate.AddDays(-restaurant.CreditPointsLifeTime) &&
+                transaction.TransactionType == TransactionType.Earn &&
+                transaction.IsExpired == false &&
+                transaction.Points > 0
+            select transaction;
         logger.LogInformation("Getting expired transactions");
         return await query.ToListAsync();
     }

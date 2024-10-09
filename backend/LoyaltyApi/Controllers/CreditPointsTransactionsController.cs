@@ -138,7 +138,7 @@ public class CreditPointsTransactionController(
     [HttpGet]
     [Route("admin/credit-points-transactions/receipt/{receiptId}")]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> GetTransactionByReceiptId(BigInteger receiptId)
+    public async Task<IActionResult> GetTransactionByReceiptId(long receiptId)
     {
         try
         {
