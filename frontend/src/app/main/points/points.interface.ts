@@ -1,4 +1,9 @@
 export interface Points {
+  receiptId: number;
+  restaurantId: number;
+  customerId: number;
+  transactionType: number;
+  transactionDate: Date;
   transactionValue: number;
   isExpired: boolean;
   points: number;

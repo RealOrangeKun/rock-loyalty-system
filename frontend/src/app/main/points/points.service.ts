@@ -24,18 +24,9 @@ export class PointsService {
       )
       .pipe(
         tap((responseData) => {
-          const points: Points[] = [];
-          const transResponse = responseData.data.transactionsResponse;
-
-          transResponse.forEach((x) => {
-            points.push({
-              isExpired: x.isExpired,
-              points: x.points,
-              transactionValue: x.transactionValue,
-            });
-          });
-
-          this.pointsList.next(points);
+          const transResponse: Points[] =
+            responseData.data.transactionsResponse;
+          this.pointsList.next(transResponse);
         })
       );
   }
