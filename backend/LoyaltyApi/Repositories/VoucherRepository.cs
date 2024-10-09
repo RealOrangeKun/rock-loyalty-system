@@ -75,7 +75,6 @@ namespace LoyaltyApi.Repositories
             logger.LogInformation("Getting voucher {ShortCode} for customer {CustomerId} and restaurant {RestaurantId}",
                 voucher.ShortCode, voucher.CustomerId, voucher.RestaurantId);
             return await dbContext.Vouchers.Where(v =>
-                v.CustomerId == voucher.CustomerId && v.RestaurantId == v.RestaurantId &&
                 v.ShortCode == voucher.ShortCode).FirstOrDefaultAsync();
         }
 

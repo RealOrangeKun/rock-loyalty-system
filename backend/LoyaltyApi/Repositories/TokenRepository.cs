@@ -14,21 +14,24 @@ using Sprache;
 
 namespace LoyaltyApi.Repositories
 {
-    public class TokenRepository(RockDbContext dbContext,
-    IOptions<JwtOptions> jwtOptions,
-    ILogger<TokenRepository> logger) : ITokenRepository
+    public class TokenRepository(
+        RockDbContext dbContext,
+        IOptions<JwtOptions> jwtOptions,
+        ILogger<TokenRepository> logger) : ITokenRepository
     {
         public string GenerateAccessToken(Token token)
         {
             JwtSecurityToken generatedToken = GenerateToken(token);
-            logger.LogInformation("Generated access token for customer {CustomerId} and restaurant {RestaurantId}", token.CustomerId, token.RestaurantId);
+            logger.LogInformation("Generated access token for customer {CustomerId} and restaurant {RestaurantId}",
+                token.CustomerId, token.RestaurantId);
             return new JwtSecurityTokenHandler().WriteToken(generatedToken);
         }
 
         private JwtSecurityToken GenerateToken(Token token)
         {
-            var claims = new[]{
-                new Claim(JwtRegisteredClaimNames.Sub,token.CustomerId.ToString()),
+            var claims = new[]
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, token.CustomerId.ToString()),
                 new Claim("restaurantId", token.RestaurantId.ToString()),
                 new Claim("role", token.Role.ToString())
             };
@@ -39,7 +42,9 @@ namespace LoyaltyApi.Repositories
                 issuer: null,
                 audience: null,
                 claims: claims,
-                expires: token.TokenType != TokenType.RefreshToken ? DateTime.Now.AddMinutes(jwtOptions.Value.ExpirationInMinutes) : DateTime.Now.AddMonths(6),
+                expires: token.TokenType != TokenType.RefreshToken
+                    ? DateTime.Now.AddMinutes(jwtOptions.Value.ExpirationInMinutes)
+                    : DateTime.Now.AddMonths(6),
                 signingCredentials: creds
             );
             return generatedToken;
@@ -47,9 +52,12 @@ namespace LoyaltyApi.Repositories
 
         public bool ValidateRefreshToken(Token token)
         {
-            logger.LogInformation("Validating refresh token for customer {CustomerId} and restaurant {RestaurantId}", token.CustomerId, token.RestaurantId);
+            logger.LogInformation("Validating refresh token for customer {CustomerId} and restaurant {RestaurantId}",
+                token.CustomerId, token.RestaurantId);
             return ValidateToken(token)
-            && dbContext.Tokens.Any(t => t.TokenValue == token.TokenValue && t.TokenType == TokenType.RefreshToken);
+                   && dbContext.Tokens.Any(t =>
+                       t.CustomerId == token.CustomerId && t.RestaurantId == token.RestaurantId &&
+                       t.TokenValue == token.TokenValue && t.TokenType == TokenType.RefreshToken);
         }
 
         public bool ValidateToken(Token token)
@@ -73,9 +81,11 @@ namespace LoyaltyApi.Repositories
             JwtSecurityToken generatedToken = GenerateToken(token);
             var tokenHandler = new JwtSecurityTokenHandler();
             string valueToken = tokenHandler.WriteToken(generatedToken).ToString();
-            int subject = int.Parse(tokenHandler.ReadJwtToken(valueToken).Claims.First(claim => claim.Type == "sub").Value);
+            int subject = int.Parse(tokenHandler.ReadJwtToken(valueToken).Claims.First(claim => claim.Type == "sub")
+                .Value);
             DateTime expiration = tokenHandler.ReadJwtToken(valueToken).ValidTo;
-            int restaurantId = int.Parse(tokenHandler.ReadJwtToken(valueToken).Claims.First(claim => claim.Type == "restaurantId").Value);
+            int restaurantId = int.Parse(tokenHandler.ReadJwtToken(valueToken).Claims
+                .First(claim => claim.Type == "restaurantId").Value);
             var refreshToken = new Token
             {
                 TokenValue = valueToken,
@@ -85,7 +95,8 @@ namespace LoyaltyApi.Repositories
             };
             await dbContext.Tokens.AddAsync(refreshToken);
             await dbContext.SaveChangesAsync();
-            logger.LogInformation("Generated refresh token for customer {CustomerId} and restaurant {RestaurantId}", token.CustomerId, token.RestaurantId);
+            logger.LogInformation("Generated refresh token for customer {CustomerId} and restaurant {RestaurantId}",
+                token.CustomerId, token.RestaurantId);
             return refreshToken.TokenValue;
         }
 
@@ -94,9 +105,11 @@ namespace LoyaltyApi.Repositories
             JwtSecurityToken generatedToken = GenerateToken(token);
             var tokenHandler = new JwtSecurityTokenHandler();
             string valueToken = tokenHandler.WriteToken(generatedToken).ToString();
-            int subject = int.Parse(tokenHandler.ReadJwtToken(valueToken).Claims.First(claim => claim.Type == "sub").Value);
+            int subject = int.Parse(tokenHandler.ReadJwtToken(valueToken).Claims.First(claim => claim.Type == "sub")
+                .Value);
             DateTime expiration = tokenHandler.ReadJwtToken(valueToken).ValidTo;
-            int restaurantId = int.Parse(tokenHandler.ReadJwtToken(valueToken).Claims.First(claim => claim.Type == "restaurantId").Value);
+            int restaurantId = int.Parse(tokenHandler.ReadJwtToken(valueToken).Claims
+                .First(claim => claim.Type == "restaurantId").Value);
             var forgotPasswordToken = new Token
             {
                 TokenValue = valueToken,
@@ -106,7 +119,9 @@ namespace LoyaltyApi.Repositories
             };
             await dbContext.Tokens.AddAsync(forgotPasswordToken);
             await dbContext.SaveChangesAsync();
-            logger.LogInformation("Generated forgot password token for customer {CustomerId} and restaurant {RestaurantId}", token.CustomerId, token.RestaurantId);
+            logger.LogInformation(
+                "Generated forgot password token for customer {CustomerId} and restaurant {RestaurantId}",
+                token.CustomerId, token.RestaurantId);
             return forgotPasswordToken.TokenValue;
         }
 
@@ -115,9 +130,11 @@ namespace LoyaltyApi.Repositories
             JwtSecurityToken generatedToken = GenerateToken(token);
             var tokenHandler = new JwtSecurityTokenHandler();
             string valueToken = tokenHandler.WriteToken(generatedToken).ToString();
-            int subject = int.Parse(tokenHandler.ReadJwtToken(valueToken).Claims.First(claim => claim.Type == "sub").Value);
+            int subject = int.Parse(tokenHandler.ReadJwtToken(valueToken).Claims.First(claim => claim.Type == "sub")
+                .Value);
             DateTime expiration = tokenHandler.ReadJwtToken(valueToken).ValidTo;
-            int restaurantId = int.Parse(tokenHandler.ReadJwtToken(valueToken).Claims.First(claim => claim.Type == "restaurantId").Value);
+            int restaurantId = int.Parse(tokenHandler.ReadJwtToken(valueToken).Claims
+                .First(claim => claim.Type == "restaurantId").Value);
             var confirmEmailToken = new Token
             {
                 TokenValue = valueToken,
@@ -127,23 +144,31 @@ namespace LoyaltyApi.Repositories
             };
             await dbContext.Tokens.AddAsync(confirmEmailToken);
             await dbContext.SaveChangesAsync();
-            logger.LogInformation("Generated confirm email token for customer {CustomerId} and restaurant {RestaurantId}", token.CustomerId, token.RestaurantId);
+            logger.LogInformation(
+                "Generated confirm email token for customer {CustomerId} and restaurant {RestaurantId}",
+                token.CustomerId, token.RestaurantId);
             return confirmEmailToken.TokenValue;
-
         }
 
         public bool ValidateConfirmEmailToken(Token token)
         {
-            logger.LogInformation("Validating confirm email token for customer {CustomerId} and restaurant {RestaurantId}", token.CustomerId, token.RestaurantId);
+            logger.LogInformation(
+                "Validating confirm email token for customer {CustomerId} and restaurant {RestaurantId}",
+                token.CustomerId, token.RestaurantId);
             return ValidateToken(token)
-            && dbContext.Tokens.Any(t => t.TokenValue == token.TokenValue && t.TokenType == TokenType.ConfirmEmail);
+                   && dbContext.Tokens.Any(t =>
+                       t.CustomerId == token.CustomerId && t.RestaurantId == token.RestaurantId &&
+                       t.TokenValue == token.TokenValue && t.TokenType == TokenType.ConfirmEmail);
         }
 
         public bool ValidateForgotPasswordTokenAsync(Token token)
         {
-            logger.LogInformation("Validating forgot password token for customer {CustomerId} and restaurant {RestaurantId}", token.CustomerId, token.RestaurantId);
+            logger.LogInformation(
+                "Validating forgot password token for customer {CustomerId} and restaurant {RestaurantId}",
+                token.CustomerId, token.RestaurantId);
             return ValidateToken(token)
-            && dbContext.Tokens.Any(t => t.TokenValue == token.TokenValue && t.TokenType == TokenType.ForgotPasswordToken);
+                   && dbContext.Tokens.Any(t =>
+                       t.TokenValue == token.TokenValue && t.TokenType == TokenType.ForgotPasswordToken);
         }
     }
 }

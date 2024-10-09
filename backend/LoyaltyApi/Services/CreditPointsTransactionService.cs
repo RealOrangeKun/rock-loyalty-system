@@ -32,7 +32,7 @@ public class CreditPointsTransactionService(
         }
     }
 
-    public async Task<CreditPointsTransaction?> GetTransactionByReceiptIdAsync(BigInteger receiptId)
+    public async Task<CreditPointsTransaction?> GetTransactionByReceiptIdAsync(long receiptId)
     {
         logger.LogInformation("Getting transaction for receipt {ReceiptId}", receiptId);
         try

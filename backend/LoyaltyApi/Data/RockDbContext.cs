@@ -36,11 +36,23 @@ namespace LoyaltyApi.Data
                 .HasDefaultValue(false);
 
             modelBuilder.Entity<Voucher>()
+                .HasIndex(v => new {v.CustomerId, v.RestaurantId});
+            
+            modelBuilder.Entity<Voucher>()
                 .HasIndex(v => v.DateOfCreation);
-
+            
             modelBuilder.Entity<CreditPointsTransaction>()
                 .HasKey(p => p.TransactionId);
-
+            
+            modelBuilder.Entity<CreditPointsTransaction>()
+                .HasIndex(p => p.ReceiptId);
+            
+            modelBuilder.Entity<CreditPointsTransaction>()
+                .HasIndex(p => p.TransactionDate);
+            
+            modelBuilder.Entity<CreditPointsTransaction>()
+                .HasIndex(p => new {p.RestaurantId, p.CustomerId});
+            
             modelBuilder.Entity<CreditPointsTransaction>()
                 .Property(p => p.TransactionId)
                 .ValueGeneratedOnAdd();
@@ -52,6 +64,12 @@ namespace LoyaltyApi.Data
 
             modelBuilder.Entity<CreditPointsTransactionDetail>()
                 .HasKey(d => d.DetailId);
+
+            modelBuilder.Entity<CreditPointsTransactionDetail>()
+                .HasIndex(d => d.TransactionId);
+            
+            modelBuilder.Entity<CreditPointsTransactionDetail>()
+                .HasIndex(d => d.EarnTransactionId);
 
             modelBuilder.Entity<CreditPointsTransactionDetail>()
                 .Property(d => d.DetailId)
