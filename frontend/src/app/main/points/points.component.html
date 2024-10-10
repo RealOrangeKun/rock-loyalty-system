@@ -9,21 +9,40 @@
         @if ( points?.length > 0 ) {
         <div class="row row-cols-1 row-cols-md-3 g-4 w-100 py-4">
           <div *ngFor="let point of points; let i = index" class="col">
-            <article
-              class="gift-card"
-              [ngClass]="{ 'gift-card--claimed': point.isExpired }"
-            >
-              <div class="gift-card__image"></div>
-              <section class="gift-card__content">
-                <div class="gift-card__amount">
+            <div class="card">
+              <div class="card-header bg-primary text-white">
+                Receipt ID: {{ point.receiptId }}
+              </div>
+              <div class="card-body">
+                <p class="card-text">
+                  <strong>Restaurant ID: {{ point.restaurantId }}</strong>
+                </p>
+                <p class="card-text">
+                  <strong>Customer ID: {{ point.customerId }}</strong>
+                </p>
+                <p class="card-text">
+                  <strong>Transaction Value:</strong>
                   ${{ point.transactionValue }}
-                </div>
-
-                <div class="gift-card__code">
-                  {{ point.points }}
-                </div>
-              </section>
-            </article>
+                </p>
+                <p class="card-text">
+                  <strong>Is Expired:</strong>
+                  <span
+                    [ngClass]="{
+                      'text-danger fw-bold': point.isExpired,
+                      'text-success': !point.isExpired
+                    }"
+                  >
+                    {{ point.isExpired ? "Expired" : "Valid" }}
+                  </span>
+                </p>
+                <p class="card-text">
+                  <strong>Points Earned:</strong> {{ point.points }}
+                </p>
+              </div>
+              <div class="card-footer text-muted">
+                {{ point.transactionDate | date }}
+              </div>
+            </div>
           </div>
         </div>
         } @else {
