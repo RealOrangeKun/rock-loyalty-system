@@ -18,5 +18,6 @@ namespace LoyaltyPointsApi.Repositories
         public Task<Threshold> UpdateThreshold(Threshold threshold);
 
         public Task DeleteThreshold(Threshold threshold);
+        public Task<List<Threshold>> GetThresholdsWithPromotions(Threshold threshold);
     }
 }

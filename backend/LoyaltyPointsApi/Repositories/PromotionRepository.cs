@@ -24,12 +24,13 @@ namespace LoyaltyPointsApi.Repositories
         public async Task DeletePromotion(Promotion promotion)
         {
             logger.LogInformation("Deleting Promotion: {promotion} for restaurant: {restaurantId}", promotion.PromoCode, promotion.RestaurantId);
-            dbContext.Remove(promotion);
+            dbContext.Promotions.Remove(promotion);
             await dbContext.SaveChangesAsync();
         }
 
         public async Task<List<Promotion>> GetAllPromotions()
         {
+
             logger.LogInformation("Getting all Promotions");
             return await dbContext.Promotions.ToListAsync();
         }
@@ -48,18 +49,28 @@ namespace LoyaltyPointsApi.Repositories
             return result.ToPagedList(pageNumber, pageSize);
         }
 
-        public async Task SetPromotionNotified(Promotion promotion)
-        {
-            logger.LogInformation("Setting Promotion: {promotion} for restaurant: {restaurantId} as notified", promotion.PromoCode, promotion.RestaurantId);
-            promotion.IsNotified = true;
-            dbContext.Update(promotion);
-            await dbContext.SaveChangesAsync();
-        }
-
         public async Task<Promotion?> UpdatePromotion(Promotion promotion)
         {
             logger.LogInformation("Updating Promotion: {promotion} for restaurant: {restaurantId}", promotion.PromoCode, promotion.RestaurantId);
-            dbContext.Update(promotion);
+
+            // Check if the entity is already tracked in the local context
+            var trackedEntity = dbContext.Promotions.Local
+                .FirstOrDefault(p => p.PromoCode == promotion.PromoCode);
+
+            if (trackedEntity != null)
+            {
+                // Detach the tracked entity to avoid conflicts
+                dbContext.Entry(trackedEntity).State = EntityState.Detached;
+            }
+
+            // Now, attach and update the promotion entity
+            dbContext.Promotions.Attach(promotion);
+            dbContext.Entry(promotion).State = EntityState.Modified;
+
+            // Explicitly mark the key fields as unmodified
+            dbContext.Entry(promotion).Property(p => p.PromoCode).IsModified = false;
+            dbContext.Entry(promotion).Property(p => p.RestaurantId).IsModified = false;
+
             await dbContext.SaveChangesAsync();
             return promotion;
         }

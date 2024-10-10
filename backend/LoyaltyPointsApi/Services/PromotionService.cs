@@ -20,6 +20,8 @@ namespace LoyaltyPointsApi.Services
                 RestaurantId = promotion.RestaurantId,
                 PromoCode = promotion.PromoCode,
                 ThresholdId = promotion.ThresholdId,
+                StartDate = promotion.StartDate,
+                EndDate = promotion.EndDate
             };
             var result = await promotionRepository.AddPromotion(promotionModel);
             if (result == null) return null;
@@ -35,12 +37,8 @@ namespace LoyaltyPointsApi.Services
             {
                 PromoCode = promoCode
             };
-            await promotionRepository.DeletePromotion(promotion);
-
-            Promotion result = await promotionRepository.GetPromotion(promotion) ??
-                               throw new Exception("Promotion not found");
-
-            await promotionRepository.DeletePromotion(result);
+            Promotion? existingPromotion = await promotionRepository.GetPromotion(promotion) ?? throw new Exception();
+            await promotionRepository.DeletePromotion(existingPromotion);
         }
 
 
@@ -82,6 +80,17 @@ namespace LoyaltyPointsApi.Services
             result.ThresholdId = promotion.ThresholdId;
             await promotionRepository.UpdatePromotion(result);
             return result;
+        }
+        public async Task SetPromotionNotified(string promoCode)
+        {
+            logger.LogInformation("Setting Promotion: {promoCode} as notified", promoCode);
+            Promotion promotion = new()
+            {
+                PromoCode = promoCode,
+            };
+            Promotion existingPromotion = await promotionRepository.GetPromotion(promotion) ?? throw new Exception();
+            existingPromotion.IsNotified = true;
+            await promotionRepository.UpdatePromotion(promotion);
         }
     }
 }

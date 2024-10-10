@@ -10,5 +10,9 @@ namespace LoyaltyPointsApi.RequestModels
         public int RestaurantId { get; set; }
         public string PromoCode { get; set; }
         public int ThresholdId { get; set; }
+
+        public DateTime StartDate { get; set; }
+
+        public DateTime EndDate { get; set; }
     }
 }

@@ -42,6 +42,15 @@ namespace LoyaltyPointsApi.Repositories
                 .ToListAsync()!;
         }
 
+        public async Task<List<Threshold>> GetThresholdsWithPromotions(Threshold threshold)
+        {
+            logger.LogInformation("Getting Threshold with Promotions: {threshold} for restaurant: {restaurantId}", threshold.ThresholdId, threshold.RestaurantId);
+            return await dbContext.Thresholds
+                .Where(t => t.RestaurantId == threshold.RestaurantId)
+                .Include(t => t.Promotions)
+                .ToListAsync()!;
+        }
+
         public async Task<Threshold> UpdateThreshold(Threshold threshold)
         {
             logger.LogInformation("Updating Threshold: {threshold} for restaurant: {restaurantId}", threshold.ThresholdId, threshold.RestaurantId);

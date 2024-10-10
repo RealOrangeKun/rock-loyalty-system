@@ -11,11 +11,13 @@ using Microsoft.EntityFrameworkCore.Storage;
 namespace LoyaltyPointsApi.Services
 {
     public class ThresholdService(IThresholdRepository thresholdRepository,
+    IRestaurantService restaurantService,
     ILogger<ThresholdService> logger) : IThresholdService
     {
         public async Task<Threshold> AddThreshold(ThresholdRequestModel thresholdRequest)
         {
             logger.LogInformation("Adding Threshold: {threshold} for restaurant: {restaurantId}", thresholdRequest.ThresholdName, thresholdRequest.RestaurantId);
+            RestaurantSettings restaurant = await restaurantService.GetRestaurant(thresholdRequest.RestaurantId) ?? throw new Exception("Restaurant not found");
             Threshold newThreshold = new()
             {
                 RestaurantId = thresholdRequest.RestaurantId,
@@ -82,11 +84,11 @@ namespace LoyaltyPointsApi.Services
 
             List<int?> boundaries = [];
 
-            List<Threshold> restaurantThresholds = await GetRestaurantThresholds(restaurantId);
+            List<Threshold> restaurantThresholds = await GetRestaurantThresholds(restaurantId) ?? throw new Exception("Threshold not found");
 
-            List<Threshold> sortedThresholds = restaurantThresholds.OrderBy(t => t.MinimumPoints).ToList();
+            List<Threshold> sortedThresholds = [.. restaurantThresholds.OrderBy(t => t.MinimumPoints)];
 
-            int thresholdIndex = sortedThresholds.Find(t => t.ThresholdId == thresholdId).ThresholdId;
+            int thresholdIndex = sortedThresholds.FindIndex(t => t.ThresholdId == thresholdId);
 
             boundaries.Add(sortedThresholds[thresholdIndex].MinimumPoints);
 

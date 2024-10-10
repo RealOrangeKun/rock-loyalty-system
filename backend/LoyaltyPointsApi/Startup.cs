@@ -24,15 +24,22 @@ namespace LoyaltyPointsApi
             // Adding configurations
             services.Configure<AdminOptions>(configuration.GetSection("AdminOptions"));
             services.Configure<ApiOptions>(configuration.GetSection("ApiOptions"));
+            services.Configure<EmailOptions>(configuration.GetSection("EmailOptions"));
             Log.Logger.Information("Configurations applied");
 
             Log.Logger.Information("Adding services");
             // Adding db context
-            services.AddDbContext<LoyaltyDbContext>(options =>
-            {
-                options.UseSqlite("Data Source=GetCustomersByRestaurantAndPointsRange.db");
-            });
-
+            if (environment.IsEnvironment("Testing"))
+                services.AddDbContext<LoyaltyDbContext>(options =>
+                {
+                    options.UseSqlite("Data Source=Zura.db");
+                });
+            else
+                services.AddDbContext<LoyaltyDbContext>(options =>
+                {
+                    options.UseMySql(configuration.GetSection("ConnectionStrings:DefaultConnection").Value,
+                    new MySqlServerVersion(new Version(8, 0, 29)));
+                });
             // Adding services
             services.AddScoped<IApiKeyRepository, ApiKeyRepository>();
             services.AddScoped<IApiKeyService, ApiKeyService>();

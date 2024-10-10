@@ -1,9 +1,13 @@
+using LoyaltyPointsApi.Data;
 using LoyaltyPointsApi.Models;
 using LoyaltyPointsApi.Repositories;
 using LoyaltyPointsApi.Utilities;
+using Microsoft.EntityFrameworkCore;
+
 
 namespace LoyaltyPointsApi.Services
 {
+
     public class NotifyService(
         IServiceScopeFactory serviceScopeFactory,
         ILogger<NotifyService> logger
@@ -11,13 +15,14 @@ namespace LoyaltyPointsApi.Services
 
     {
         private Timer timer;
+        private readonly HashSet<string> _promotionSet = [];
 
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
             logger.LogInformation("Periodic Task Service is starting.");
 
 
-            timer = new Timer(TriggerTasks, null, TimeSpan.Zero, TimeSpan.FromHours(1));
+            timer = new Timer(TriggerTasks, null, TimeSpan.Zero, TimeSpan.FromMinutes(60));
 
             return Task.CompletedTask;
         }
@@ -26,7 +31,7 @@ namespace LoyaltyPointsApi.Services
         {
             logger.LogInformation("Triggering new tasks at: {time}", DateTimeOffset.Now);
 
-            Task.Run(async () => await ProcessTasksAsync());
+            ProcessTasksAsync().GetAwaiter().GetResult();
         }
 
         // Make this a proper async Task
@@ -37,18 +42,18 @@ namespace LoyaltyPointsApi.Services
                 using var scope = serviceScopeFactory.CreateScope();
 
                 var restaurantRepository = scope.ServiceProvider.GetRequiredService<IRestaurantRepository>();
-                var thresholdService = scope.ServiceProvider.GetRequiredService<IThresholdService>();
-
+                var thresholdRepository = scope.ServiceProvider.GetRequiredService<IThresholdRepository>();
                 // Fetch restaurant settings
                 List<RestaurantSettings> restaurants = await restaurantRepository.GetAllRestaurants();
 
                 if (restaurants.Count == 0) return;
 
                 List<List<Threshold>> thresholds = [];
+
                 foreach (var restaurant in restaurants)
                 {
                     List<Threshold>? restaurantThresholds =
-                        await thresholdService.GetRestaurantThresholds(restaurant.RestaurantId);
+                        await thresholdRepository.GetThresholdsWithPromotions(new Threshold() { RestaurantId = restaurant.RestaurantId });
                     if (restaurantThresholds == null)
                     {
                         continue;
@@ -58,24 +63,39 @@ namespace LoyaltyPointsApi.Services
                 }
                 logger.LogDebug("Thresholds: {thresholds}", thresholds);
 
-                List<Promotion> promotions = new();
+                List<Promotion> promotions = [];
                 foreach (var restaurantThresholds in thresholds)
                 {
                     foreach (var threshold in restaurantThresholds)
                     {
                         foreach (var promotion in threshold.Promotions)
                         {
-                            if (promotion.StartDate.Date != DateTime.Now.Date) continue;
+                            if (promotion.StartDate.Date != DateTime.Now.Date || _promotionSet.Contains(promotion.PromoCode)) continue;
                             promotions.Add(promotion);
+                            logger.LogInformation("Adding promotion: {promoCode}", promotion.PromoCode);
+                            _promotionSet.Add(promotion.PromoCode);
                         }
                     }
+                    logger.LogDebug("Promotions: {promotions}", promotions.Count);
 
                     foreach (var promotion in promotions)
                     {
-                        if (promotion.IsNotified || promotion.StartDate < DateTime.Now) continue;
+                        promotion.StartDate = promotion.StartDate.AddMinutes(2);
+                        if (promotion.IsNotified)
+                        {
+                            logger.LogInformation("Skipping promotion: {promoCode}", promotion.PromoCode);
+                            continue;
+                        }
                         var delay = promotion.StartDate - DateTime.Now;
+                        if (delay.TotalMilliseconds < 0)
+                        {
+                            logger.LogWarning("Delay in milliseconds is negative: {delay}", delay.TotalMilliseconds);
+                            continue;
+                        }
                         double delayInMilliseconds = delay.TotalMilliseconds;
-                        await Task.Run(() => ExecuteDelayedTask(promotion, delayInMilliseconds));
+                        logger.LogInformation("Delay in milliseconds: {delayInMilliseconds}", delayInMilliseconds);
+                        await Task.Run(() => ExecuteDelayedTask(promotion, delay.Seconds));
+                        logger.LogInformation("Task scheduled for promotion: {promoCode}", promotion.PromoCode);
                     }
                 }
             }
@@ -103,11 +123,12 @@ namespace LoyaltyPointsApi.Services
             logger.LogInformation("Notifying users about promotion: {promoCode}", promotion.PromoCode);
             using var scope = serviceScopeFactory.CreateScope();
 
-            var promotionRepository = scope.ServiceProvider.GetRequiredService<IPromotionRepository>();
+            var promotionService = scope.ServiceProvider.GetRequiredService<IPromotionService>();
             var loyaltyPointsTransactionRepository =
                 scope.ServiceProvider.GetRequiredService<ILoyaltyPointsTransactionRepository>();
             var thresholdService = scope.ServiceProvider.GetRequiredService<IThresholdService>();
             var apiUtility = scope.ServiceProvider.GetRequiredService<ApiUtility>();
+            var dbContext = scope.ServiceProvider.GetRequiredService<LoyaltyDbContext>();
 
             var boundaries =
                 await thresholdService.GetThresholdBoundaries(promotion.ThresholdId, promotion.RestaurantId);
@@ -116,22 +137,58 @@ namespace LoyaltyPointsApi.Services
                 await loyaltyPointsTransactionRepository.GetCustomersByRestaurantAndPointsRange(
                     promotion.RestaurantId,
                     boundaries[0], boundaries[1]);
-
-            foreach (var customerId in customerIds)
+            using var transaction = await dbContext.Database.BeginTransactionAsync();
+            try
             {
-                User user = new()
+                foreach (var customerId in customerIds)
                 {
-                    CustomerId = customerId,
-                    RestaurantId = promotion.RestaurantId
-                };
-                var result =
-                    await apiUtility.GetUserAsync(user, await apiUtility.GetApiKey(user.RestaurantId.ToString()));
-                if (user.Email is null) continue;
-                await NotifyUserAsync(promotion, user);
-                await promotionRepository.SetPromotionNotified(promotion);
+                    User user = new()
+                    {
+                        CustomerId = customerId,
+                        RestaurantId = promotion.RestaurantId
+                    };
+                    User? result =
+                        await apiUtility.GetUserAsync(user, await apiUtility.GetApiKey(promotion.RestaurantId.ToString()));
+                    logger.LogDebug("User: {user}", user.Email);
+                    if (result is null) continue;
+                    if (result.Email is null) continue;
+                    await NotifyUserAsync(promotion, result);
+                    await promotionService.DeletePromotion(promotion.PromoCode);
+                    _promotionSet.Remove(promotion.PromoCode);
+                }
+                await transaction.CommitAsync();
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                logger.LogError(ex, "Concurrency conflict while notifying users.");
+                foreach (var entry in ex.Entries)
+                {
+                    if (entry.Entity is Promotion)
+                    {
+                        var databaseValues = entry.GetDatabaseValues();
+                        if (databaseValues == null)
+                        {
+                            logger.LogWarning("The promotion was deleted by another user.");
+                        }
+                        else
+                        {
+                            entry.OriginalValues.SetValues(databaseValues); // Refresh the entity
+                        }
+                    }
+
+                }
+                await transaction.RollbackAsync(); // Rollback on error
+            }
+            catch (Exception)
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+            finally
+            {
+                logger.LogInformation("Finished notifying users about promotion: {promoCode}.", promotion.PromoCode);
             }
 
-            logger.LogInformation("Finished notifying users about promotion: {promoCode}.", promotion.PromoCode);
         }
 
         public override Task StopAsync(CancellationToken stoppingToken)
