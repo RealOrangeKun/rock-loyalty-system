@@ -9,6 +9,8 @@ namespace LoyaltyPointsApi.RequestModels
 
         public required int RestaurantId { get; set; }
 
+        public required int Amount { get; set; }
+
 
         public DateTime TransactionDate { get; set; } = DateTime.UtcNow;
         

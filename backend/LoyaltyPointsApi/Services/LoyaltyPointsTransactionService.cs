@@ -23,6 +23,7 @@ namespace LoyaltyPointsApi.Services
                 RestaurantId = loyaltyPointsRequestModel.RestaurantId,
                 TransactionDate = loyaltyPointsRequestModel.TransactionDate,
                 ExpiryDate = loyaltyPointsRequestModel.TransactionDate.AddDays(restaurant.PointsLifeTime),
+                Points = (int)(loyaltyPointsRequestModel.Amount * (restaurant.PointsRate / 100)),
                 Restaurant = restaurant,
                 ReceiptId = loyaltyPointsRequestModel.ReceiptId,
             };

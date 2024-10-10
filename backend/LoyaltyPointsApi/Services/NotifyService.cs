@@ -15,15 +15,13 @@ namespace LoyaltyPointsApi.Services
 
     {
         private Timer timer;
-        private readonly HashSet<string> _promotionSet = [];
 
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
             logger.LogInformation("Periodic Task Service is starting.");
 
 
-            timer = new Timer(TriggerTasks, null, TimeSpan.Zero, TimeSpan.FromMinutes(60));
-
+            timer = new Timer(TriggerTasks, null, TimeSpan.Zero, TimeSpan.FromSeconds(30));
             return Task.CompletedTask;
         }
 
@@ -70,10 +68,9 @@ namespace LoyaltyPointsApi.Services
                     {
                         foreach (var promotion in threshold.Promotions)
                         {
-                            if (promotion.StartDate.Date != DateTime.Now.Date || _promotionSet.Contains(promotion.PromoCode)) continue;
+                            if (promotion.StartDate.Date != DateTime.Now.Date) continue;
                             promotions.Add(promotion);
                             logger.LogInformation("Adding promotion: {promoCode}", promotion.PromoCode);
-                            _promotionSet.Add(promotion.PromoCode);
                         }
                     }
                     logger.LogDebug("Promotions: {promotions}", promotions.Count);
@@ -90,11 +87,10 @@ namespace LoyaltyPointsApi.Services
                         if (delay.TotalMilliseconds < 0)
                         {
                             logger.LogWarning("Delay in milliseconds is negative: {delay}", delay.TotalMilliseconds);
-                            continue;
                         }
                         double delayInMilliseconds = delay.TotalMilliseconds;
                         logger.LogInformation("Delay in milliseconds: {delayInMilliseconds}", delayInMilliseconds);
-                        await Task.Run(() => ExecuteDelayedTask(promotion, delay.Seconds));
+                        await Task.Run(() => ExecuteDelayedTask(promotion, delay.Seconds  >  0 ?  delay.Seconds : 0));
                         logger.LogInformation("Task scheduled for promotion: {promoCode}", promotion.PromoCode);
                     }
                 }
@@ -154,7 +150,6 @@ namespace LoyaltyPointsApi.Services
                     if (result.Email is null) continue;
                     await NotifyUserAsync(promotion, result);
                     await promotionService.DeletePromotion(promotion.PromoCode);
-                    _promotionSet.Remove(promotion.PromoCode);
                 }
                 await transaction.CommitAsync();
             }
