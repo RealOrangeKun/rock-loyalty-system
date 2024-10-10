@@ -8,6 +8,7 @@ import {
 import { AuthService } from '../../auth/auth.service';
 import { NgForm } from '@angular/forms';
 import { User } from '../../shared/modules/user.module';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-profile',
@@ -19,7 +20,7 @@ export class ProfileComponent implements OnInit {
   name: string;
   email: string;
   phoneNumber: string;
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService, private toastrService: ToastrService) { }
 
   ngOnInit() {
     const user: User = this.authService.currentUser;
@@ -30,6 +31,18 @@ export class ProfileComponent implements OnInit {
 
   onSubmit() {
     console.log(this.myForm.value);
+    const user: User = new User("fakeToken");
+    user.email = this.myForm.value.email;
+    user.phonenumber = this.myForm.value.phoneNumber;
+    user.name = this.myForm.value.name;
+    this.authService.updateUserInfo(user).subscribe({
+      next: () => {
+        this.toastrService.success("User Info Updated");
+      },
+      error: () => {
+        this.toastrService.error("Unkown error");
+      }
+    });
   }
 
   onLogOut() {

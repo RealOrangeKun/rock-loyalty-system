@@ -20,12 +20,13 @@ export class ConfirmEmailComponent {
     private authService: AuthService,
     private router: Router,
     private toastrService: ToastrService
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.token = this.route.snapshot.paramMap.get('token') || '';
     this.loading = true;
-
+    console.log('info:')
+    console.log(this.token);
     this.authService
       .confirmEmail(this.token)
       .pipe(

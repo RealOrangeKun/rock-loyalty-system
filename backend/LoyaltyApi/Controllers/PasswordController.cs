@@ -62,7 +62,7 @@ public class PasswordController(
             _ = await passwordService.GetPasswordByCustomerIdAsync(user.Id, user.RestaurantId) ?? throw new ArgumentException("Password doesn't exist");
             var forgotPasswordToken = await tokenService.GenerateForgotPasswordTokenAsync(user.Id, user.RestaurantId);
             await emailUtility.SendEmailAsync(user.Email, $"Forgot Password for {user.Name} - {user.Email}",
-                $"Your password reset link is {frontendOptions.Value.BaseUrl}/auth/forget-password/{forgotPasswordToken}",
+                $"Your password reset link is {frontendOptions.Value.BaseUrl}/{requestBody.RestaurantId}/auth/forget-password/{forgotPasswordToken}",
                 "Rock Loyalty System");
             return StatusCode(201, new
             {

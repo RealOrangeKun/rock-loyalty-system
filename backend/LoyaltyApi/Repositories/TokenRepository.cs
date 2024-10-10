@@ -157,7 +157,6 @@ namespace LoyaltyApi.Repositories
                 token.CustomerId, token.RestaurantId);
             return ValidateToken(token)
                    && dbContext.Tokens.Any(t =>
-                       t.CustomerId == token.CustomerId && t.RestaurantId == token.RestaurantId &&
                        t.TokenValue == token.TokenValue && t.TokenType == TokenType.ConfirmEmail);
         }
 

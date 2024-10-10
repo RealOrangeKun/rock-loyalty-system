@@ -180,10 +180,10 @@ namespace LoyaltyApi
             }
             // app.UseMiddleware<ApiKeyValidatorMiddleware>();
 
-            if (env.IsEnvironment("Testing") || env.IsEnvironment("Frontend"))
-            {
-                AddMigrationsAndUpdateDatabase(dbContext);
-            }
+            // if (env.IsEnvironment("Testing") || env.IsEnvironment("Frontend"))
+            // {
+            //     AddMigrationsAndUpdateDatabase(dbContext);
+            // }
 
             app.UseStatusCodePages(async context =>
             {

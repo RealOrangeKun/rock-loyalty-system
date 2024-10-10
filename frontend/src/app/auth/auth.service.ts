@@ -26,14 +26,6 @@ export class AuthService {
       this.currentUser = user;
     });
     this.restaurantId = window.location.pathname.split('/')[1];
-
-    // login test
-    const myUser: User = new User(
-      'asfda',
-      new Date(new Date().getTime() + 9999999999999)
-    );
-    myUser.phonenumber = '0123141';
-    this.user.next(myUser);
   }
 
   isAuth() {
@@ -72,11 +64,12 @@ export class AuthService {
 
   LogOut() {
     this.user.next(null);
-    localStorage.removeItem('userInfo');
+    localStorage.removeItem('userInfo' + this.restaurantId);
     this.router.navigate([this.restaurantId, 'auth', 'login']);
   }
 
   SignUp(name: string, email: string, password: string) {
+    console.log(this.restaurantId);
     return this.http.post(`${enviroment.apiUrl}/api/users`, {
       email: email,
       password: password,
@@ -126,21 +119,23 @@ export class AuthService {
       })
       .pipe(
         tap((userInfo) => {
-          const user: User = new User(
+          console.log(userInfo);
+          let user: User = new User(
             this.currentUser.token,
             this.currentUser.expirationDate
           );
-          user.email = userInfo.data.user.email;
-          user.name = userInfo.data.user.name;
-          user.phonenumber = userInfo.data.user.phoneNumber;
-          user.id = userInfo.data.user.id;
-          this.user.next(user);
-          localStorage.setItem('userInfo', JSON.stringify(this.user));
+          const email = userInfo.data.user.email;
+          const userId = userInfo.data.user.id;
+          const phoneNumber = userInfo.data.user.phoneNumber;
+          const name = userInfo.data.user.name;
+          this.restaurantId = userInfo.data.user.restaurantId;
+          this.authenticationHandler(email, name, phoneNumber, userId, this.currentUser.token);
         }),
         catchError((errorResponse) => {
-          const errorMsg = errorResponse.error.message;
+          console.log(errorResponse);
+
           return throwError(() => {
-            return new Error(errorMsg);
+            return new Error("unkown error");
           });
         })
       );
@@ -151,6 +146,7 @@ export class AuthService {
       .put(`${enviroment.apiUrl}/api/auth/confirm-email/${token}`, {})
       .pipe(
         catchError((errorResponse: HttpErrorResponse) => {
+          console.log(errorResponse);
           let error: string = 'unkown error';
           switch (errorResponse.status) {
             case 400:

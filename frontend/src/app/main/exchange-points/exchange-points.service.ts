@@ -7,7 +7,7 @@ import { Injectable } from '@angular/core';
   providedIn: 'root',
 })
 export class ExchangePointsService {
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
   exhangeRate: BehaviorSubject<number> = new BehaviorSubject<number>(0);
   points: BehaviorSubject<number> = new BehaviorSubject<number>(0);
   voucherLifeTimeInMinutes: BehaviorSubject<number> =
@@ -28,7 +28,7 @@ export class ExchangePointsService {
           Number(responseData.data.restaurant.creditPointsSellingRate / 100)
         );
         this.voucherLifeTimeInMinutes.next(
-          Number(responseData.data.restaurant.VoucherLifeTime)
+          responseData.data.restaurant.voucherLifeTime
         );
       })
     );

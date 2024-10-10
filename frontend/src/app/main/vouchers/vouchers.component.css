@@ -20,6 +20,7 @@
   .voucher-page {
     min-height: 100vh;
   }
+
   .gift-card {
     max-width: 430px;
   }
@@ -69,7 +70,8 @@
 
 .gift-card--claimed {
   position: relative;
-  opacity: 0.6; /* Greys out the card */
+  opacity: 0.6;
+  /* Greys out the card */
 }
 
 .gift-card--claimed::after {
@@ -95,7 +97,8 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 200px; /* Adjust as per your layout */
+  height: 200px;
+  /* Adjust as per your layout */
 
   border-radius: 10px;
   color: #999;

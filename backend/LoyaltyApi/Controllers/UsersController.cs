@@ -82,7 +82,7 @@ public class UsersController(
             User? user = await userService.CreateUserAsync(requestBody);
             var confirmToken = await tokenService.GenerateConfirmEmailTokenAsync(user.Id, user.RestaurantId);
             await emailUtility.SendEmailAsync(user.Email, $"Email Confirmation for Loyalty System",
-                $"Welcome to Loyalty System. Please Confirm your email by clicking on the following link: {frontendOptions.Value.BaseUrl}/auth/confirm-email/" +
+                $"Welcome to Loyalty System. Please Confirm your email by clicking on the following link: {frontendOptions.Value.BaseUrl}/{user.RestaurantId}/auth/confirm-email/" +
                 confirmToken, "Rock Loyalty System");
             if (user == null) return StatusCode(500, new { success = false, message = "User creation failed" });
             return StatusCode(StatusCodes.Status201Created,

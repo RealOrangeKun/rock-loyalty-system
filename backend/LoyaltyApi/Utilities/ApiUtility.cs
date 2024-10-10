@@ -43,7 +43,7 @@ namespace LoyaltyApi.Utilities
                         {
                             VOCHNO = 1,// This is constant do not change it
                             VOCHVAL = voucher.Value,
-                            EXPDT = voucher.DateOfCreation.AddMinutes(restaurant.VoucherLifeTime).ToString("yyyy-MM-dd HH:mm:ss"),
+                            EXPDT = voucher.DateOfCreation.AddMinutes(restaurant.VoucherLifeTime).ToString("yyyy-MM-dd"),
                         }
                 },
                 CNO = voucher.CustomerId.ToString(),
