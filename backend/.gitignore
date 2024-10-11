@@ -1,4 +1,4 @@
-backend.generated.sln
+*.generated.sln
 Migrations
 *.db
 *.db-wal
